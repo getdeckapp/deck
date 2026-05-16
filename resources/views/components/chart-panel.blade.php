@@ -26,16 +26,16 @@
     $chart = $hasData ? LineChartGeometry::build($data, $axisFormatter, $tooltipFormatter) : null;
 @endphp
 
-<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2),0_8px_32px_rgba(0,0,0,0.3)] [&_.deck-line-chart]:overflow-visible']) }}>
-    <div class="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
-        <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $title }}</h2>
+<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] [&_.deck-line-chart]:overflow-visible']) }}>
+    <div class="border-b border-zinc-100 px-5 py-4">
+        <h2 class="text-sm font-semibold text-zinc-900">{{ $title }}</h2>
         @if ($subtitle)
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ $subtitle }}</p>
+            <p class="mt-1 text-xs text-zinc-500">{{ $subtitle }}</p>
         @endif
     </div>
 
     @if (! $hasData)
-        <p class="px-5 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">{{ $empty }}</p>
+        <p class="px-5 py-10 text-center text-sm text-zinc-500">{{ $empty }}</p>
     @else
         <div
             x-data="deckLineChart({
@@ -46,7 +46,7 @@
             x-ref="container"
             class="deck-line-chart relative px-3 py-5 sm:px-5"
         >
-            <div class="rounded-xl ring-1 ring-inset ring-zinc-200/70 p-2 dark:ring-zinc-800/80">
+            <div class="rounded-xl ring-1 ring-inset ring-zinc-200/70 p-2">
                 <svg
                     x-ref="svg"
                     viewBox="0 0 {{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH }} {{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT }}"
@@ -137,10 +137,10 @@
                 x-show="active"
                 x-cloak
                 :style="tooltipStyle"
-                class="pointer-events-none absolute z-20 min-w-[8rem] max-w-[12rem] rounded-lg border border-zinc-200/80 bg-white/95 px-3 py-2 text-center shadow-lg backdrop-blur-sm dark:border-zinc-600 dark:bg-zinc-800 dark:shadow-black/40"
+                class="pointer-events-none absolute z-20 min-w-[8rem] max-w-[12rem] rounded-lg border border-zinc-200/80 bg-white/95 px-3 py-2 text-center shadow-lg backdrop-blur-sm"
             >
-                <p class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400" x-text="active?.label"></p>
-                <p class="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900 dark:text-white" x-text="active?.formatted"></p>
+                <p class="text-[11px] font-medium text-zinc-500" x-text="active?.label"></p>
+                <p class="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900" x-text="active?.formatted"></p>
             </div>
         </div>
     @endif

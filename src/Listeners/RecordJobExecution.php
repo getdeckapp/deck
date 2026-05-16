@@ -55,16 +55,22 @@ class RecordJobExecution
         $startedAt = $execution?->started_at ?? $finishedAt;
         $durationMs = (int) $startedAt->diffInMilliseconds($finishedAt);
 
+        $wasCancelled = JobCancellation::isCancelled($metadata->uuid);
+
         $this->recorder->record(new JobExecutionRecord(
             metadata: $metadata,
             project: DeckInstallation::project(),
             environment: DeckInstallation::environment(),
-            status: JobExecutionStatus::Completed,
+            status: $wasCancelled ? JobExecutionStatus::Cancelled : JobExecutionStatus::Completed,
             startedAt: $startedAt,
             finishedAt: $finishedAt,
             durationMs: $durationMs,
             tags: $metadata->tags,
         ));
+
+        if ($wasCancelled) {
+            JobCancellation::clear($metadata->uuid);
+        }
     }
 
     public function handleFailed(JobFailed $event): void

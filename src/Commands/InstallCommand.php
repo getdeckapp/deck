@@ -5,6 +5,7 @@ namespace TorMorten\Deck\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Laravel\Horizon\Horizon;
+use TorMorten\Deck\Support\DeckAssets;
 
 class InstallCommand extends Command
 {
@@ -32,6 +33,12 @@ class InstallCommand extends Command
             '--tag' => 'deck-assets',
             '--force' => $this->option('force'),
         ]);
+
+        if (! is_file(DeckAssets::packageDistPath('deck.css'))) {
+            $this->components->warn('Precompiled CSS is missing. From the Deck package directory, run `npm install && npm run build`, then run `deck:install --force` again.');
+        } else {
+            $this->components->info('After changing Deck views or styles, run `npm run build` in the package and `deck:install --force` to refresh `public/vendor/deck/deck.css`.');
+        }
 
         $this->components->info('Run `php artisan migrate` to create Deck tables.');
 

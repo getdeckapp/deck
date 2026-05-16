@@ -22,16 +22,21 @@ it('renders the overview dashboard', function () {
         'job_class' => 'App\\Jobs\\ExampleJob',
         'connection' => 'redis',
         'queue' => 'default',
-        'status' => JobExecutionStatus::Running,
+        'status' => JobExecutionStatus::Failed,
         'attempt' => 1,
         'started_at' => now()->subMinutes(10),
+        'exception_class' => RuntimeException::class,
+        'exception_message' => 'Something failed',
     ]);
 
     $response = $this->get(route('deck.index'));
 
     $response->assertOk();
     $response->assertSee('Overview');
-    $response->assertSee('Running now');
+    $response->assertSee('Recent failures');
+    $response->assertSee('Job volume');
+    $response->assertDontSee('Latest activity');
+    $response->assertDontSee('No jobs are running right now');
     $response->assertSee('ExampleJob');
 });
 

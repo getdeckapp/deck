@@ -24,7 +24,7 @@
         aria-hidden="true"
     >
         <title>Deck</title>
-        <rect width="32" height="32" rx="9" class="{{ $isDark ? 'fill-indigo-500' : 'fill-indigo-600 dark:fill-indigo-500' }}" />
+        <rect width="32" height="32" rx="9" class="{{ $isDark ? 'fill-indigo-500' : 'fill-indigo-600' }}" />
         <path d="M8 10.5h15" stroke="white" stroke-width="2" stroke-linecap="round" />
         <path d="M8 16h11" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.92" />
         <path d="M8 21.5h7" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.84" />
@@ -38,14 +38,14 @@
                 $sizeClasses['text'],
                 'block font-semibold tracking-tight',
                 'text-white' => $isDark,
-                'text-zinc-900 dark:text-white' => ! $isDark,
+                'text-zinc-900' => ! $isDark,
             ])>Deck</span>
             @if ($size !== 'sm')
                 <span @class([
                     $sizeClasses['sub'],
                     'block font-medium tracking-wide',
                     'text-zinc-500' => $isDark,
-                    'text-zinc-500 dark:text-zinc-400' => ! $isDark,
+                    'text-zinc-500' => ! $isDark,
                 ])>Queue control plane</span>
             @endif
         </div>

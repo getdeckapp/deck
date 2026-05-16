@@ -20,7 +20,7 @@ Route::middleware(config('deck.middleware', ['web']))
 
         abort_unless(preg_match('/^deck\.css$/', $file), 404);
 
-        $path = DeckAssets::packageDistPath($file);
+        $path = DeckAssets::resolveAssetPath($file);
 
         abort_unless(is_file($path), 404);
 

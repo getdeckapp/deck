@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'rounded-md bg-green-50 p-4 dark:bg-green-500/15']) }}>
+<div {{ $attributes->merge(['class' => 'rounded-md bg-green-50 p-4']) }}>
     <div class="flex">
         <div class="shrink-0">
             <svg class="size-5 text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -6,7 +6,7 @@
             </svg>
         </div>
         <div class="ml-3">
-            <p class="text-sm font-medium text-green-800 dark:text-green-200">{{ $slot }}</p>
+            <p class="text-sm font-medium text-green-800">{{ $slot }}</p>
         </div>
     </div>
 </div>

@@ -20,6 +20,7 @@ it('shows unprocessed queues warning on the dashboard', function () {
 
     $snapshot = Mockery::mock(HorizonSnapshot::class);
     $snapshot->shouldReceive('isAvailable')->andReturn(false);
+    $snapshot->shouldReceive('summary')->andReturn(null);
 
     $this->app->instance(UnprocessedQueueDetector::class, $detector);
     $this->app->instance(HorizonSnapshot::class, $snapshot);

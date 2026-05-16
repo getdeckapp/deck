@@ -8,6 +8,7 @@ use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
 use TorMorten\Deck\Support\JobExecutionRetry;
+use TorMorten\Deck\Support\MarkExecutionCancelled;
 use TorMorten\Deck\Support\PendingCancelResult;
 use TorMorten\Deck\Support\PendingJobCancellation;
 use TorMorten\Deck\Support\RetryExecutionResult;
@@ -49,36 +50,49 @@ class Deck
         return app(JobExecutionRetry::class)->retry($execution);
     }
 
-    public function cancelPending(string $uuid, ?string $connection = null, ?string $queue = null): PendingCancelResult
+    public function cancelPending(string $uuid, ?string $connection = null, ?string $queue = null, bool $force = false): PendingCancelResult
     {
-        return PendingJobCancellation::cancel($uuid, $connection, $queue);
+        return PendingJobCancellation::cancel($uuid, $connection, $queue, $force);
     }
 
     public function cancelExecution(string $uuid, ?int $attempt = null): bool
     {
-        $query = JobExecution::query()
-            ->forInstallation()
-            ->where('uuid', $uuid)
-            ->where('status', JobExecutionStatus::Running);
-
-        if ($attempt !== null) {
-            $query->where('attempt', $attempt);
-        } else {
-            $query->orderByDesc('attempt');
-        }
-
-        $execution = $query->first();
-
-        if ($execution === null) {
-            return false;
-        }
-
-        PendingJobCancellation::cancel($execution->uuid, $execution->connection, $execution->queue);
-
-        return true;
+        return $this->findRunningExecution($uuid, $attempt) !== null
+            && $this->requestCancelExecution($uuid, $attempt) !== null;
     }
 
-    public function cancelAllRunningForClass(string $jobClass): int
+    public function requestCancelExecution(string $uuid, ?int $attempt = null): ?PendingCancelResult
+    {
+        $execution = $this->findRunningExecution($uuid, $attempt);
+
+        if ($execution === null) {
+            return null;
+        }
+
+        return PendingJobCancellation::cancel($execution->uuid, $execution->connection, $execution->queue);
+    }
+
+    public function forceCancelExecution(string $uuid, ?int $attempt = null): ?PendingCancelResult
+    {
+        $execution = $this->findRunningExecution($uuid, $attempt);
+
+        if ($execution === null) {
+            return null;
+        }
+
+        $result = PendingJobCancellation::cancel(
+            $execution->uuid,
+            $execution->connection,
+            $execution->queue,
+            force: true,
+        );
+
+        MarkExecutionCancelled::mark($execution);
+
+        return $result;
+    }
+
+    public function cancelAllRunningForClass(string $jobClass, bool $force = false): int
     {
         $executions = JobExecution::query()
             ->forInstallation()
@@ -87,7 +101,11 @@ class Deck
             ->get();
 
         foreach ($executions as $execution) {
-            PendingJobCancellation::cancel($execution->uuid, $execution->connection, $execution->queue);
+            PendingJobCancellation::cancel($execution->uuid, $execution->connection, $execution->queue, $force);
+
+            if ($force) {
+                MarkExecutionCancelled::mark($execution);
+            }
         }
 
         return $executions->count();
@@ -115,5 +133,21 @@ class Deck
     public function classBlockedUntil(string $jobClass): ?Carbon
     {
         return JobClassBlock::blockedUntil($jobClass);
+    }
+
+    private function findRunningExecution(string $uuid, ?int $attempt): ?JobExecution
+    {
+        $query = JobExecution::query()
+            ->forInstallation()
+            ->where('uuid', $uuid)
+            ->where('status', JobExecutionStatus::Running);
+
+        if ($attempt !== null) {
+            $query->where('attempt', $attempt);
+        } else {
+            $query->orderByDesc('attempt');
+        }
+
+        return $query->first();
     }
 }

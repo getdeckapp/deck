@@ -6,13 +6,21 @@ trait InteractsWithActionConfirmation
 {
     /**
      * @var array{
-     *     method: string,
-     *     arguments: array<int, mixed>,
+     *     method?: string,
+     *     arguments?: array<int, mixed>,
      *     title: string,
      *     message: string,
-     *     confirmLabel: string,
-     *     progressLabel: string,
-     *     tone: string,
+     *     confirmLabel?: string,
+     *     progressLabel?: string,
+     *     tone?: string,
+     *     choices?: list<array{
+     *         method: string,
+     *         arguments: array<int, mixed>,
+     *         label: string,
+     *         progressLabel: string,
+     *         tone: string,
+     *         description: string,
+     *     }>,
      * }|null
      */
     public ?array $pendingConfirmation = null;
@@ -42,22 +50,42 @@ trait InteractsWithActionConfirmation
         $this->pendingConfirmation = null;
     }
 
-    public function executeConfirmedAction(): void
+    public function executeConfirmedAction(?string $method = null): void
     {
         if ($this->pendingConfirmation === null) {
             return;
         }
 
         $pending = $this->pendingConfirmation;
-        $method = $pending['method'];
 
-        if (! method_exists($this, $method)) {
+        if (isset($pending['choices'])) {
+            if ($method === null) {
+                return;
+            }
+
+            $choice = collect($pending['choices'])->firstWhere('method', $method);
+
+            if ($choice === null || ! method_exists($this, $method)) {
+                $this->pendingConfirmation = null;
+
+                return;
+            }
+
+            $this->{$method}(...$choice['arguments']);
             $this->pendingConfirmation = null;
 
             return;
         }
 
-        $this->{$method}(...$pending['arguments']);
+        $method ??= $pending['method'] ?? null;
+
+        if ($method === null || ! method_exists($this, $method)) {
+            $this->pendingConfirmation = null;
+
+            return;
+        }
+
+        $this->{$method}(...($pending['arguments'] ?? []));
         $this->pendingConfirmation = null;
     }
 }

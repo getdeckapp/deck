@@ -8,7 +8,7 @@
     @include('deck::partials.assets')
     @livewireStyles
 </head>
-<body class="h-full bg-zinc-100 antialiased dark:bg-zinc-950">
+<body class="h-full bg-zinc-100 antialiased">
     @php
         $routeName = request()->route()?->getName() ?? '';
         $horizonUrl = \TorMorten\Deck\Support\DeckHorizon::dashboardUrl();
@@ -103,7 +103,7 @@
 
         {{-- Main canvas --}}
         <div class="flex min-w-0 flex-1 flex-col">
-            <header class="border-b border-zinc-200/80 bg-white/90 backdrop-blur-md lg:hidden dark:border-zinc-800 dark:bg-zinc-900/90">
+            <header class="border-b border-zinc-200/80 bg-white/90 backdrop-blur-md lg:hidden">
                 <div class="flex items-center justify-between gap-4 px-4 py-3">
                     <a href="{{ route('deck.index') }}" class="rounded-lg focus:outline-2 focus:outline-offset-2 focus:outline-indigo-600">
                         <x-deck::logo size="sm" :show-label="false" />
@@ -117,7 +117,7 @@
                 </div>
             </header>
 
-            <main class="flex-1 bg-zinc-50 px-4 py-8 sm:px-6 lg:px-10 dark:bg-zinc-950">
+            <main class="flex-1 bg-zinc-50 px-4 py-8 sm:px-6 lg:px-10">
                 @if (session('status'))
                     <x-deck::alert class="mb-6">{{ session('status') }}</x-deck::alert>
                 @endif

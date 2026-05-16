@@ -127,7 +127,7 @@ it('requests cancellation from the dashboard livewire component', function () {
     expect(JobCancellation::isCancelled($execution->uuid))->toBeTrue();
 });
 
-it('shows a cancel button for running jobs on the dashboard', function () {
+it('does not list running jobs on the dashboard overview', function () {
     JobExecution::query()->create([
         'project' => DeckInstallation::project(),
         'environment' => DeckInstallation::environment(),
@@ -142,5 +142,6 @@ it('shows a cancel button for running jobs on the dashboard', function () {
 
     $this->get(route('deck.index'))
         ->assertOk()
-        ->assertSee('Cancel');
+        ->assertDontSee('No jobs are running right now')
+        ->assertDontSee('Latest activity');
 });

@@ -25,6 +25,8 @@ class JobExecutionShow extends Component
 
     public function render()
     {
+        $this->execution->refresh();
+
         return view('deck::livewire.job-execution-show', [
             'execution' => $this->execution,
         ]);

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Models\Concerns\BelongsToDeckInstallation;
 use TorMorten\Deck\Support\FormatDuration;
+use TorMorten\Deck\Support\JobCancellation;
 
 class JobExecution extends Model
 {
@@ -58,6 +59,21 @@ class JobExecution extends Model
     public function canRetry(): bool
     {
         return $this->status === JobExecutionStatus::Failed;
+    }
+
+    public function isCancellationPending(): bool
+    {
+        return $this->status === JobExecutionStatus::Running
+            && JobCancellation::isCancelled($this->uuid);
+    }
+
+    public static function hasPendingCancellationsForInstallation(): bool
+    {
+        return static::query()
+            ->forInstallation()
+            ->where('status', JobExecutionStatus::Running)
+            ->pluck('uuid')
+            ->contains(fn (string $uuid): bool => JobCancellation::isCancelled($uuid));
     }
 
     /**

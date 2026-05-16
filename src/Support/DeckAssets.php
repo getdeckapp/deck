@@ -13,27 +13,63 @@ class DeckAssets
 
     public static function url(string $file): string
     {
+        $path = static::resolveAssetPath($file);
+
+        if (static::isPublishedPath($path)) {
+            return asset('vendor/deck/'.basename($file)).'?v='.filemtime($path);
+        }
+
+        return route('deck.assets', ['file' => basename($file)], absolute: false).'?v='.filemtime($path);
+    }
+
+    public static function resolveAssetPath(string $file): string
+    {
         $file = basename($file);
 
         $publishedPath = public_path("vendor/deck/{$file}");
-
-        if (is_file($publishedPath)) {
-            return asset("vendor/deck/{$file}").'?v='.filemtime($publishedPath);
-        }
-
         $packagePath = static::packageDistPath($file);
 
-        if (is_file($packagePath)) {
-            return route('deck.assets', ['file' => $file], absolute: false).'?v='.filemtime($packagePath);
+        $publishedExists = is_file($publishedPath);
+        $packageExists = is_file($packagePath);
+
+        if ($publishedExists && $packageExists) {
+            return filemtime($packagePath) >= filemtime($publishedPath)
+                ? $packagePath
+                : $publishedPath;
+        }
+
+        if ($publishedExists) {
+            return $publishedPath;
+        }
+
+        if ($packageExists) {
+            return $packagePath;
         }
 
         throw new \RuntimeException(
-            "Deck asset [{$file}] is missing. Publish assets with `php artisan vendor:publish --tag=deck-assets` or build the package with `npm run build`."
+            "Deck asset [{$file}] is missing. Run `npm run build` in the Deck package, then `php artisan deck:install --force` (or `vendor:publish --tag=deck-assets --force`)."
         );
     }
 
     public static function packageDistPath(string $file): string
     {
         return dirname(__DIR__, 2).'/resources/dist/'.basename($file);
+    }
+
+    protected static function isPublishedPath(string $path): bool
+    {
+        $publishedRoot = realpath(public_path('vendor/deck'));
+
+        if ($publishedRoot === false) {
+            return false;
+        }
+
+        $resolved = realpath($path);
+
+        if ($resolved === false) {
+            return false;
+        }
+
+        return str_starts_with($resolved, $publishedRoot);
     }
 }

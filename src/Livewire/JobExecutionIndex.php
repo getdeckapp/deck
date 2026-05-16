@@ -110,7 +110,7 @@ class JobExecutionIndex extends Component
             'queues' => $queues,
             'connections' => $connections,
             'tags' => app(ExecutionTagCatalog::class)->tags(),
-            'hasRunning' => $this->executionsHaveRunning($executions),
+            'shouldPoll' => $this->shouldPollExecutions($executions),
             'statuses' => JobExecutionStatus::cases(),
         ]);
     }

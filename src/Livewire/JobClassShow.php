@@ -118,6 +118,7 @@ class JobClassShow extends Component
             'stat' => $stat,
             'executions' => $executions,
             'hasRunning' => $this->executionsHaveRunning($executions),
+            'shouldPoll' => $this->shouldPollExecutions($executions),
             'runningCount' => $runningCount,
             'isBlocked' => $isBlocked,
             'blockedUntil' => $blockedUntil,
