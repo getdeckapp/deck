@@ -29,6 +29,17 @@ class JobClassBlock
         }
     }
 
+    public static function isBlockedForCommand(object $command): bool
+    {
+        foreach (JobClassIdentifierRegistry::expand($command::class) as $identifier) {
+            if (static::isBlocked($identifier)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function isBlockedForJob(QueueJobContract $job): bool
     {
         foreach (JobClassIdentifierRegistry::forQueueJob($job) as $identifier) {

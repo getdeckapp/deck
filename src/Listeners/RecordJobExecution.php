@@ -27,11 +27,11 @@ class RecordJobExecution
     {
         $metadata = QueuedJobMetadata::fromQueueJob($event->job);
 
-        JobClassIdentifierRegistry::rememberFromQueueJob($event->job);
-
         if (JobClassBlock::isBlockedForJob($event->job)) {
             return;
         }
+
+        JobClassIdentifierRegistry::rememberFromQueueJob($event->job);
 
         $this->recorder->record(new JobExecutionRecord(
             metadata: $metadata,
@@ -52,6 +52,10 @@ class RecordJobExecution
             ->where('uuid', $metadata->uuid)
             ->where('attempt', $metadata->attempt)
             ->first();
+
+        if ($execution?->status === JobExecutionStatus::Blocked) {
+            return;
+        }
 
         if ($execution === null && $event->job->isDeletedOrReleased()) {
             return;

@@ -10,6 +10,7 @@ use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
 use TorMorten\Deck\Models\JobClassStat;
 use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeckHorizon;
+use TorMorten\Deck\Support\DeckPolling;
 use TorMorten\Deck\Support\ExecutionMetrics;
 use TorMorten\Deck\Support\HorizonSnapshot;
 use TorMorten\Deck\Support\QueueBusyness;
@@ -62,6 +63,7 @@ class Dashboard extends Component
             'recentFailureCount' => $recentFailures->count(),
             'allClear' => $allClear,
             'shouldPoll' => $summary['running'] > 0 || $horizon->isAvailable(),
+            'pollSeconds' => DeckPolling::dashboardSeconds($summary['running']),
             'horizonUrl' => DeckHorizon::dashboardUrl(),
         ]);
     }

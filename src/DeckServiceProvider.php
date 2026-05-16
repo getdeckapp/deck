@@ -2,20 +2,23 @@
 
 namespace TorMorten\Deck;
 
+use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 use Illuminate\Queue\CallQueuedHandler;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use TorMorten\Deck\Bus\DeckDispatcher;
 use TorMorten\Deck\Commands\CheckAlertsCommand;
 use TorMorten\Deck\Commands\InstallCommand;
 use TorMorten\Deck\Commands\PruneCommand;
 use TorMorten\Deck\Contracts\JobExecutionRecorder;
-use TorMorten\Deck\Listeners\PreventBlockedQueueJobs;
 use TorMorten\Deck\Listeners\RecordJobExecution;
 use TorMorten\Deck\Livewire\Dashboard;
 use TorMorten\Deck\Livewire\JobClassIndex;
@@ -26,6 +29,7 @@ use TorMorten\Deck\Livewire\WorkersIndex;
 use TorMorten\Deck\Queue\DeckCallQueuedHandler;
 use TorMorten\Deck\Recorders\DatabaseJobExecutionRecorder;
 use TorMorten\Deck\Support\HorizonSnapshot;
+use TorMorten\Deck\Support\InterceptBlockedQueueJob;
 
 class DeckServiceProvider extends PackageServiceProvider
 {
@@ -50,21 +54,17 @@ class DeckServiceProvider extends PackageServiceProvider
         $this->app->singleton(JobExecutionRecorder::class, DatabaseJobExecutionRecorder::class);
         $this->app->singleton(Deck::class);
         $this->app->singleton(HorizonSnapshot::class, fn (): HorizonSnapshot => HorizonSnapshot::make());
-        $this->app->bind(CallQueuedHandler::class, function ($app): DeckCallQueuedHandler {
-            return new DeckCallQueuedHandler(
-                $app->make(Dispatcher::class),
-                $app,
-            );
-        });
+
+        $this->registerDeckCallQueuedHandler();
     }
 
     public function packageBooted(): void
     {
-        $preventBlocked = $this->app->make(PreventBlockedQueueJobs::class);
+        $this->registerDeckDispatcher();
+        $this->registerQueueInterception();
+
         $listener = $this->app->make(RecordJobExecution::class);
 
-        Event::listen(JobProcessing::class, [$preventBlocked, 'handle']);
-        Event::listen(JobProcessing::class, [$listener, 'handleProcessing']);
         Event::listen(JobProcessed::class, [$listener, 'handleProcessed']);
         Event::listen(JobFailed::class, [$listener, 'handleFailed']);
 
@@ -76,5 +76,44 @@ class DeckServiceProvider extends PackageServiceProvider
             Livewire::component('deck.job-execution-show', JobExecutionShow::class);
             Livewire::component('deck.workers-index', WorkersIndex::class);
         }
+    }
+
+    private function registerDeckDispatcher(): void
+    {
+        $this->app->extend(BusDispatcher::class, function ($dispatcher, $app): DeckDispatcher {
+            if ($dispatcher instanceof DeckDispatcher) {
+                return $dispatcher;
+            }
+
+            return new DeckDispatcher($app, function (?string $connection = null) use ($app) {
+                return $app->make(QueueFactoryContract::class)->connection($connection);
+            });
+        });
+    }
+
+    private function registerDeckCallQueuedHandler(): void
+    {
+        $factory = function ($app): DeckCallQueuedHandler {
+            return new DeckCallQueuedHandler(
+                $app->make(Dispatcher::class),
+                $app,
+            );
+        };
+
+        $this->app->singleton(DeckCallQueuedHandler::class, $factory);
+        $this->app->singleton(CallQueuedHandler::class, fn ($app) => $app->make(DeckCallQueuedHandler::class));
+    }
+
+    private function registerQueueInterception(): void
+    {
+        $recordExecution = $this->app->make(RecordJobExecution::class);
+
+        Queue::before(function (JobProcessing $event) use ($recordExecution): void {
+            if (InterceptBlockedQueueJob::intercept($event->job)) {
+                return;
+            }
+
+            $recordExecution->handleProcessing($event);
+        });
     }
 }

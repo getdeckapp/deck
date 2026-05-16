@@ -86,7 +86,7 @@
                                     type="button"
                                     role="menuitem"
                                     class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50"
-                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['1h']), @js('Block for 1 hour'), @js('Running jobs will be cancelled. New attempts stay on the queue until the block expires.'), @js('Block 1 hour'), @js('Blocking…'), @js('warning'))"
+                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['1h']), @js('Block for 1 hour'), @js('Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until the block expires.'), @js('Block 1 hour'), @js('Blocking…'), @js('warning'))"
                                     @click="open = false"
                                 >
                                     1 hour
@@ -95,7 +95,7 @@
                                     type="button"
                                     role="menuitem"
                                     class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50"
-                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['24h']), @js('Block for 24 hours'), @js('Running jobs will be cancelled. New attempts stay on the queue until the block expires.'), @js('Block 24 hours'), @js('Blocking…'), @js('warning'))"
+                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['24h']), @js('Block for 24 hours'), @js('Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until the block expires.'), @js('Block 24 hours'), @js('Blocking…'), @js('warning'))"
                                     @click="open = false"
                                 >
                                     24 hours
@@ -104,7 +104,7 @@
                                     type="button"
                                     role="menuitem"
                                     class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50"
-                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js([]), @js('Block until manual unblock'), @js('Running jobs will be cancelled. New attempts stay on the queue until you unblock this job.'), @js('Block job'), @js('Blocking…'), @js('warning'))"
+                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js([]), @js('Block until manual unblock'), @js('Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until you unblock this job.'), @js('Block job'), @js('Blocking…'), @js('warning'))"
                                     @click="open = false"
                                 >
                                     Until manual unblock
@@ -130,7 +130,7 @@
         <div class="flex flex-col gap-4 border-b border-zinc-100 pb-4 lg:flex-row lg:items-center lg:justify-between">
             <h2 class="text-sm font-semibold text-zinc-900">Executions</h2>
             <x-deck::filter-tabs
-                :options="['' => 'All', 'running' => 'Running', 'failed' => 'Failed', 'completed' => 'Completed', 'cancelled' => 'Cancelled']"
+                :options="['' => 'All', 'running' => 'Running', 'failed' => 'Failed', 'completed' => 'Completed', 'cancelled' => 'Cancelled', 'blocked' => 'Blocked']"
                 :current="$status"
             />
         </div>

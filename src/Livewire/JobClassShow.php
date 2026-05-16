@@ -67,8 +67,8 @@ class JobClassShow extends Component
         app(Deck::class)->blockClass($this->jobClass, $until);
 
         $message = $until !== null
-            ? 'Job blocked until '.$until->diffForHumans().'. Running jobs were cancelled; new attempts will be delayed on the queue.'
-            : 'Job blocked until you unblock it. Running jobs were cancelled; new attempts will be delayed on the queue.';
+            ? 'Job blocked until '.$until->diffForHumans().'. Running jobs are being cancelled; new dispatches are recorded as blocked and never queued.'
+            : 'Job blocked until you unblock it. Running jobs are being cancelled; new dispatches are recorded as blocked and never queued.';
 
         session()->flash('status', $message);
     }
@@ -77,7 +77,7 @@ class JobClassShow extends Component
     {
         app(Deck::class)->unblockClass($this->jobClass);
 
-        session()->flash('status', 'Job unblocked. Queued jobs may run on the next attempt.');
+        session()->flash('status', 'Job unblocked. New dispatches will be queued normally.');
     }
 
     public function render()

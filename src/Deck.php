@@ -5,6 +5,7 @@ namespace TorMorten\Deck;
 use Illuminate\Support\Carbon;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Models\JobExecution;
+use TorMorten\Deck\Support\DeferDeckSideEffects;
 use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
 use TorMorten\Deck\Support\JobExecutionRetry;
@@ -116,7 +117,7 @@ class Deck
         JobClassBlock::block($jobClass, $until);
 
         if ($cancelRunning) {
-            $this->cancelAllRunningForClass($jobClass);
+            DeferDeckSideEffects::run(fn () => $this->cancelAllRunningForClass($jobClass));
         }
     }
 

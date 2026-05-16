@@ -4,7 +4,7 @@ namespace TorMorten\Deck\Middleware;
 
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Queue\InteractsWithQueue;
-use TorMorten\Deck\Support\ReleaseBlockedQueueJob;
+use TorMorten\Deck\Support\InterceptBlockedQueueJob;
 
 class Blockable
 {
@@ -17,10 +17,8 @@ class Blockable
         if (in_array(InteractsWithQueue::class, class_uses_recursive($job), true)) {
             $queueJob = $job->job;
 
-            if ($queueJob instanceof QueueJobContract) {
-                if (ReleaseBlockedQueueJob::releaseIfBlocked($queueJob)) {
-                    return null;
-                }
+            if ($queueJob instanceof QueueJobContract && InterceptBlockedQueueJob::intercept($queueJob)) {
+                return null;
             }
         }
 

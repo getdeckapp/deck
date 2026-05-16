@@ -65,9 +65,9 @@ return [
     | Job class blocker
     |--------------------------------------------------------------------------
     |
-    | Blocked classes are held on the queue: workers release the job with
-    | block_release_seconds delay instead of running handle(). New dispatches
-    | are affected the same way. Uses the same cache store as cancellation
+    | Blocked classes are intercepted at dispatch (never pushed to the queue)
+    | and recorded in Deck with a "blocked" status. Jobs already on the queue
+    | are removed when a worker picks them up. Uses the same cache store as cancellation
     | when block_cache_store is null.
     |
     */
@@ -76,6 +76,35 @@ return [
     'block_cache_store' => env('DECK_BLOCK_CACHE_STORE'),
 
     'block_manual_ttl_seconds' => (int) env('DECK_BLOCK_MANUAL_TTL_SECONDS', 31_536_000),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Defer Deck side effects during web requests
+    |--------------------------------------------------------------------------
+    |
+    | When true, recording blocked dispatches and cancelling running jobs during
+    | a block action run after the HTTP response is sent (Laravel defer()).
+    | Queue workers and tests always run these immediately.
+    |
+    */
+    'defer_side_effects' => (bool) env('DECK_DEFER_SIDE_EFFECTS', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Livewire polling intervals (seconds)
+    |--------------------------------------------------------------------------
+    |
+    | How often Deck refreshes live views. The dashboard polls faster while
+    | jobs are running. Execution detail/list views poll while jobs run or
+    | cancellations are pending.
+    |
+    */
+    'poll' => [
+        'dashboard_seconds' => (int) env('DECK_POLL_DASHBOARD_SECONDS', 4),
+        'dashboard_running_seconds' => (int) env('DECK_POLL_DASHBOARD_RUNNING_SECONDS', 2),
+        'workers_seconds' => (int) env('DECK_POLL_WORKERS_SECONDS', 4),
+        'executions_seconds' => (int) env('DECK_POLL_EXECUTIONS_SECONDS', 2),
+    ],
 
     'long_running_threshold_seconds' => (int) env('DECK_LONG_RUNNING_THRESHOLD_SECONDS', 300),
 

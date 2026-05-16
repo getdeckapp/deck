@@ -5,6 +5,7 @@ namespace TorMorten\Deck\Livewire;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use TorMorten\Deck\Support\DeckHorizon;
+use TorMorten\Deck\Support\DeckPolling;
 use TorMorten\Deck\Support\HorizonSnapshot;
 use TorMorten\Deck\Support\QueueInsights;
 use TorMorten\Deck\Support\UnprocessedQueueDetector;
@@ -25,6 +26,7 @@ class WorkersIndex extends Component
             'queueInsights' => app(QueueInsights::class)->busyQueues(),
             'unprocessedQueues' => app(UnprocessedQueueDetector::class)->detect(),
             'shouldPoll' => $horizon->isAvailable(),
+            'pollSeconds' => DeckPolling::workersSeconds(),
             'horizonUrl' => DeckHorizon::dashboardUrl(),
         ]);
     }
