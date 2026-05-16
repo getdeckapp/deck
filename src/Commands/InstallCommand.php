@@ -39,6 +39,8 @@ class InstallCommand extends Command
 
         $this->components->info('Job blocking is enabled automatically: blocked jobs are released back to the queue with a delay. Use `Deck::blockClass()` / the job detail UI.');
 
+        $this->components->info('Optional alerts: set DECK_ALERTS_ENABLED=true, configure deck.alerts.stale_jobs, and schedule `php artisan deck:check-alerts` hourly in routes/console.php.');
+
         $this->configureHorizonMiddleware();
 
         return self::SUCCESS;

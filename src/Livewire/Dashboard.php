@@ -3,20 +3,32 @@
 namespace TorMorten\Deck\Livewire;
 
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use TorMorten\Deck\Enums\JobExecutionStatus;
+use TorMorten\Deck\Livewire\Concerns\FiltersExecutions;
 use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
 use TorMorten\Deck\Models\JobClassStat;
 use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeckHorizon;
 use TorMorten\Deck\Support\ExecutionMetrics;
+use TorMorten\Deck\Support\ExecutionTagCatalog;
 use TorMorten\Deck\Support\HorizonSnapshot;
 use TorMorten\Deck\Support\QueueBusyness;
 
 #[Layout('deck::layouts.app')]
 class Dashboard extends Component
 {
+    use FiltersExecutions;
     use InteractsWithExecutions;
+
+    #[Url]
+    public string $tag = '';
+
+    public function updatedTag(): void
+    {
+        //
+    }
 
     public function render()
     {
@@ -24,22 +36,21 @@ class Dashboard extends Component
         $metrics = ExecutionMetrics::make();
         $horizon = app(HorizonSnapshot::class);
 
-        $running = JobExecution::query()
-            ->forInstallation()
+        $executionQuery = $this->filteredExecutionsQuery();
+
+        $running = (clone $executionQuery)
             ->where('status', JobExecutionStatus::Running)
             ->orderBy('started_at')
             ->limit(10)
             ->get();
 
-        $recentFailures = JobExecution::query()
-            ->forInstallation()
+        $recentFailures = (clone $executionQuery)
             ->where('status', JobExecutionStatus::Failed)
             ->orderByDesc('started_at')
             ->limit(10)
             ->get();
 
-        $recentActivity = JobExecution::query()
-            ->forInstallation()
+        $recentActivity = (clone $executionQuery)
             ->orderByDesc('started_at')
             ->limit(8)
             ->get();
@@ -62,6 +73,7 @@ class Dashboard extends Component
             'hasRunning' => $running->isNotEmpty(),
             'shouldPoll' => $running->isNotEmpty() || $horizon->isAvailable(),
             'horizonUrl' => DeckHorizon::dashboardUrl(),
+            'tags' => app(ExecutionTagCatalog::class)->tags(),
         ]);
     }
 }

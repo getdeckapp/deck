@@ -94,8 +94,11 @@ return [
 
     'alerts' => [
         'enabled' => (bool) env('DECK_ALERTS_ENABLED', false),
-        'notification' => null,
-        'stale_jobs' => [],
+        'notification' => env('DECK_ALERTS_NOTIFICATION'),
+        'notifiable' => env('DECK_ALERTS_NOTIFIABLE'),
+        'stale_jobs' => [
+            // 'App\\Jobs\\SyncInventory' => ['max_age_hours' => 24],
+        ],
     ],
 
 ];

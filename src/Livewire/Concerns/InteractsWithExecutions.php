@@ -12,12 +12,12 @@ trait InteractsWithExecutions
         $cancelled = app(Deck::class)->cancelExecution($uuid, $attempt);
 
         if ($cancelled) {
-            session()->flash('status', 'Cancellation requested. The worker will stop at the next check.');
+            session()->flash('status', 'Cancellation requested. The worker will stop at the next cooperative check, and a best-effort Redis removal was attempted.');
 
             return;
         }
 
-        session()->flash('status', 'This execution cannot be cancelled.');
+        session()->flash('status', 'This execution cannot be cancelled (not running).');
     }
 
     public function retryExecution(string $uuid, ?int $attempt = null): void

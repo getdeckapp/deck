@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../views/**/*.blade.php';
 
 @theme {
@@ -14,5 +16,27 @@
 
     .deck-line-chart [x-cloak] {
         display: none !important;
+    }
+
+    .deck-line-chart {
+        --deck-chart-grid: var(--color-zinc-200);
+        --deck-chart-axis: var(--color-zinc-500);
+        --deck-chart-line: var(--color-indigo-500);
+        --deck-chart-crosshair: var(--color-indigo-300);
+        --deck-chart-point-ring: var(--color-white);
+        --deck-chart-area-top: color-mix(in srgb, var(--color-indigo-500) 32%, transparent);
+        --deck-chart-area-bottom: color-mix(in srgb, var(--color-indigo-500) 2%, transparent);
+    }
+
+    @variant dark {
+        .deck-line-chart {
+            --deck-chart-grid: var(--color-zinc-700);
+            --deck-chart-axis: var(--color-zinc-400);
+            --deck-chart-line: var(--color-indigo-400);
+            --deck-chart-crosshair: var(--color-indigo-500);
+            --deck-chart-point-ring: var(--color-zinc-900);
+            --deck-chart-area-top: color-mix(in srgb, var(--color-indigo-400) 26%, transparent);
+            --deck-chart-area-bottom: color-mix(in srgb, var(--color-indigo-400) 4%, transparent);
+        }
     }
 }

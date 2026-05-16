@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use TorMorten\Deck\Commands\CheckAlertsCommand;
 use TorMorten\Deck\Commands\InstallCommand;
 use TorMorten\Deck\Commands\PruneCommand;
 use TorMorten\Deck\Contracts\JobExecutionRecorder;
@@ -36,7 +37,8 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasMigration('add_project_and_environment_to_deck_tables')
             ->hasMigration('add_exception_trace_to_deck_job_executions')
             ->hasCommand(InstallCommand::class)
-            ->hasCommand(PruneCommand::class);
+            ->hasCommand(PruneCommand::class)
+            ->hasCommand(CheckAlertsCommand::class);
     }
 
     public function packageRegistered(): void

@@ -39,7 +39,7 @@
         "phpstan/phpstan-phpunit": "^2.0"
     },
     "suggest": {
-        "laravel/horizon": "Enables the Horizon visit prompt and Horizon-style job tags in payloads (^5.0)."
+        "laravel/horizon": "Recommended for Redis queues: visit prompt, job tags in payloads, failed-job retry, and live workload on the Deck dashboard (^5.0)."
     },
     "autoload": {
         "psr-4": {

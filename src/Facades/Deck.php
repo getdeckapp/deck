@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static void cancel(string $uuid)
  * @method static bool isCancelled(string $uuid)
  * @method static bool cancelExecution(string $uuid, ?int $attempt = null)
+ * @method static \TorMorten\Deck\Support\PendingCancelResult cancelPending(string $uuid, ?string $connection = null, ?string $queue = null)
  * @method static \TorMorten\Deck\Support\RetryExecutionResult retryExecution(string $uuid, ?int $attempt = null)
  * @method static int cancelAllRunningForClass(string $jobClass)
  * @method static void blockClass(string $jobClass, ?\Illuminate\Support\Carbon $until = null, bool $cancelRunning = true)

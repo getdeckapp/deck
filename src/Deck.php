@@ -8,6 +8,8 @@ use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
 use TorMorten\Deck\Support\JobExecutionRetry;
+use TorMorten\Deck\Support\PendingCancelResult;
+use TorMorten\Deck\Support\PendingJobCancellation;
 use TorMorten\Deck\Support\RetryExecutionResult;
 
 class Deck
@@ -47,6 +49,11 @@ class Deck
         return app(JobExecutionRetry::class)->retry($execution);
     }
 
+    public function cancelPending(string $uuid, ?string $connection = null, ?string $queue = null): PendingCancelResult
+    {
+        return PendingJobCancellation::cancel($uuid, $connection, $queue);
+    }
+
     public function cancelExecution(string $uuid, ?int $attempt = null): bool
     {
         $query = JobExecution::query()
@@ -66,7 +73,7 @@ class Deck
             return false;
         }
 
-        JobCancellation::cancel($execution->uuid);
+        PendingJobCancellation::cancel($execution->uuid, $execution->connection, $execution->queue);
 
         return true;
     }
@@ -80,7 +87,7 @@ class Deck
             ->get();
 
         foreach ($executions as $execution) {
-            JobCancellation::cancel($execution->uuid);
+            PendingJobCancellation::cancel($execution->uuid, $execution->connection, $execution->queue);
         }
 
         return $executions->count();

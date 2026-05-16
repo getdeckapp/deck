@@ -116,6 +116,36 @@ Deck::cancel($jobUuid);
 
 Cancellation is **cooperative**: the worker checks the flag between steps. Deck does not force-kill PHP processes.
 
+### Cancel queued jobs (best effort)
+
+On **Activity**, cancel a job by UUID before a worker picks it up. Deck sets the cancel flag and attempts to remove the payload from Redis queues (when using the Redis driver). This can race with workers — treat it as best effort.
+
+### Retry failed jobs
+
+Failed executions show a **Retry** action. Deck prefers Horizon's failed-job store, then Laravel's `failed_jobs` table, then a parameterless re-dispatch when the job class allows it.
+
+### Stale job alerts (optional)
+
+```php
+// config/deck.php
+'alerts' => [
+    'enabled' => env('DECK_ALERTS_ENABLED', false),
+    'notification' => \App\Notifications\DeckStaleJobsNotification::class,
+    'notifiable' => \App\Models\User::class, // resolved from the container
+    'stale_jobs' => [
+        \App\Jobs\SyncInventory::class => ['max_age_hours' => 24],
+    ],
+],
+```
+
+Schedule in `routes/console.php`:
+
+```php
+Schedule::command('deck:check-alerts')->hourly();
+```
+
+Your notification receives a `Collection` of `TorMorten\Deck\Data\DeckStaleJobAlert` instances.
+
 ---
 
 ## Configuration
@@ -133,8 +163,9 @@ Published `config/deck.php` includes:
 | `cancel_ttl_seconds` | Redis TTL for cancel flags |
 | `long_running_threshold_seconds` | Highlight runs exceeding this duration |
 | `store_context` | Persist opt-in `deckContext()` from jobs (default: `false`) |
+| `alerts.*` | Stale-job rules, notification class, notifiable |
 
-See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full config surface as features land.
+See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full config surface.
 
 ---
 
@@ -144,6 +175,7 @@ See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full config surface as featur
 |---------|-------------|
 | `deck:install` | Publish config and migrations |
 | `deck:prune` | Remove execution rows older than retention |
+| `deck:check-alerts` | Evaluate stale-job rules and notify (when enabled) |
 
 ---
 
@@ -173,7 +205,7 @@ Development is phased. See **[IMPLEMENTATION.md](IMPLEMENTATION.md)** for the de
 | Phase | Focus |
 |-------|--------|
 | **MVP** | Execution log, per-class aggregates, dashboard, cooperative cancel |
-| **V1** | Tags, pending cancel, alerts, prune, long-running highlights |
+| **V1** | Filters (queue, connection, tag), pending cancel, stale-job alerts, long-running highlights |
 | **V2** | Runtime rollups, progress API, queue admin actions |
 
 ---

@@ -33,17 +33,9 @@
 
     <div class="grid gap-8 p-5 lg:grid-cols-[10.5rem_1fr] lg:items-center">
         <div class="flex flex-col items-center text-center">
-            <div class="relative size-36">
+            <div class="relative size-36" role="img" aria-label="Queue pressure {{ $score }} out of 100, {{ $busyness['label'] }}">
                 <svg viewBox="0 0 100 100" class="size-full -rotate-90" aria-hidden="true">
-                    <circle
-                        cx="50"
-                        cy="50"
-                        r="{{ $ringRadius }}"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="7"
-                        class="{{ $ringTrackClass }}"
-                    />
+                    <circle cx="50" cy="50" r="{{ $ringRadius }}" fill="none" stroke="currentColor" stroke-width="7" class="{{ $ringTrackClass }}" />
                     <circle
                         cx="50"
                         cy="50"
@@ -52,7 +44,7 @@
                         stroke="currentColor"
                         stroke-width="7"
                         stroke-linecap="round"
-                        class="{{ $ringProgressClass }} transition-[stroke-dashoffset] duration-500"
+                        class="{{ $ringProgressClass }}"
                         stroke-dasharray="{{ $ringCircumference }}"
                         stroke-dashoffset="{{ $ringOffset }}"
                     />
@@ -97,7 +89,7 @@
                             </div>
                             <div class="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
                                 <div
-                                    class="h-full rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400 transition-all"
+                                    class="h-full rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400"
                                     style="width: {{ max(6, $queue['score']) }}%"
                                 ></div>
                             </div>
