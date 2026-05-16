@@ -1,13 +1,13 @@
 <div class="space-y-8">
     <div class="rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900">
-        <h1 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">Job classes</h1>
+        <h1 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">Jobs</h1>
         <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Per-class aggregates with last status, duration, and success rate. Horizon does not keep this history.
+            Per-job aggregates with last status, duration, and success rate. Horizon does not keep this history.
         </p>
     </div>
 
     <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <x-deck::stat-card label="Job classes" :value="$summary['classes']" />
+        <x-deck::stat-card label="Jobs" :value="$summary['classes']" />
         <x-deck::stat-card label="Running now" :value="$summary['running']" />
         <x-deck::stat-card label="Failed (last status)" :value="$summary['failed']" />
         <x-deck::stat-card label="Completed runs" :value="number_format($summary['successes'])" />
@@ -19,12 +19,12 @@
             :current="$status"
         />
         <div class="sm:w-72">
-            <label for="deck-search" class="sr-only">Search job classes</label>
+            <label for="deck-search" class="sr-only">Search jobs</label>
             <input
                 id="deck-search"
                 type="search"
                 wire:model.live.debounce.300ms="search"
-                placeholder="Search by class name…"
+                placeholder="Search by job name…"
                 class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
             >
         </div>

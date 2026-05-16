@@ -50,22 +50,32 @@ class InstallCommand extends Command
 
         $horizonConfig = config_path('horizon.php');
 
+        $middleware = [
+            '\\TorMorten\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class',
+            '\\TorMorten\\Deck\\Http\\Middleware\\InjectHorizonDeckBanner::class',
+        ];
+
         if (! File::exists($horizonConfig)) {
             $this->components->warn('Publish config/horizon.php, then add to `middleware`:');
-            $this->line('  \\TorMorten\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class,');
+            foreach ($middleware as $class) {
+                $this->line('  '.$class.',');
+            }
 
             return;
         }
 
-        $middleware = '\\TorMorten\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class';
+        $contents = File::get($horizonConfig);
+        $missing = array_filter($middleware, fn (string $class): bool => ! str_contains($contents, class_basename($class)));
 
-        if (str_contains(File::get($horizonConfig), 'PromptHorizonOrDeck')) {
-            $this->components->info('Horizon prompt middleware is already configured.');
+        if ($missing === []) {
+            $this->components->info('Horizon Deck middleware is already configured.');
 
             return;
         }
 
         $this->components->warn('Add to the `middleware` array in config/horizon.php:');
-        $this->line('  '.$middleware.',');
+        foreach ($missing as $class) {
+            $this->line('  '.$class.',');
+        }
     }
 }

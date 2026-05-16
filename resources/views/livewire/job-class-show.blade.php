@@ -1,7 +1,7 @@
 <div @if($hasRunning) wire:poll.5s @endif class="space-y-8">
     <nav class="flex" aria-label="Breadcrumb">
         <ol role="list" class="flex items-center space-x-2 text-sm text-zinc-500 dark:text-zinc-400">
-            <li><a href="{{ route('deck.classes.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-300">Job classes</a></li>
+            <li><a href="{{ route('deck.classes.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-300">Jobs</a></li>
             <li><svg class="size-5 shrink-0 text-zinc-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" /></svg></li>
             <li class="font-medium text-zinc-900 dark:text-white">{{ class_basename($jobClass) }}</li>
         </ol>

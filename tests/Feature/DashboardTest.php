@@ -61,5 +61,5 @@ it('renders job classes index at dedicated route', function () {
     $response = $this->get(route('deck.classes.index'));
 
     $response->assertOk();
-    $response->assertSee('Job classes');
+    $response->assertSee('Jobs');
 });

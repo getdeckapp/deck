@@ -56,7 +56,9 @@ it('records a failed job execution and class stats', function () {
 
     expect($execution->status)->toBe(JobExecutionStatus::Failed)
         ->and($execution->exception_class)->toBe(RuntimeException::class)
-        ->and($execution->exception_message)->toContain('Deck test failure');
+        ->and($execution->exception_message)->toContain('Deck test failure')
+        ->and($execution->exception_trace)->not->toBeEmpty()
+        ->and($execution->exception_trace)->toContain('FailingTestJob');
 });
 
 it('prunes old job executions', function () {

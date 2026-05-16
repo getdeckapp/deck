@@ -87,6 +87,7 @@ class RecordJobExecution
             tags: $metadata->tags,
             exceptionClass: $isCancelled ? null : $exception::class,
             exceptionMessage: $isCancelled ? null : $this->truncateExceptionMessage($exception->getMessage()),
+            exceptionTrace: $isCancelled ? null : $this->truncateExceptionTrace($exception),
         ));
 
         if ($isCancelled) {
@@ -97,5 +98,12 @@ class RecordJobExecution
     private function truncateExceptionMessage(string $message): string
     {
         return mb_substr($message, 0, 2000);
+    }
+
+    private function truncateExceptionTrace(\Throwable $exception): string
+    {
+        $limit = max(1_024, (int) config('deck.exception_trace_bytes', 65_536));
+
+        return mb_substr($exception->getTraceAsString(), 0, $limit);
     }
 }

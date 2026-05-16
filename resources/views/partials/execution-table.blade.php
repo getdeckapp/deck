@@ -42,7 +42,7 @@
                                 @endforeach
                             </div>
                         @endif
-                        @if ($execution->exception_message)
+                        @if ($execution->hasFailureDetails() && $execution->exception_message)
                             <p class="mt-2 max-w-xl font-mono text-xs text-red-600 dark:text-red-400">{{ Str::limit($execution->exception_message, 120) }}</p>
                         @endif
                         <p class="mt-1 font-mono text-xs text-zinc-400">{{ Str::limit($execution->uuid, 13) }}</p>
@@ -59,16 +59,24 @@
                         {{ $execution->formattedDuration() }}
                     </td>
                     <td class="py-4 pr-4 pl-3 text-right text-sm whitespace-nowrap sm:pr-6">
-                        @if ($execution->status->value === 'running')
-                            <button
-                                type="button"
-                                class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
-                                wire:click="cancelExecution({{ $execution->id }})"
-                                wire:confirm="Cancel this running job?"
+                        <div class="flex items-center justify-end gap-2">
+                            <a
+                                href="{{ route('deck.activity.show', $execution) }}"
+                                class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-indigo-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-indigo-50 dark:bg-white/10 dark:text-indigo-400 dark:ring-white/10 dark:hover:bg-indigo-500/10"
                             >
-                                Cancel
-                            </button>
-                        @endif
+                                Details
+                            </a>
+                            @if ($execution->status->value === 'running')
+                                <button
+                                    type="button"
+                                    class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
+                                    wire:click="cancelExecution({{ $execution->id }})"
+                                    wire:confirm="Cancel this running job?"
+                                >
+                                    Cancel
+                                </button>
+                            @endif
+                        </div>
                     </td>
                 </tr>
             @empty

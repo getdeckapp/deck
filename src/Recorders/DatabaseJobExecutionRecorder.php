@@ -32,6 +32,7 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
                 'duration_ms' => $record->durationMs,
                 'exception_class' => $record->exceptionClass,
                 'exception_message' => $record->exceptionMessage,
+                'exception_trace' => $record->exceptionTrace,
                 'context' => $record->context,
             ],
         );

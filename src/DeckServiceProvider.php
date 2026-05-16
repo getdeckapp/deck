@@ -17,6 +17,7 @@ use TorMorten\Deck\Livewire\Dashboard;
 use TorMorten\Deck\Livewire\JobClassIndex;
 use TorMorten\Deck\Livewire\JobClassShow;
 use TorMorten\Deck\Livewire\JobExecutionIndex;
+use TorMorten\Deck\Livewire\JobExecutionShow;
 use TorMorten\Deck\Livewire\WorkersIndex;
 use TorMorten\Deck\Recorders\DatabaseJobExecutionRecorder;
 use TorMorten\Deck\Support\HorizonSnapshot;
@@ -33,6 +34,7 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasRoutes('web')
             ->hasMigration('create_deck_tables')
             ->hasMigration('add_project_and_environment_to_deck_tables')
+            ->hasMigration('add_exception_trace_to_deck_job_executions')
             ->hasCommand(InstallCommand::class)
             ->hasCommand(PruneCommand::class);
     }
@@ -57,6 +59,7 @@ class DeckServiceProvider extends PackageServiceProvider
             Livewire::component('deck.job-class-index', JobClassIndex::class);
             Livewire::component('deck.job-class-show', JobClassShow::class);
             Livewire::component('deck.job-execution-index', JobExecutionIndex::class);
+            Livewire::component('deck.job-execution-show', JobExecutionShow::class);
             Livewire::component('deck.workers-index', WorkersIndex::class);
         }
     }

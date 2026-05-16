@@ -48,4 +48,10 @@ class JobExecution extends Model
 
         return $this->started_at->diffInSeconds(now()) >= $threshold;
     }
+
+    public function hasFailureDetails(): bool
+    {
+        return $this->status === JobExecutionStatus::Failed
+            && ($this->exception_class !== null || $this->exception_message !== null);
+    }
 }

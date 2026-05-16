@@ -52,7 +52,7 @@
                                 <x-slot:icon>
                                     <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v9a2.25 2.25 0 0 0 2.25 2.25h10.5A2.25 2.25 0 0 0 19.5 18V9a2.25 2.25 0 0 0-2.25-2.25m-12 0V9a2.25 2.25 0 0 0 2.25 2.25h10.5A2.25 2.25 0 0 0 18 9V6.878" /></svg>
                                 </x-slot:icon>
-                                Job classes
+                                Jobs
                             </x-deck::nav-link>
 
                             <x-deck::nav-link :href="route('deck.activity.index')" :active="str_starts_with($routeName, 'deck.activity')">
@@ -110,7 +110,7 @@
                     </a>
                     <nav class="flex items-center gap-1 text-sm font-medium">
                         <a href="{{ route('deck.index') }}" @class(['rounded-md px-2.5 py-1.5', 'bg-zinc-100 text-zinc-900' => $routeName === 'deck.index', 'text-zinc-500' => $routeName !== 'deck.index'])>Overview</a>
-                        <a href="{{ route('deck.classes.index') }}" @class(['rounded-md px-2.5 py-1.5', 'bg-zinc-100 text-zinc-900' => str_contains($routeName, 'deck.classes'), 'text-zinc-500' => ! str_contains($routeName, 'deck.classes')])>Classes</a>
+                        <a href="{{ route('deck.classes.index') }}" @class(['rounded-md px-2.5 py-1.5', 'bg-zinc-100 text-zinc-900' => str_contains($routeName, 'deck.classes'), 'text-zinc-500' => ! str_contains($routeName, 'deck.classes')])>Jobs</a>
                         <a href="{{ route('deck.activity.index') }}" @class(['rounded-md px-2.5 py-1.5', 'bg-zinc-100 text-zinc-900' => str_starts_with($routeName, 'deck.activity'), 'text-zinc-500' => ! str_starts_with($routeName, 'deck.activity')])>Activity</a>
                         <a href="{{ route('deck.workers.index') }}" @class(['rounded-md px-2.5 py-1.5', 'bg-zinc-100 text-zinc-900' => str_starts_with($routeName, 'deck.workers'), 'text-zinc-500' => ! str_starts_with($routeName, 'deck.workers')])>Workers</a>
                     </nav>

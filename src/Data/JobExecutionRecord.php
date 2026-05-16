@@ -21,6 +21,7 @@ readonly class JobExecutionRecord
         public ?int $durationMs = null,
         public ?string $exceptionClass = null,
         public ?string $exceptionMessage = null,
+        public ?string $exceptionTrace = null,
         public ?array $tags = null,
         public ?array $context = null,
     ) {}

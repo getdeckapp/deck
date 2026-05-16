@@ -48,6 +48,9 @@ function createDeckExecution(array $attributes = []): JobExecution
         'started_at' => now()->subSeconds(30),
         'finished_at' => now(),
         'duration_ms' => 250,
+        'exception_class' => null,
+        'exception_message' => null,
+        'exception_trace' => null,
         'created_at' => now(),
     ], $attributes));
 }

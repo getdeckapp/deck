@@ -5,6 +5,7 @@ namespace TorMorten\Deck\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use TorMorten\Deck\Support\HorizonDashboardRequest;
 
 class PromptHorizonOrDeck
 {
@@ -40,16 +41,6 @@ class PromptHorizonOrDeck
 
     private function isHorizonDashboardRequest(Request $request): bool
     {
-        $path = trim(config('horizon.path', 'horizon'), '/');
-
-        if (! $request->is($path) && ! $request->is($path.'/')) {
-            return false;
-        }
-
-        if ($request->is($path.'/api/*')) {
-            return false;
-        }
-
-        return $request->isMethod('GET');
+        return HorizonDashboardRequest::isDashboardRequest($request);
     }
 }

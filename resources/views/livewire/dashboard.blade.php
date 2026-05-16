@@ -2,7 +2,7 @@
     <div>
         <h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">Overview</h1>
         <p class="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Durable job history, cancellation, and class-level insight — everything Horizon keeps only in Redis.
+            Durable job history, cancellation, and per-job insight — everything Horizon keeps only in Redis.
         </p>
     </div>
 
@@ -26,7 +26,7 @@
     @include('deck::partials.queue-busyness-card', ['busyness' => $queueBusyness])
 
     <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-        <x-deck::stat-card label="Job classes" :value="$summary['classes']" />
+        <x-deck::stat-card label="Jobs" :value="$summary['classes']" />
         <x-deck::stat-card label="Total executions" :value="number_format($summary['executions'])" />
         <x-deck::stat-card label="Running now" :value="$summary['running']" />
         <x-deck::stat-card label="Failed (last run)" :value="$summary['failed']" />

@@ -51,6 +51,7 @@ return [
     'horizon' => [
         'prompt_on_visit' => env('DECK_HORIZON_PROMPT', true),
         'remember_choice' => env('DECK_HORIZON_REMEMBER_CHOICE', true),
+        'banner' => env('DECK_HORIZON_BANNER', true),
     ],
 
     'retention_days' => (int) env('DECK_RETENTION_DAYS', 90),
@@ -66,6 +67,8 @@ return [
     ],
 
     'store_context' => (bool) env('DECK_STORE_CONTEXT', false),
+
+    'exception_trace_bytes' => (int) env('DECK_EXCEPTION_TRACE_BYTES', 65_536),
 
     'tables' => [
         'job_class_stats' => 'deck_job_class_stats',
