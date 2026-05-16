@@ -27,6 +27,19 @@
                     @endif
                 </div>
                 <p class="mt-1 truncate font-mono text-sm text-zinc-500">{{ $jobClass }}</p>
+                @if ($isBlocked && $blockAudit)
+                    <div class="mt-3 rounded-lg border border-amber-200/80 bg-amber-50/60 px-3 py-2.5 text-sm text-amber-950">
+                        @if ($blockAudit->reason)
+                            <p><span class="font-medium">Reason:</span> {{ $blockAudit->reason }}</p>
+                        @endif
+                        <p @class(['text-xs text-amber-800/90', 'mt-1' => $blockAudit->reason !== null])>
+                            Blocked {{ $blockAudit->blockedAt->diffForHumans() }}
+                            @if ($blockAudit->blockedBy)
+                                by {{ $blockAudit->blockedBy }}
+                            @endif
+                        </p>
+                    </div>
+                @endif
             </div>
             <div class="relative z-30 mt-4 flex flex-wrap items-center gap-2 md:mt-0 md:shrink-0">
                 @if ($runningCount > 0)
@@ -86,7 +99,7 @@
                                     type="button"
                                     role="menuitem"
                                     class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50"
-                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['1h']), @js('Block for 1 hour'), @js('Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until the block expires.'), @js('Block 1 hour'), @js('Blocking…'), @js('warning'))"
+                                    wire:click.stop="confirmBlockClass('1h')"
                                     @click="open = false"
                                 >
                                     1 hour
@@ -95,7 +108,7 @@
                                     type="button"
                                     role="menuitem"
                                     class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50"
-                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['24h']), @js('Block for 24 hours'), @js('Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until the block expires.'), @js('Block 24 hours'), @js('Blocking…'), @js('warning'))"
+                                    wire:click.stop="confirmBlockClass('24h')"
                                     @click="open = false"
                                 >
                                     24 hours
@@ -104,7 +117,7 @@
                                     type="button"
                                     role="menuitem"
                                     class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50"
-                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js([]), @js('Block until manual unblock'), @js('Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until you unblock this job.'), @js('Block job'), @js('Blocking…'), @js('warning'))"
+                                    wire:click.stop="confirmBlockClass('manual')"
                                     @click="open = false"
                                 >
                                     Until manual unblock

@@ -13,6 +13,12 @@ trait InteractsWithActionConfirmation
      *     confirmLabel?: string,
      *     progressLabel?: string,
      *     tone?: string,
+     *     prompt?: array{
+     *         label: string,
+     *         placeholder?: string,
+     *         required?: bool,
+     *         requiredMessage?: string,
+     *     },
      *     choices?: list<array{
      *         method: string,
      *         arguments: array<int, mixed>,
@@ -25,6 +31,8 @@ trait InteractsWithActionConfirmation
      */
     public ?array $pendingConfirmation = null;
 
+    public string $confirmationInput = '';
+
     public function requestConfirmation(
         string $method,
         array $arguments,
@@ -33,7 +41,10 @@ trait InteractsWithActionConfirmation
         string $confirmLabel = 'Confirm',
         string $progressLabel = 'Working…',
         string $tone = 'primary',
+        ?array $prompt = null,
     ): void {
+        $this->confirmationInput = '';
+
         $this->pendingConfirmation = [
             'method' => $method,
             'arguments' => $arguments,
@@ -42,12 +53,14 @@ trait InteractsWithActionConfirmation
             'confirmLabel' => $confirmLabel,
             'progressLabel' => $progressLabel,
             'tone' => $tone,
+            'prompt' => $prompt,
         ];
     }
 
     public function cancelConfirmation(): void
     {
         $this->pendingConfirmation = null;
+        $this->confirmationInput = '';
     }
 
     public function executeConfirmedAction(?string $method = null): void
@@ -81,11 +94,30 @@ trait InteractsWithActionConfirmation
 
         if ($method === null || ! method_exists($this, $method)) {
             $this->pendingConfirmation = null;
+            $this->confirmationInput = '';
 
             return;
         }
 
-        $this->{$method}(...($pending['arguments'] ?? []));
+        $arguments = $pending['arguments'] ?? [];
+
+        if (isset($pending['prompt'])) {
+            $input = trim($this->confirmationInput);
+
+            if (($pending['prompt']['required'] ?? false) && $input === '') {
+                session()->flash(
+                    'status',
+                    $pending['prompt']['requiredMessage'] ?? 'Please enter a reason before continuing.',
+                );
+
+                return;
+            }
+
+            $arguments[] = $input !== '' ? $input : null;
+        }
+
+        $this->{$method}(...$arguments);
         $this->pendingConfirmation = null;
+        $this->confirmationInput = '';
     }
 }

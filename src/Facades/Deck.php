@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Facade;
  * @method static \TorMorten\Deck\Support\PendingCancelResult cancelPending(string $uuid, ?string $connection = null, ?string $queue = null, bool $force = false)
  * @method static \TorMorten\Deck\Support\RetryExecutionResult retryExecution(string $uuid, ?int $attempt = null)
  * @method static int cancelAllRunningForClass(string $jobClass)
- * @method static void blockClass(string $jobClass, ?\Illuminate\Support\Carbon $until = null, bool $cancelRunning = true)
+ * @method static void blockClass(string $jobClass, ?\Illuminate\Support\Carbon $until = null, bool $cancelRunning = true, ?string $reason = null)
  * @method static void unblockClass(string $jobClass)
  * @method static bool isClassBlocked(string $jobClass)
  * @method static ?\Illuminate\Support\Carbon classBlockedUntil(string $jobClass)
+ * @method static \TorMorten\Deck\Support\JobClassBlockAudit|null classBlockAudit(string $jobClass)
  *
  * @see \TorMorten\Deck\Deck
  */

@@ -77,6 +77,8 @@ return [
 
     'block_manual_ttl_seconds' => (int) env('DECK_BLOCK_MANUAL_TTL_SECONDS', 31_536_000),
 
+    'block_reason_max_length' => (int) env('DECK_BLOCK_REASON_MAX_LENGTH', 500),
+
     /*
     |--------------------------------------------------------------------------
     | Defer Deck side effects during web requests

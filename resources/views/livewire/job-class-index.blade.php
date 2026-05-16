@@ -15,7 +15,7 @@
 
     <div class="flex flex-col gap-4 rounded-xl border border-zinc-200/80 bg-white p-5 shadow-sm lg:flex-row lg:items-end lg:justify-between">
         <x-deck::filter-tabs
-            :options="['' => 'All', 'running' => 'Running', 'failed' => 'Failed', 'completed' => 'Completed', 'cancelled' => 'Cancelled']"
+            :options="['' => 'All', 'running' => 'Running', 'failed' => 'Failed', 'completed' => 'Completed', 'cancelled' => 'Cancelled', 'blocked' => 'Blocked']"
             :current="$status"
         />
         <div class="sm:w-72">

@@ -28,7 +28,8 @@ it('blocks and unblocks a class via livewire', function () {
     $jobClass = 'App\\Jobs\\LivewireBlockJob';
 
     Livewire::test(JobClassShow::class, ['jobClass' => $jobClass])
-        ->call('blockClass', '1h')
+        ->call('confirmBlockClass', '1h')
+        ->call('executeConfirmedAction')
         ->assertOk();
 
     expect(JobClassBlock::isBlocked($jobClass))->toBeTrue();

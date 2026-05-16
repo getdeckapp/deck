@@ -15,10 +15,15 @@ class JobClassBlock
         return 'deck:block:'.hash('sha256', $jobClass);
     }
 
-    public static function block(string $jobClass, ?Carbon $until = null): void
+    public static function auditCacheKey(string $jobClass): string
+    {
+        return 'deck:block:audit:'.hash('sha256', $jobClass);
+    }
+
+    public static function block(string $jobClass, ?Carbon $until = null, ?string $reason = null): void
     {
         foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
-            static::putBlock($identifier, $until);
+            static::putBlock($identifier, $until, $reason);
         }
     }
 
@@ -26,7 +31,23 @@ class JobClassBlock
     {
         foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
             static::cache()->forget(static::cacheKey($identifier));
+            static::cache()->forget(static::auditCacheKey($identifier));
         }
+    }
+
+    public static function audit(string $jobClass): ?JobClassBlockAudit
+    {
+        if (! static::isBlocked($jobClass)) {
+            return null;
+        }
+
+        $payload = static::cache()->get(static::auditCacheKey($jobClass));
+
+        if (! is_array($payload)) {
+            return null;
+        }
+
+        return JobClassBlockAudit::fromCache($payload);
     }
 
     public static function isBlockedForCommand(object $command): bool
@@ -116,23 +137,82 @@ class JobClassBlock
         return app('cache')->store($store ?? config('cache.default'));
     }
 
-    private static function putBlock(string $jobClass, ?Carbon $until): void
+    private static function putBlock(string $jobClass, ?Carbon $until, ?string $reason): void
     {
+        $expiresAt = $until ?? now()->addSeconds((int) config('deck.block_manual_ttl_seconds', 31_536_000));
+
         if ($until !== null) {
             static::cache()->put(
                 static::cacheKey($jobClass),
                 $until->toIso8601String(),
                 $until,
             );
-
-            return;
+        } else {
+            static::cache()->put(
+                static::cacheKey($jobClass),
+                self::ManualMarker,
+                $expiresAt,
+            );
         }
 
+        static::putAudit($jobClass, $reason, $expiresAt);
+    }
+
+    private static function putAudit(string $jobClass, ?string $reason, Carbon $expiresAt): void
+    {
+        $normalizedReason = static::normalizeReason($reason);
+
         static::cache()->put(
-            static::cacheKey($jobClass),
-            self::ManualMarker,
-            now()->addSeconds((int) config('deck.block_manual_ttl_seconds', 31_536_000)),
+            static::auditCacheKey($jobClass),
+            [
+                'reason' => $normalizedReason,
+                'blocked_at' => now()->toIso8601String(),
+                'blocked_by' => static::resolveBlockedBy(),
+            ],
+            $expiresAt,
         );
+    }
+
+    private static function normalizeReason(?string $reason): ?string
+    {
+        if ($reason === null) {
+            return null;
+        }
+
+        $trimmed = trim($reason);
+
+        if ($trimmed === '') {
+            return null;
+        }
+
+        $maxLength = max(1, (int) config('deck.block_reason_max_length', 500));
+
+        return mb_substr($trimmed, 0, $maxLength);
+    }
+
+    private static function resolveBlockedBy(): ?string
+    {
+        $user = auth()->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        if (method_exists($user, 'getAttribute')) {
+            $email = $user->getAttribute('email');
+
+            if (is_string($email) && $email !== '') {
+                return $email;
+            }
+
+            $name = $user->getAttribute('name');
+
+            if (is_string($name) && $name !== '') {
+                return $name;
+            }
+        }
+
+        return null;
     }
 
     private static function cache(): CacheRepository

@@ -69,6 +69,21 @@
                                 <p id="deck-confirm-message" class="mt-2 text-sm leading-relaxed text-zinc-600">
                                     {{ $pendingConfirmation['message'] }}
                                 </p>
+
+                                @if (! empty($pendingConfirmation['prompt'] ?? null))
+                                    <div class="mt-4">
+                                        <label for="deck-confirmation-input" class="block text-sm font-medium text-zinc-700">
+                                            {{ $pendingConfirmation['prompt']['label'] }}
+                                        </label>
+                                        <textarea
+                                            id="deck-confirmation-input"
+                                            rows="3"
+                                            wire:model="confirmationInput"
+                                            placeholder="{{ $pendingConfirmation['prompt']['placeholder'] ?? '' }}"
+                                            class="mt-1.5 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                                        ></textarea>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 

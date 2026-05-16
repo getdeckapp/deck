@@ -8,6 +8,7 @@ use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeferDeckSideEffects;
 use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
+use TorMorten\Deck\Support\JobClassBlockAudit;
 use TorMorten\Deck\Support\JobExecutionRetry;
 use TorMorten\Deck\Support\MarkExecutionCancelled;
 use TorMorten\Deck\Support\PendingCancelResult;
@@ -112,9 +113,9 @@ class Deck
         return $executions->count();
     }
 
-    public function blockClass(string $jobClass, ?Carbon $until = null, bool $cancelRunning = true): void
+    public function blockClass(string $jobClass, ?Carbon $until = null, bool $cancelRunning = true, ?string $reason = null): void
     {
-        JobClassBlock::block($jobClass, $until);
+        JobClassBlock::block($jobClass, $until, $reason);
 
         if ($cancelRunning) {
             DeferDeckSideEffects::run(fn () => $this->cancelAllRunningForClass($jobClass));
@@ -134,6 +135,11 @@ class Deck
     public function classBlockedUntil(string $jobClass): ?Carbon
     {
         return JobClassBlock::blockedUntil($jobClass);
+    }
+
+    public function classBlockAudit(string $jobClass): ?JobClassBlockAudit
+    {
+        return JobClassBlock::audit($jobClass);
     }
 
     private function findRunningExecution(string $uuid, ?int $attempt): ?JobExecution

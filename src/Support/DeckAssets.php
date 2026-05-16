@@ -33,7 +33,7 @@ class DeckAssets
         $packageExists = is_file($packagePath);
 
         if ($publishedExists && $packageExists) {
-            return filemtime($packagePath) >= filemtime($publishedPath)
+            return filemtime($packagePath) > filemtime($publishedPath)
                 ? $packagePath
                 : $publishedPath;
         }

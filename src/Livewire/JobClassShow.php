@@ -56,7 +56,42 @@ class JobClassShow extends Component
         session()->flash('status', 'No running executions to cancel for this class.');
     }
 
-    public function blockClass(?string $duration = null): void
+    public function confirmBlockClass(string $duration): void
+    {
+        [$title, $message, $confirmLabel] = match ($duration) {
+            '1h' => [
+                'Block for 1 hour',
+                'Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until the block expires.',
+                'Block 1 hour',
+            ],
+            '24h' => [
+                'Block for 24 hours',
+                'Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until the block expires.',
+                'Block 24 hours',
+            ],
+            default => [
+                'Block until manual unblock',
+                'Running jobs will be cancelled. New dispatches are recorded as blocked and never queued until you unblock this job.',
+                'Block job',
+            ],
+        };
+
+        $this->requestConfirmation(
+            'blockClass',
+            [$duration],
+            $title,
+            $message,
+            $confirmLabel,
+            'Blocking…',
+            'warning',
+            [
+                'label' => 'Reason (optional)',
+                'placeholder' => 'e.g. Investigating duplicate charges in production',
+            ],
+        );
+    }
+
+    public function blockClass(?string $duration = null, ?string $reason = null): void
     {
         $until = match ($duration) {
             '1h' => now()->addHour(),
@@ -64,7 +99,7 @@ class JobClassShow extends Component
             default => null,
         };
 
-        app(Deck::class)->blockClass($this->jobClass, $until);
+        app(Deck::class)->blockClass($this->jobClass, $until, reason: $reason);
 
         $message = $until !== null
             ? 'Job blocked until '.$until->diffForHumans().'. Running jobs are being cancelled; new dispatches are recorded as blocked and never queued.'
@@ -124,6 +159,7 @@ class JobClassShow extends Component
             'isBlocked' => $isBlocked,
             'blockedUntil' => $blockedUntil,
             'isManualBlock' => $isManualBlock,
+            'blockAudit' => JobClassBlock::audit($this->jobClass),
             'jobClass' => $this->jobClass,
             'avgDurationMs' => $avgDuration ? (int) round($avgDuration) : null,
             'statuses' => JobExecutionStatus::cases(),
