@@ -8,6 +8,8 @@ Horizon excels at supervising Redis workers, balancing queues, and showing a sho
 
 Deck does **not** replace Horizon. Keep `php artisan horizon` in production; open Deck when you need job-class history and ops actions Horizon does not provide.
 
+**Deck Cloud (future):** The package tags every run with `DECK_PROJECT` and `DECK_ENVIRONMENT` so one hosted dashboard can unify all your apps. See [IMPLEMENTATION.md](IMPLEMENTATION.md#deck-cloud-future).
+
 ---
 
 ## Why Deck?
@@ -47,7 +49,7 @@ php artisan deck:install
 php artisan migrate
 ```
 
-The install command publishes `config/deck.php` and migrations. Register the dashboard route by visiting `/deck` (prefix is configurable).
+The install command publishes `config/deck.php`, migrations, and precompiled CSS to `public/vendor/deck`. Visit `/deck` (prefix is configurable).
 
 ### Horizon authentication & choice prompt
 
@@ -59,7 +61,7 @@ Set `DECK_HORIZON_PROMPT=false` to skip the prompt and use Horizon as usual.
 
 ### UI
 
-The dashboard is built with **Livewire** and **Alpine.js**, using Deck’s **design system** (`<x-deck::*>` components) for a clean, Laravel-native look. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for layout and component details.
+The dashboard ships with **precompiled Tailwind CSS** — no Vite or `@source` setup in your app. Livewire powers interactivity; run `deck:install` to publish assets to `public/vendor/deck`. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for layout details.
 
 ---
 
@@ -71,11 +73,11 @@ Once installed, Deck listens to queue events and records starts, completions, an
 
 ### 2. View the dashboard
 
-Open `/deck` (or your configured prefix) to see:
+Open `/deck` (or your configured prefix) for the **overview** — running jobs, recent failures, and latest activity. From there:
 
-- All observed job classes
-- Last started / last finished
-- Last status and duration
+- **Job classes** — per-class history, success rate, filters
+- **Activity** — searchable execution log across all classes (status, queue, UUID)
+- **Cancel** — cooperative stop for running jobs (Horizon does not offer this)
 - Drill-down into recent executions
 
 ### 3. Make jobs cancellable (opt-in)

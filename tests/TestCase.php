@@ -2,36 +2,41 @@
 
 namespace TorMorten\Deck\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use TorMorten\Deck\DeckServiceProvider;
 
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'TorMorten\\Deck\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
-    }
-
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             DeckServiceProvider::class,
+            LivewireServiceProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    protected function defineDatabaseMigrations(): void
+    {
+        $migration = include __DIR__.'/../database/migrations/create_deck_tables.php.stub';
+
+        $migration->up();
+    }
+
+    protected function defineEnvironment($app): void
     {
         config()->set('database.default', 'testing');
-
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        config()->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+        config()->set('queue.default', 'sync');
+        config()->set('cache.default', 'array');
+        config()->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
+        config()->set('deck.auth', fn () => true);
+        config()->set('deck.retention_days', 90);
+        config()->set('deck.project', 'test');
+        config()->set('deck.environment', 'testing');
     }
 }

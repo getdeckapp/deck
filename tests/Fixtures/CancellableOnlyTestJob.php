@@ -1,0 +1,25 @@
+<?php
+
+namespace TorMorten\Deck\Tests\Fixtures;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use TorMorten\Deck\Middleware\Cancellable;
+
+class CancellableOnlyTestJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public function middleware(): array
+    {
+        return [new Cancellable];
+    }
+
+    public function handle(): void
+    {
+        //
+    }
+}

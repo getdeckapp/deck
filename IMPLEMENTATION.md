@@ -2,7 +2,7 @@
 
 This document is the source of truth for building `tormjens/deck`. It complements [README.md](README.md) with architecture, phases, and file-level tasks.
 
-**Status:** Planning (pre-MVP)  
+**Status:** Phase 0 in progress (recording + Cloud-ready identity)  
 **Namespace:** `TorMorten\Deck`  
 **Package path:** `packages/deck` in `package-dev` sandbox
 
@@ -43,31 +43,20 @@ Deck ships a small, consistent UI kit so every screen looks intentional—not on
 3. **Composable** — pages are built from `<x-deck::*>` components only; no raw Tailwind soup in feature views.
 4. **Accessible** — semantic tables, `aria` on status badges, keyboard-friendly modals (Alpine).
 
-### Tokens (CSS variables in `resources/css/deck.css`)
+### Precompiled Tailwind CSS
 
-| Token | Purpose |
-|-------|---------|
-| `--deck-surface` | Page background |
-| `--deck-panel` | Cards / table container |
-| `--deck-border` | Dividers |
-| `--deck-text` / `--deck-muted` | Body / secondary |
-| `--deck-accent` | Links, focus (Laravel red or configurable) |
-| `--deck-status-*` | completed, failed, running, cancelled |
+Deck ships **precompiled CSS** in `resources/dist/deck.css`, built from package views with Tailwind v4. Host apps do **not** add `@source` paths or Vite entries for Deck.
 
-Publishable so host apps can override in `resources/css/vendor/deck/deck.css`.
+- `deck:install` publishes assets to `public/vendor/deck` (`deck-assets` tag).
+- Before publish, layouts load CSS from `{route_prefix}/assets/deck.css` (served from the package `resources/dist/`).
+- Rebuild after view changes: `npm run build` in the package (or `composer build-assets`).
 
 ### Blade components (`resources/views/components/deck/`)
 
 | Component | Use |
 |-----------|-----|
-| `<x-deck::layout>` | App shell, nav, flash area |
-| `<x-deck::page-header>` | Title, subtitle, actions slot |
-| `<x-deck::panel>` | Card wrapper |
-| `<x-deck::table>` | Styled `<table>` with empty state |
-| `<x-deck::badge :status="...">` | Status pill |
-| `<x-deck::stat>` | Label + value (last run, duration) |
-| `<x-deck::empty-state>` | No data illustration + copy |
-| `<x-deck::confirm>` | Alpine-powered destructive confirm (cancel job) |
+| `<x-deck::badge :status="...">` | Status pill (completed, failed, running, cancelled) |
+| `<x-deck::alert>` | Flash / success message |
 
 ### Livewire conventions
 
@@ -78,8 +67,13 @@ Publishable so host apps can override in `resources/css/vendor/deck/deck.css`.
 
 ### Package assets
 
-- Tailwind v4 compatible `@source` in host app **or** precompiled `deck.css` for apps without Tailwind in package views (document both in README).
-- `deck:install` publishes views + CSS; optional `->hasAssets()` via package-tools.
+| Path | Purpose |
+|------|---------|
+| `resources/css/deck.css` | Tailwind entry (`@source` scans `resources/views`) |
+| `resources/dist/deck.css` | Committed build output (shipped to Composer) |
+| `public/vendor/deck/deck.css` | Published copy in consuming apps |
+
+`TorMorten\Deck\Support\DeckAssets` resolves the stylesheet URL (published file, else package route).
 
 ---
 
@@ -277,11 +271,14 @@ Dashboard (HTTP) + Deck::cancel() API
 
 ### `deck_job_class_stats`
 
-One row per observed job class (fast “last run” lookup).
+One row per **project + environment + job class** (fast “last run” lookup; Cloud-ready).
 
 | Column | Type | Notes |
 |--------|------|-------|
-| `job_class` | string, PK | FQCN from `$event->job->resolveName()` |
+| `id` | bigint, PK | |
+| `project` | string | `DECK_PROJECT` — deployable id |
+| `environment` | string | `DECK_ENVIRONMENT` |
+| `job_class` | string | FQCN from `$event->job->resolveName()` |
 | `last_started_at` | timestamp, nullable | |
 | `last_finished_at` | timestamp, nullable | |
 | `last_status` | string | `running`, `completed`, `failed` |
@@ -291,6 +288,8 @@ One row per observed job class (fast “last run” lookup).
 | `failure_count` | unsigned bigint | Increment on failure |
 | `created_at` / `updated_at` | timestamps | |
 
+Unique: `(project, environment, job_class)`.
+
 ### `deck_job_executions`
 
 Append-only execution log (pruned by `deck:prune`).
@@ -298,6 +297,8 @@ Append-only execution log (pruned by `deck:prune`).
 | Column | Type | Notes |
 |--------|------|-------|
 | `id` | bigint, PK | |
+| `project` | string | Same as stats |
+| `environment` | string | Same as stats |
 | `uuid` | uuid, indexed | Job UUID from payload |
 | `job_class` | string, indexed | |
 | `connection` | string | |
@@ -430,7 +431,7 @@ return [
 - [ ] **M0.8** Authorization middleware (Horizon auth delegation)
 - [ ] **M0.8b** `PromptHorizonOrDeck` middleware + prompt view + preference routes
 - [ ] **M0.8c** `deck:install` — append middleware to `config/horizon.php`
-- [ ] **M0.9** Design system: `deck.css` tokens + `<x-deck::*>` layout/table/badge components
+- [x] **M0.9** Design system: Tailwind-only views + `<x-deck::badge>` / `<x-deck::alert>`
 - [ ] **M0.10** Livewire `JobClassIndex` — sortable class list
 - [ ] **M0.11** Livewire `JobClassShow` — paginated executions, Alpine confirm cancel
 - [ ] **M0.12** Cancel action on running execution (sets Redis flag)
@@ -553,8 +554,135 @@ Before Packagist 1.0: remove `minimum-stability: dev` consumer friction, tag `v0
 
 ---
 
+## Deck Cloud (future)
+
+**Vision:** One dashboard at work for every Laravel app and environment you run — without replacing Horizon or hosting customer Redis.
+
+Deck (self-hosted package) remains the **agent**. Deck Cloud is the **multi-tenant control plane** that ingests the same events the local recorder sees today.
+
+### Problem it solves
+
+| Today | Deck Cloud |
+|-------|------------|
+| `/horizon` per app | Worker UI still per app (optional) |
+| `/deck` per app | **One URL** — filter by project, env, queue, job class |
+| Tab fatigue across 6 codebases | Unified stale-job / failure view |
+| No cross-env “last success” | SLOs per job class per project |
+
+### Architecture
+
+```text
+┌─────────────────┐     HTTPS (events)      ┌──────────────────────┐
+│  App A + deck   │ ───────────────────────►│                      │
+│  package        │                         │  Deck Cloud API        │
+├─────────────────┤                         │  • ingest            │
+│  App B + deck   │ ───────────────────────►│  • multi-tenant DB   │
+│  package        │                         │  • dashboard         │
+├─────────────────┤                         │  • alerts            │
+│  App C + deck   │ ───────────────────────►│                      │
+└─────────────────┘                         └──────────────────────┘
+        │                                              ▲
+        │  Horizon / queue:work still local            │
+        └──────────────────────────────────────────────┘
+              cancel flags stay in customer Redis
+```
+
+**Out of scope for Cloud v1:** Hosted workers, hosted Redis, replacing SQS.
+
+### Identity (implemented in package now)
+
+Every recorded row is tagged:
+
+| Field | Config | Example |
+|-------|--------|---------|
+| `project` | `DECK_PROJECT` (default `APP_NAME`) | `billing-api` |
+| `environment` | `DECK_ENVIRONMENT` (default `APP_ENV`) | `production` |
+
+Stats are unique per `(project, environment, job_class)` so the same job class in staging and prod never collide.
+
+**Work setup:** Use stable `DECK_PROJECT` per deployable across your team (not machine-specific names).
+
+### Recorder abstraction (implemented now)
+
+```text
+Queue event → RecordJobExecution → JobExecutionRecorder::record(JobExecutionRecord)
+                                              │
+                                    ┌─────────┴─────────┐
+                                    ▼                   ▼
+                        DatabaseJobExecutionRecorder   (future)
+                        local deck_* tables            HttpJobExecutionRecorder
+                                                     → Deck Cloud ingest API
+```
+
+| Class | Role |
+|-------|------|
+| `JobExecutionRecord` | DTO sent to any recorder |
+| `JobExecutionRecorder` | Contract |
+| `DatabaseJobExecutionRecorder` | Default — local DB |
+| `HttpJobExecutionRecorder` | **Future** — batch POST to Cloud |
+| `CompositeJobExecutionRecorder` | **Future** — DB + Cloud |
+
+Config today:
+
+```php
+'recorder' => env('DECK_RECORDER', 'database'),
+'cloud' => [
+    'enabled' => env('DECK_CLOUD_ENABLED', false),
+    'url' => env('DECK_CLOUD_URL'),
+    'api_key' => env('DECK_API_KEY'),
+],
+```
+
+### Cloud ingest event (draft schema)
+
+Same shape as `JobExecutionRecord` JSON (no full job payload by default):
+
+```json
+{
+  "project": "billing-api",
+  "environment": "production",
+  "job_class": "App\\Jobs\\SyncInvoices",
+  "uuid": "...",
+  "connection": "redis",
+  "queue": "default",
+  "status": "completed",
+  "attempt": 1,
+  "tags": ["billing"],
+  "started_at": "2026-05-16T12:00:00Z",
+  "finished_at": "2026-05-16T12:00:05Z",
+  "duration_ms": 5120,
+  "exception_class": null,
+  "exception_message": null
+}
+```
+
+Agent sends over HTTPS with `Authorization: Bearer {DECK_API_KEY}`. Idempotency: `(project, environment, uuid, attempt, status)`.
+
+### Cloud product phases
+
+| Phase | Ships |
+|-------|--------|
+| **C0** | Package identity + recorder contract ✅ (this repo) |
+| **C1** | Ingest API + API keys + project/env switcher UI (read-only) |
+| **C2** | Alerts (stale job, failure rate), team members |
+| **C3** | Remote cancel (agent polls or receives webhook → Redis flag) |
+| **C4** | Retry orchestration via agent (not raw Horizon API from Cloud) |
+
+### Commercial sketch (optional)
+
+- Free: 1 project, 2 environments, 7-day retention  
+- Team: unlimited projects/envs, 90-day retention, Slack alerts  
+- Self-hosted Deck package stays MIT; Cloud is hosted SaaS  
+
+### Competitive note
+
+[Queuewatch](https://queuewatch.io) and similar tools validate “Laravel queue SaaS.” Deck Cloud wedge: **multi-app work dashboard**, **job-class SLOs**, **Horizon coexistence**, optional **self-hosted** without vendor lock-in for recording.
+
+---
+
 ## Next steps
 
-1. **Implement:** Phase 0 — migrations → listeners → cancel → design system → Livewire pages.
-2. **Install flow:** `deck:install` publishes config, migrations, assets, Horizon provider snippet.
-3. **Iterate:** V1 alerts via Laravel Notifications after MVP is dogfooded in `package-dev`.
+1. **Implement:** Phase 0 — cancel → design system → Livewire pages.
+2. **Migrate:** Run new Deck migration for `project` / `environment` columns (`add_project_and_environment_to_deck_tables`).
+3. **Work dogfood:** Set `DECK_PROJECT` per app; imagine Cloud switcher while building UI filters.
+4. **Cloud:** Defer until package MVP is used daily; recorder contract is ready.

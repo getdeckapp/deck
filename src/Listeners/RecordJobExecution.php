@@ -1,0 +1,101 @@
+<?php
+
+namespace TorMorten\Deck\Listeners;
+
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Carbon;
+use TorMorten\Deck\Contracts\JobExecutionRecorder;
+use TorMorten\Deck\Data\JobExecutionRecord;
+use TorMorten\Deck\Enums\JobExecutionStatus;
+use TorMorten\Deck\Exceptions\JobCancelledException;
+use TorMorten\Deck\Models\JobExecution;
+use TorMorten\Deck\Support\DeckInstallation;
+use TorMorten\Deck\Support\JobCancellation;
+use TorMorten\Deck\Support\QueuedJobMetadata;
+
+class RecordJobExecution
+{
+    public function __construct(
+        private JobExecutionRecorder $recorder,
+    ) {}
+
+    public function handleProcessing(JobProcessing $event): void
+    {
+        $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+
+        $this->recorder->record(new JobExecutionRecord(
+            metadata: $metadata,
+            project: DeckInstallation::project(),
+            environment: DeckInstallation::environment(),
+            status: JobExecutionStatus::Running,
+            startedAt: Carbon::now(),
+            tags: $metadata->tags,
+        ));
+    }
+
+    public function handleProcessed(JobProcessed $event): void
+    {
+        $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+        $finishedAt = Carbon::now();
+
+        $execution = JobExecution::query()
+            ->where('uuid', $metadata->uuid)
+            ->where('attempt', $metadata->attempt)
+            ->first();
+
+        $startedAt = $execution?->started_at ?? $finishedAt;
+        $durationMs = (int) $startedAt->diffInMilliseconds($finishedAt);
+
+        $this->recorder->record(new JobExecutionRecord(
+            metadata: $metadata,
+            project: DeckInstallation::project(),
+            environment: DeckInstallation::environment(),
+            status: JobExecutionStatus::Completed,
+            startedAt: $startedAt,
+            finishedAt: $finishedAt,
+            durationMs: $durationMs,
+            tags: $metadata->tags,
+        ));
+    }
+
+    public function handleFailed(JobFailed $event): void
+    {
+        $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+        $finishedAt = Carbon::now();
+        $exception = $event->exception;
+
+        $execution = JobExecution::query()
+            ->where('uuid', $metadata->uuid)
+            ->where('attempt', $metadata->attempt)
+            ->first();
+
+        $startedAt = $execution?->started_at ?? $finishedAt;
+        $durationMs = (int) $startedAt->diffInMilliseconds($finishedAt);
+
+        $isCancelled = $exception instanceof JobCancelledException;
+
+        $this->recorder->record(new JobExecutionRecord(
+            metadata: $metadata,
+            project: DeckInstallation::project(),
+            environment: DeckInstallation::environment(),
+            status: $isCancelled ? JobExecutionStatus::Cancelled : JobExecutionStatus::Failed,
+            startedAt: $startedAt,
+            finishedAt: $finishedAt,
+            durationMs: $durationMs,
+            tags: $metadata->tags,
+            exceptionClass: $isCancelled ? null : $exception::class,
+            exceptionMessage: $isCancelled ? null : $this->truncateExceptionMessage($exception->getMessage()),
+        ));
+
+        if ($isCancelled) {
+            JobCancellation::clear($metadata->uuid);
+        }
+    }
+
+    private function truncateExceptionMessage(string $message): string
+    {
+        return mb_substr($message, 0, 2000);
+    }
+}

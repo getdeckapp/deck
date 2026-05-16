@@ -1,0 +1,36 @@
+name: build-assets
+
+on:
+  push:
+    paths:
+      - 'resources/css/**'
+      - 'resources/views/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - '.github/workflows/build-assets.yml'
+  pull_request:
+    paths:
+      - 'resources/css/**'
+      - 'resources/views/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - '.github/workflows/build-assets.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Verify committed assets are up to date
+        run: git diff --exit-code resources/dist/
