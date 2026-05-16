@@ -7,6 +7,7 @@ use TorMorten\Deck\Livewire\Dashboard;
 use TorMorten\Deck\Livewire\JobClassIndex;
 use TorMorten\Deck\Livewire\JobClassShow;
 use TorMorten\Deck\Livewire\JobExecutionIndex;
+use TorMorten\Deck\Livewire\WorkersIndex;
 use TorMorten\Deck\Support\DeckAssets;
 
 $prefix = trim(config('deck.route_prefix', 'deck'), '/');
@@ -33,6 +34,7 @@ Route::middleware($middleware)->prefix($prefix)->name('deck.')->group(function (
     Route::get('/', Dashboard::class)->name('index');
     Route::get('/classes', JobClassIndex::class)->name('classes.index');
     Route::get('/activity', JobExecutionIndex::class)->name('activity.index');
+    Route::get('/workers', WorkersIndex::class)->name('workers.index');
     Route::get('/classes/{jobClass}', JobClassShow::class)
         ->where('jobClass', '.*')
         ->name('classes.show');

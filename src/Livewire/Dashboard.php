@@ -9,6 +9,9 @@ use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
 use TorMorten\Deck\Models\JobClassStat;
 use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeckHorizon;
+use TorMorten\Deck\Support\ExecutionMetrics;
+use TorMorten\Deck\Support\HorizonSnapshot;
+use TorMorten\Deck\Support\QueueBusyness;
 
 #[Layout('deck::layouts.app')]
 class Dashboard extends Component
@@ -18,6 +21,8 @@ class Dashboard extends Component
     public function render()
     {
         $scope = JobClassStat::query()->forInstallation();
+        $metrics = ExecutionMetrics::make();
+        $horizon = app(HorizonSnapshot::class);
 
         $running = JobExecution::query()
             ->forInstallation()
@@ -47,10 +52,15 @@ class Dashboard extends Component
                 'successes' => (int) (clone $scope)->sum('success_count'),
                 'executions' => JobExecution::query()->forInstallation()->count(),
             ],
+            'jobVolumeChart' => $metrics->hourlyJobVolume()->all(),
+            'durationChart' => $metrics->hourlyAverageDuration()->all(),
+            'queueBusyness' => app(QueueBusyness::class)->assess(),
+            'horizonAvailable' => $horizon->isAvailable(),
             'running' => $running,
             'recentFailures' => $recentFailures,
             'recentActivity' => $recentActivity,
             'hasRunning' => $running->isNotEmpty(),
+            'shouldPoll' => $running->isNotEmpty() || $horizon->isAvailable(),
             'horizonUrl' => DeckHorizon::dashboardUrl(),
         ]);
     }

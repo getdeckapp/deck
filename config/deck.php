@@ -61,6 +61,10 @@ return [
 
     'long_running_threshold_seconds' => (int) env('DECK_LONG_RUNNING_THRESHOLD_SECONDS', 300),
 
+    'charts' => [
+        'hours' => (int) env('DECK_CHART_HOURS', 24),
+    ],
+
     'store_context' => (bool) env('DECK_STORE_CONTEXT', false),
 
     'tables' => [

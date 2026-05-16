@@ -17,7 +17,9 @@ use TorMorten\Deck\Livewire\Dashboard;
 use TorMorten\Deck\Livewire\JobClassIndex;
 use TorMorten\Deck\Livewire\JobClassShow;
 use TorMorten\Deck\Livewire\JobExecutionIndex;
+use TorMorten\Deck\Livewire\WorkersIndex;
 use TorMorten\Deck\Recorders\DatabaseJobExecutionRecorder;
+use TorMorten\Deck\Support\HorizonSnapshot;
 
 class DeckServiceProvider extends PackageServiceProvider
 {
@@ -39,6 +41,7 @@ class DeckServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(JobExecutionRecorder::class, DatabaseJobExecutionRecorder::class);
         $this->app->singleton(Deck::class);
+        $this->app->singleton(HorizonSnapshot::class, fn (): HorizonSnapshot => HorizonSnapshot::make());
     }
 
     public function packageBooted(): void
@@ -54,6 +57,7 @@ class DeckServiceProvider extends PackageServiceProvider
             Livewire::component('deck.job-class-index', JobClassIndex::class);
             Livewire::component('deck.job-class-show', JobClassShow::class);
             Livewire::component('deck.job-execution-index', JobExecutionIndex::class);
+            Livewire::component('deck.workers-index', WorkersIndex::class);
         }
     }
 }
