@@ -11,19 +11,33 @@
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-white">Queue</th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-white">Started</th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-white">Duration</th>
-                <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-6"><span class="sr-only">Actions</span></th>
+                <th scope="col" class="relative py-3.5 pr-4 pl-3 text-right text-sm font-semibold text-zinc-900 sm:pr-6 dark:text-white"></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-zinc-200 bg-white dark:divide-white/10 dark:bg-zinc-900">
             @forelse ($executions as $execution)
-                <tr @class([
-                    'transition hover:bg-zinc-50 dark:hover:bg-zinc-800/60',
-                    'odd:bg-zinc-50/40 dark:odd:bg-zinc-800/20' => ! $execution->isLongRunning(),
-                    'bg-amber-50/70 dark:bg-amber-500/10' => $execution->isLongRunning(),
-                ])>
+                @php
+                    $detailUrl = route('deck.activity.show', $execution->activityRouteParameters());
+                @endphp
+                <tr
+                    @class([
+                        'group cursor-pointer transition hover:bg-zinc-50 dark:hover:bg-zinc-800/60',
+                        'odd:bg-zinc-50/40 dark:odd:bg-zinc-800/20' => ! $execution->isLongRunning(),
+                        'bg-amber-50/70 dark:bg-amber-500/10' => $execution->isLongRunning(),
+                    ])
+                    role="link"
+                    tabindex="0"
+                    data-href="{{ $detailUrl }}"
+                    onclick="window.location.assign(this.dataset.href)"
+                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); window.location.assign(this.dataset.href); }"
+                >
                     @if ($showJobClass)
                         <td class="py-4 pr-3 pl-4 text-sm sm:pl-6">
-                            <a href="{{ route('deck.classes.show', ['jobClass' => $execution->job_class]) }}" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                            <a
+                                href="{{ route('deck.classes.show', ['jobClass' => $execution->job_class]) }}"
+                                class="relative z-10 font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                onclick="event.stopPropagation()"
+                            >
                                 {{ class_basename($execution->job_class) }}
                             </a>
                         </td>
@@ -59,18 +73,25 @@
                         {{ $execution->formattedDuration() }}
                     </td>
                     <td class="py-4 pr-4 pl-3 text-right text-sm whitespace-nowrap sm:pr-6">
-                        <div class="flex items-center justify-end gap-2">
-                            <a
-                                href="{{ route('deck.activity.show', $execution) }}"
-                                class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-indigo-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-indigo-50 dark:bg-white/10 dark:text-indigo-400 dark:ring-white/10 dark:hover:bg-indigo-500/10"
-                            >
+                        <div class="flex items-center justify-end gap-3">
+                            <span class="text-sm font-semibold text-indigo-600 group-hover:text-indigo-500 dark:text-indigo-400 dark:group-hover:text-indigo-300">
                                 Details
-                            </a>
-                            @if ($execution->status->value === 'running')
+                                <span aria-hidden="true" class="text-indigo-400 dark:text-indigo-500">→</span>
+                            </span>
+                            @if ($execution->canRetry())
                                 <button
                                     type="button"
-                                    class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
-                                    wire:click="cancelExecution({{ $execution->id }})"
+                                    class="relative z-10 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-emerald-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-emerald-50 dark:bg-white/10 dark:text-emerald-400 dark:ring-white/10 dark:hover:bg-emerald-500/10"
+                                    wire:click.stop="retryExecution(@js($execution->uuid), {{ $execution->attempt }})"
+                                    wire:confirm="Retry this failed job?"
+                                >
+                                    Retry
+                                </button>
+                            @elseif ($execution->status->value === 'running')
+                                <button
+                                    type="button"
+                                    class="relative z-10 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
+                                    wire:click.stop="cancelExecution(@js($execution->uuid), {{ $execution->attempt }})"
                                     wire:confirm="Cancel this running job?"
                                 >
                                     Cancel

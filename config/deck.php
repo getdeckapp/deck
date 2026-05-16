@@ -60,6 +60,23 @@ return [
 
     'cancel_cache_store' => env('DECK_CANCEL_CACHE_STORE'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Job class blocker
+    |--------------------------------------------------------------------------
+    |
+    | Blocked classes are held on the queue: workers release the job with
+    | block_release_seconds delay instead of running handle(). New dispatches
+    | are affected the same way. Uses the same cache store as cancellation
+    | when block_cache_store is null.
+    |
+    */
+    'block_release_seconds' => (int) env('DECK_BLOCK_RELEASE_SECONDS', 60),
+
+    'block_cache_store' => env('DECK_BLOCK_CACHE_STORE'),
+
+    'block_manual_ttl_seconds' => (int) env('DECK_BLOCK_MANUAL_TTL_SECONDS', 31_536_000),
+
     'long_running_threshold_seconds' => (int) env('DECK_LONG_RUNNING_THRESHOLD_SECONDS', 300),
 
     'charts' => [

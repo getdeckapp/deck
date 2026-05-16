@@ -13,6 +13,7 @@ use TorMorten\Deck\Exceptions\JobCancelledException;
 use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeckInstallation;
 use TorMorten\Deck\Support\JobCancellation;
+use TorMorten\Deck\Support\JobClassBlock;
 use TorMorten\Deck\Support\QueuedJobMetadata;
 
 class RecordJobExecution
@@ -24,6 +25,12 @@ class RecordJobExecution
     public function handleProcessing(JobProcessing $event): void
     {
         $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+
+        if (JobClassBlock::isBlocked($metadata->jobClass)) {
+            $event->job->release(JobClassBlock::releaseDelaySeconds());
+
+            return;
+        }
 
         $this->recorder->record(new JobExecutionRecord(
             metadata: $metadata,

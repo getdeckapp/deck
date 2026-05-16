@@ -14,7 +14,7 @@ it('requests cancellation for a running execution via livewire', function () {
     ]);
 
     Livewire::test(JobExecutionIndex::class)
-        ->call('cancelExecution', $execution->id)
+        ->call('cancelExecution', $execution->uuid, $execution->attempt)
         ->assertOk();
 
     expect(JobCancellation::isCancelled($execution->uuid))->toBeTrue();
@@ -26,7 +26,7 @@ it('does not flag cancellation for a completed execution', function () {
     ]);
 
     Livewire::test(JobExecutionIndex::class)
-        ->call('cancelExecution', $execution->id)
+        ->call('cancelExecution', $execution->uuid, $execution->attempt)
         ->assertOk();
 
     expect(JobCancellation::isCancelled($execution->uuid))->toBeFalse();

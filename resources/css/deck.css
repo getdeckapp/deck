@@ -8,6 +8,10 @@
 }
 
 @layer components {
+    [x-cloak] {
+        display: none !important;
+    }
+
     .deck-line-chart [x-cloak] {
         display: none !important;
     }

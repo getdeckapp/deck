@@ -65,10 +65,10 @@ it('returns false when cancelling a non-running execution', function () {
         ->latest('id')
         ->first();
 
-    expect(app(Deck::class)->cancelExecution($execution->id))->toBeFalse();
+    expect(app(Deck::class)->cancelExecution($execution->uuid, $execution->attempt))->toBeFalse();
 });
 
-it('cancels a running execution by database id', function () {
+it('cancels a running execution by uuid', function () {
     $execution = JobExecution::query()->create([
         'project' => DeckInstallation::project(),
         'environment' => DeckInstallation::environment(),
@@ -81,7 +81,7 @@ it('cancels a running execution by database id', function () {
         'started_at' => now(),
     ]);
 
-    expect(app(Deck::class)->cancelExecution($execution->id))->toBeTrue()
+    expect(app(Deck::class)->cancelExecution($execution->uuid, $execution->attempt))->toBeTrue()
         ->and(JobCancellation::isCancelled($execution->uuid))->toBeTrue();
 });
 
@@ -122,7 +122,7 @@ it('requests cancellation from the dashboard livewire component', function () {
     ]);
 
     Livewire::test(Dashboard::class)
-        ->call('cancelExecution', $execution->id);
+        ->call('cancelExecution', $execution->uuid, $execution->attempt);
 
     expect(JobCancellation::isCancelled($execution->uuid))->toBeTrue();
 });

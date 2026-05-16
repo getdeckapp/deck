@@ -14,11 +14,12 @@ class JobExecutionShow extends Component
 
     public JobExecution $execution;
 
-    public function mount(JobExecution $execution): void
+    public function mount(string $uuid, int $attempt): void
     {
         $this->execution = JobExecution::query()
             ->forInstallation()
-            ->whereKey($execution->getKey())
+            ->where('uuid', $uuid)
+            ->where('attempt', $attempt)
             ->firstOrFail();
     }
 

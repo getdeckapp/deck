@@ -20,5 +20,5 @@ it('denies access to job class routes when unauthorized', function () {
     $this->get(route('deck.workers.index'))->assertForbidden();
 
     $execution = createDeckExecution();
-    $this->get(route('deck.activity.show', $execution))->assertForbidden();
+    $this->get(route('deck.activity.show', $execution->activityRouteParameters()))->assertForbidden();
 });

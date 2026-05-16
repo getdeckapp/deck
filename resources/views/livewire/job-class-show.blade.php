@@ -7,18 +7,98 @@
         </ol>
     </nav>
 
-    <div class="rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm md:flex md:items-center md:justify-between dark:border-zinc-700/80 dark:bg-zinc-900">
-        <div class="min-w-0 flex-1">
-            <h1 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">{{ class_basename($jobClass) }}</h1>
-            <p class="mt-1 truncate font-mono text-sm text-zinc-500 dark:text-zinc-400">{{ $jobClass }}</p>
+    <div class="overflow-visible rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900">
+        <div class="md:flex md:items-start md:justify-between md:gap-6">
+            <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                    <h1 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">{{ class_basename($jobClass) }}</h1>
+                    @if ($hasRunning)
+                        <span class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-500/10 dark:text-blue-400">Live</span>
+                    @endif
+                    @if ($isBlocked)
+                        <span class="inline-flex items-center gap-x-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300">
+                            Blocked
+                            @if ($blockedUntil)
+                                until {{ $blockedUntil->format('M j, H:i') }}
+                            @elseif ($isManualBlock)
+                                (manual)
+                            @endif
+                        </span>
+                    @endif
+                </div>
+                <p class="mt-1 truncate font-mono text-sm text-zinc-500 dark:text-zinc-400">{{ $jobClass }}</p>
+            </div>
+            <div class="relative z-30 mt-4 flex flex-wrap items-center gap-2 md:mt-0 md:shrink-0">
+                @if ($runningCount > 0)
+                    <button
+                        type="button"
+                        class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
+                        wire:click="cancelAllRunning"
+                        wire:confirm="Cancel all {{ $runningCount }} running {{ str('execution')->plural($runningCount) }} for this class? Jobs without the Cancellable middleware may keep running."
+                    >
+                        Cancel all ({{ $runningCount }})
+                    </button>
+                @endif
+                @if ($isBlocked)
+                    <button
+                        type="button"
+                        class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 dark:bg-white/10 dark:text-white dark:ring-white/10 dark:hover:bg-white/15"
+                        wire:click="unblockClass"
+                        wire:confirm="Unblock this job so workers can process it again?"
+                    >
+                        Unblock
+                    </button>
+                @else
+                    <div x-data="{ open: false }" class="relative">
+                        <button
+                            type="button"
+                            class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-amber-800 shadow-xs ring-1 ring-inset ring-amber-600/30 hover:bg-amber-50 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30 dark:hover:bg-amber-500/20"
+                            @click="open = ! open"
+                            @click.outside="open = false"
+                        >
+                            Block job
+                        </button>
+                        <div
+                            x-show="open"
+                            x-cloak
+                            class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg border border-zinc-200/80 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                        >
+                            <button
+                                type="button"
+                                class="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700/80"
+                                wire:click="blockClass('1h')"
+                                @click="open = false"
+                                wire:confirm="Block this job for 1 hour? Running jobs will be cancelled."
+                            >
+                                1 hour
+                            </button>
+                            <button
+                                type="button"
+                                class="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700/80"
+                                wire:click="blockClass('24h')"
+                                @click="open = false"
+                                wire:confirm="Block this job for 24 hours? Running jobs will be cancelled."
+                            >
+                                24 hours
+                            </button>
+                            <button
+                                type="button"
+                                class="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700/80"
+                                wire:click="blockClass"
+                                @click="open = false"
+                                wire:confirm="Block this job until you unblock it? Running jobs will be cancelled."
+                            >
+                                Until manual unblock
+                            </button>
+                        </div>
+                    </div>
+                @endif
+            </div>
         </div>
-        @if ($hasRunning)
-            <span class="mt-4 inline-flex items-center gap-x-1.5 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 md:mt-0 dark:bg-blue-500/10 dark:text-blue-400">Live</span>
-        @endif
     </div>
 
     @if ($stat)
-        <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <dl class="relative z-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <x-deck::stat-card label="Last finished" :value="$stat->last_finished_at?->diffForHumans() ?? 'Never'" />
             <x-deck::stat-card label="Success rate" :value="$stat->successRate() !== null ? $stat->successRate().'%' : '—'" />
             <x-deck::stat-card label="Avg duration" :value="\TorMorten\Deck\Support\FormatDuration::format($avgDurationMs)" />

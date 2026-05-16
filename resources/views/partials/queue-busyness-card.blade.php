@@ -5,6 +5,19 @@
 
     $level = $busyness['level'];
     $topQueues = collect($busyness['queues'])->take(4);
+    $score = min(100, max(0, (int) $busyness['score']));
+    $ringRadius = 42;
+    $ringCircumference = round(2 * M_PI * $ringRadius, 2);
+    $ringOffset = round($ringCircumference * (1 - ($score / 100)), 2);
+
+    $ringTrackClass = 'text-zinc-200/80 dark:text-zinc-700/80';
+    $ringProgressClass = match ($level) {
+        QueueBusynessLevel::Idle => 'text-emerald-500 dark:text-emerald-400',
+        QueueBusynessLevel::Light => 'text-sky-500 dark:text-sky-400',
+        QueueBusynessLevel::Moderate => 'text-amber-500 dark:text-amber-400',
+        QueueBusynessLevel::Busy => 'text-orange-500 dark:text-orange-400',
+        QueueBusynessLevel::Critical => 'text-rose-500 dark:text-rose-400',
+    };
 @endphp
 
 <section class="overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] dark:border-zinc-800 dark:bg-zinc-900">
@@ -18,22 +31,40 @@
         </a>
     </div>
 
-    <div class="grid gap-6 p-5 lg:grid-cols-[minmax(0,12rem)_1fr] lg:items-center">
-        <div class="flex flex-col items-center justify-center">
-            <div
-                @class([
-                    'relative flex size-32 items-center justify-center rounded-full',
-                    'bg-emerald-50 ring-1 ring-emerald-600/15 dark:bg-emerald-500/10 dark:ring-emerald-400/20' => $level === QueueBusynessLevel::Idle,
-                    'bg-sky-50 ring-1 ring-sky-600/15 dark:bg-sky-500/10 dark:ring-sky-400/20' => $level === QueueBusynessLevel::Light,
-                    'bg-amber-50 ring-1 ring-amber-600/15 dark:bg-amber-500/10 dark:ring-amber-400/20' => $level === QueueBusynessLevel::Moderate,
-                    'bg-orange-50 ring-1 ring-orange-600/15 dark:bg-orange-500/10 dark:ring-orange-400/20' => $level === QueueBusynessLevel::Busy,
-                    'bg-rose-50 ring-1 ring-rose-600/15 dark:bg-rose-500/10 dark:ring-rose-400/20' => $level === QueueBusynessLevel::Critical,
-                ])
-            >
-                <span class="text-3xl font-semibold tabular-nums text-zinc-900 dark:text-white">{{ $busyness['score'] }}</span>
+    <div class="grid gap-8 p-5 lg:grid-cols-[10.5rem_1fr] lg:items-center">
+        <div class="flex flex-col items-center text-center">
+            <div class="relative size-36">
+                <svg viewBox="0 0 100 100" class="size-full -rotate-90" aria-hidden="true">
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="{{ $ringRadius }}"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="7"
+                        class="{{ $ringTrackClass }}"
+                    />
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="{{ $ringRadius }}"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="7"
+                        stroke-linecap="round"
+                        class="{{ $ringProgressClass }} transition-[stroke-dashoffset] duration-500"
+                        stroke-dasharray="{{ $ringCircumference }}"
+                        stroke-dashoffset="{{ $ringOffset }}"
+                    />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-3xl font-semibold tabular-nums leading-none text-zinc-900 dark:text-white">{{ $score }}</span>
+                    <span class="mt-0.5 text-sm font-medium text-zinc-500 dark:text-zinc-400">/ 100</span>
+                </div>
             </div>
+
             <span @class([
-                'mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset',
+                'mt-4 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset',
                 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300' => $level === QueueBusynessLevel::Idle,
                 'bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-300' => $level === QueueBusynessLevel::Light,
                 'bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-200' => $level === QueueBusynessLevel::Moderate,
@@ -42,7 +73,8 @@
             ])>
                 {{ $busyness['label'] }}
             </span>
-            <p class="mt-2 text-[11px] text-zinc-500">
+
+            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                 @if ($busyness['source'] === 'horizon')
                     Live from Horizon
                 @else
@@ -53,15 +85,15 @@
 
         <div>
             @if ($topQueues->isEmpty())
-                <p class="text-sm text-zinc-500">No per-queue data yet.</p>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">No per-queue data yet.</p>
             @else
-                <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Busiest queues</h3>
+                <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Busiest queues</h3>
                 <div class="space-y-3">
                     @foreach ($topQueues as $queue)
                         <div>
                             <div class="mb-1 flex items-center justify-between gap-3 text-sm">
                                 <span class="font-medium text-zinc-900 dark:text-white">{{ $queue['name'] }}</span>
-                                <span class="shrink-0 text-xs text-zinc-500">{{ $queue['detail'] }}</span>
+                                <span class="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">{{ $queue['detail'] }}</span>
                             </div>
                             <div class="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
                                 <div

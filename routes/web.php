@@ -35,8 +35,9 @@ Route::middleware($middleware)->prefix($prefix)->name('deck.')->group(function (
     Route::get('/', Dashboard::class)->name('index');
     Route::get('/classes', JobClassIndex::class)->name('classes.index');
     Route::get('/activity', JobExecutionIndex::class)->name('activity.index');
-    Route::get('/activity/{execution}', JobExecutionShow::class)
-        ->whereNumber('execution')
+    Route::get('/activity/{uuid}/{attempt}', JobExecutionShow::class)
+        ->whereUuid('uuid')
+        ->whereNumber('attempt')
         ->name('activity.show');
     Route::get('/workers', WorkersIndex::class)->name('workers.index');
     Route::get('/classes/{jobClass}', JobClassShow::class)

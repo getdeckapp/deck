@@ -54,4 +54,20 @@ class JobExecution extends Model
         return $this->status === JobExecutionStatus::Failed
             && ($this->exception_class !== null || $this->exception_message !== null);
     }
+
+    public function canRetry(): bool
+    {
+        return $this->status === JobExecutionStatus::Failed;
+    }
+
+    /**
+     * @return array{uuid: string, attempt: int}
+     */
+    public function activityRouteParameters(): array
+    {
+        return [
+            'uuid' => $this->uuid,
+            'attempt' => $this->attempt,
+        ];
+    }
 }

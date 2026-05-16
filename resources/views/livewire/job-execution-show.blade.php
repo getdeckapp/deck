@@ -20,11 +20,20 @@
             </div>
             <p class="mt-2 truncate font-mono text-sm text-zinc-500 dark:text-zinc-400">{{ $execution->job_class }}</p>
         </div>
-        @if ($execution->status->value === 'running')
+        @if ($execution->canRetry())
+            <button
+                type="button"
+                class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-emerald-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-emerald-50 dark:bg-white/10 dark:text-emerald-400 dark:ring-white/10 dark:hover:bg-emerald-500/10"
+                wire:click="retryExecution(@js($execution->uuid), {{ $execution->attempt }})"
+                wire:confirm="Retry this failed job?"
+            >
+                Retry job
+            </button>
+        @elseif ($execution->status->value === 'running')
             <button
                 type="button"
                 class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
-                wire:click="cancelExecution({{ $execution->id }})"
+                wire:click="cancelExecution(@js($execution->uuid), {{ $execution->attempt }})"
                 wire:confirm="Cancel this running job?"
             >
                 Cancel job

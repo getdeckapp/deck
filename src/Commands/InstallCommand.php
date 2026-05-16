@@ -37,6 +37,8 @@ class InstallCommand extends Command
 
         $this->components->info('Opt-in cooperative cancellation: add `TorMorten\\Deck\\Middleware\\Cancellable` to job middleware, and call `JobCancellation::throwIfCancelled($this->job)` between long steps. Cancel via `Deck::cancel($uuid)` or the dashboard.');
 
+        $this->components->info('Job blocking is enabled automatically: blocked jobs are released back to the queue with a delay. Use `Deck::blockClass()` / the job detail UI.');
+
         $this->configureHorizonMiddleware();
 
         return self::SUCCESS;

@@ -7,9 +7,9 @@ use TorMorten\Deck\Models\JobExecution;
 
 trait InteractsWithExecutions
 {
-    public function cancelExecution(int $executionId): void
+    public function cancelExecution(string $uuid, ?int $attempt = null): void
     {
-        $cancelled = app(Deck::class)->cancelExecution($executionId);
+        $cancelled = app(Deck::class)->cancelExecution($uuid, $attempt);
 
         if ($cancelled) {
             session()->flash('status', 'Cancellation requested. The worker will stop at the next check.');
@@ -18,6 +18,13 @@ trait InteractsWithExecutions
         }
 
         session()->flash('status', 'This execution cannot be cancelled.');
+    }
+
+    public function retryExecution(string $uuid, ?int $attempt = null): void
+    {
+        $result = app(Deck::class)->retryExecution($uuid, $attempt);
+
+        session()->flash('status', $result->message);
     }
 
     protected function executionsHaveRunning(iterable $executions): bool
