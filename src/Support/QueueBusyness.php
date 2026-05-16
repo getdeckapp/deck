@@ -334,7 +334,7 @@ class QueueBusyness
         }
 
         if ($score >= 50) {
-            return "Busy period — throughput is ".number_format($throughputRatio, 1).'× the 24-hour average.';
+            return 'Busy period — throughput is '.number_format($throughputRatio, 1).'× the 24-hour average.';
         }
 
         if ($running > 0) {
