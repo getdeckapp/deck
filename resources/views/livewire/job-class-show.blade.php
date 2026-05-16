@@ -1,4 +1,4 @@
-<div @if($shouldPoll) wire:poll.2s @endif class="space-y-8">
+<x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <nav class="flex" aria-label="Breadcrumb">
         <ol role="list" class="flex items-center space-x-2 text-sm text-zinc-500">
             <li><a href="{{ route('deck.classes.index') }}" class="hover:text-zinc-700">Jobs</a></li>
@@ -153,4 +153,4 @@
     </section>
 
     @include('deck::partials.action-confirmation')
-</div>
+</x-deck::poll-container>

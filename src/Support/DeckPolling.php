@@ -22,4 +22,13 @@ class DeckPolling
     {
         return max(1, (int) config('deck.poll.executions_seconds', 2));
     }
+
+    public static function activitySeconds(bool $hasRunning = false): int
+    {
+        if ($hasRunning) {
+            return static::executionsSeconds();
+        }
+
+        return max(1, (int) config('deck.poll.activity_seconds', 3));
+    }
 }

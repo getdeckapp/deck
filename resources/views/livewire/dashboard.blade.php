@@ -1,4 +1,4 @@
-<div @if($shouldPoll) wire:poll.10s @endif class="space-y-8">
+<x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">Overview</h1>
@@ -87,4 +87,4 @@
     </section>
 
     @include('deck::partials.action-confirmation')
-</div>
+</x-deck::poll-container>

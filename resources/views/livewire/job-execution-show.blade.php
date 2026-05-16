@@ -1,4 +1,4 @@
-<div @if($execution->status->value === 'running' || $execution->isCancellationPending()) wire:poll.2s @endif class="space-y-8">
+<x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <nav class="flex" aria-label="Breadcrumb">
         <ol role="list" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500">
             <li><a href="{{ route('deck.activity.index') }}" class="hover:text-zinc-700">Activity</a></li>
@@ -129,4 +129,4 @@
     @endif
 
     @include('deck::partials.action-confirmation')
-</div>
+</x-deck::poll-container>

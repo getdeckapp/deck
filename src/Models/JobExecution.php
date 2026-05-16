@@ -67,6 +67,14 @@ class JobExecution extends Model
             && JobCancellation::isCancelled($this->uuid);
     }
 
+    public static function hasRunningForInstallation(): bool
+    {
+        return static::query()
+            ->forInstallation()
+            ->where('status', JobExecutionStatus::Running)
+            ->exists();
+    }
+
     public static function hasPendingCancellationsForInstallation(): bool
     {
         return static::query()

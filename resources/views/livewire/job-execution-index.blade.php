@@ -1,4 +1,4 @@
-<div @if($shouldPoll) wire:poll.2s @endif class="space-y-8">
+<x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <div class="rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm">
         <h1 class="text-lg font-semibold tracking-tight text-zinc-900">Activity</h1>
         <p class="mt-2 text-sm text-zinc-600">
@@ -65,31 +65,6 @@
         </div>
     </div>
 
-    <div class="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-sm">
-        <h2 class="text-sm font-semibold text-zinc-900">Cancel queued job</h2>
-        <p class="mt-1 text-xs text-zinc-500">
-            Best-effort removal from Redis by UUID. Also sets the cooperative cancel flag if the job starts later.
-        </p>
-        <form wire:submit="cancelPending" class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-            <div class="min-w-0 flex-1">
-                <label for="deck-pending-uuid" class="sr-only">Job UUID</label>
-                <input
-                    id="deck-pending-uuid"
-                    type="text"
-                    wire:model="pendingUuid"
-                    placeholder="Job UUID from Horizon or Deck…"
-                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 font-mono text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
-                >
-            </div>
-            <button
-                type="submit"
-                class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50"
-            >
-                Cancel queued job
-            </button>
-        </form>
-    </div>
-
     <div class="flow-root">
         <div class="-mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -103,4 +78,4 @@
     @endif
 
     @include('deck::partials.action-confirmation')
-</div>
+</x-deck::poll-container>

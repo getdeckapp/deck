@@ -103,6 +103,7 @@ return [
         'dashboard_seconds' => (int) env('DECK_POLL_DASHBOARD_SECONDS', 4),
         'dashboard_running_seconds' => (int) env('DECK_POLL_DASHBOARD_RUNNING_SECONDS', 2),
         'workers_seconds' => (int) env('DECK_POLL_WORKERS_SECONDS', 4),
+        'activity_seconds' => (int) env('DECK_POLL_ACTIVITY_SECONDS', 3),
         'executions_seconds' => (int) env('DECK_POLL_EXECUTIONS_SECONDS', 2),
     ],
 

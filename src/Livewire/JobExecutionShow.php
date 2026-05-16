@@ -6,6 +6,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
 use TorMorten\Deck\Models\JobExecution;
+use TorMorten\Deck\Support\DeckPolling;
 
 #[Layout('deck::layouts.app')]
 class JobExecutionShow extends Component
@@ -27,8 +28,13 @@ class JobExecutionShow extends Component
     {
         $this->execution->refresh();
 
+        $shouldPoll = $this->execution->status->value === 'running'
+            || $this->execution->isCancellationPending();
+
         return view('deck::livewire.job-execution-show', [
             'execution' => $this->execution,
+            'shouldPoll' => $shouldPoll,
+            'pollSeconds' => DeckPolling::executionsSeconds(),
         ]);
     }
 }

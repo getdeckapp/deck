@@ -4,6 +4,7 @@ namespace TorMorten\Deck\Livewire\Concerns;
 
 use TorMorten\Deck\Deck;
 use TorMorten\Deck\Models\JobExecution;
+use TorMorten\Deck\Support\DeckPolling;
 
 trait InteractsWithExecutions
 {
@@ -99,5 +100,10 @@ trait InteractsWithExecutions
         }
 
         return JobExecution::hasPendingCancellationsForInstallation();
+    }
+
+    protected function executionPollSeconds(): int
+    {
+        return DeckPolling::executionsSeconds();
     }
 }

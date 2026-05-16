@@ -6,11 +6,11 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use TorMorten\Deck\Deck;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Livewire\Concerns\FiltersExecutions;
 use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
 use TorMorten\Deck\Models\JobExecution;
+use TorMorten\Deck\Support\DeckPolling;
 use TorMorten\Deck\Support\ExecutionTagCatalog;
 
 #[Layout('deck::layouts.app')]
@@ -34,9 +34,6 @@ class JobExecutionIndex extends Component
 
     #[Url]
     public string $tag = '';
-
-    #[Url]
-    public string $pendingUuid = '';
 
     public function updatedSearch(): void
     {
@@ -69,22 +66,6 @@ class JobExecutionIndex extends Component
         $this->resetPage();
     }
 
-    public function cancelPending(): void
-    {
-        $uuid = trim($this->pendingUuid);
-
-        if ($uuid === '') {
-            session()->flash('status', 'Enter a job UUID to cancel a queued job.');
-
-            return;
-        }
-
-        $result = app(Deck::class)->cancelPending($uuid);
-
-        session()->flash('status', $result->message);
-        $this->pendingUuid = '';
-    }
-
     public function render()
     {
         $executions = $this->filteredExecutionsQuery()
@@ -105,12 +86,15 @@ class JobExecutionIndex extends Component
             ->orderBy('connection')
             ->pluck('connection');
 
+        $hasRunning = JobExecution::hasRunningForInstallation();
+
         return view('deck::livewire.job-execution-index', [
             'executions' => $executions,
             'queues' => $queues,
             'connections' => $connections,
             'tags' => app(ExecutionTagCatalog::class)->tags(),
-            'shouldPoll' => $this->shouldPollExecutions($executions),
+            'shouldPoll' => true,
+            'pollSeconds' => DeckPolling::activitySeconds($hasRunning),
             'statuses' => JobExecutionStatus::cases(),
         ]);
     }
