@@ -73,30 +73,37 @@
                         {{ $execution->formattedDuration() }}
                     </td>
                     <td class="py-4 pr-4 pl-3 text-right text-sm whitespace-nowrap sm:pr-6">
-                        <div class="flex items-center justify-end gap-3">
+                        <div class="flex items-center justify-end gap-4">
+                            @if ($execution->canRetry())
+                                <x-deck::confirm-button
+                                    action="retryExecution"
+                                    :params="[$execution->uuid, $execution->attempt]"
+                                    title="Retry failed job"
+                                    message="This queues the job again via Horizon, the failed-job store, or a fresh dispatch when possible."
+                                    confirm-label="Retry"
+                                    progress-label="Retrying…"
+                                    class="relative z-10 text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                >
+                                    Retry
+                                </x-deck::confirm-button>
+                            @elseif ($execution->status->value === 'running')
+                                <x-deck::confirm-button
+                                    action="cancelExecution"
+                                    :params="[$execution->uuid, $execution->attempt]"
+                                    title="Cancel running job"
+                                    message="Cancellation is cooperative: the worker stops at the next check, and Deck attempts a best-effort Redis removal."
+                                    confirm-label="Cancel job"
+                                    progress-label="Cancelling…"
+                                    tone="danger"
+                                    class="relative z-10 text-sm font-semibold text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300"
+                                >
+                                    Cancel
+                                </x-deck::confirm-button>
+                            @endif
                             <span class="text-sm font-semibold text-indigo-600 group-hover:text-indigo-500 dark:text-indigo-400 dark:group-hover:text-indigo-300">
                                 Details
                                 <span aria-hidden="true" class="text-indigo-400 dark:text-indigo-500">→</span>
                             </span>
-                            @if ($execution->canRetry())
-                                <button
-                                    type="button"
-                                    class="relative z-10 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-emerald-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-emerald-50 dark:bg-white/10 dark:text-emerald-400 dark:ring-white/10 dark:hover:bg-emerald-500/10"
-                                    wire:click.stop="retryExecution(@js($execution->uuid), {{ $execution->attempt }})"
-                                    wire:confirm="Retry this failed job?"
-                                >
-                                    Retry
-                                </button>
-                            @elseif ($execution->status->value === 'running')
-                                <button
-                                    type="button"
-                                    class="relative z-10 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
-                                    wire:click.stop="cancelExecution(@js($execution->uuid), {{ $execution->attempt }})"
-                                    wire:confirm="Cancel this running job?"
-                                >
-                                    Cancel
-                                </button>
-                            @endif
                         </div>
                     </td>
                 </tr>

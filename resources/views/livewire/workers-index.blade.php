@@ -21,6 +21,8 @@
         @endif
     </div>
 
+    @include('deck::partials.unprocessed-queues-card', ['queues' => $unprocessedQueues])
+
     @include('deck::partials.workload-panel', [
         'horizonAvailable' => $horizonAvailable,
         'horizonSummary' => $horizonSummary,

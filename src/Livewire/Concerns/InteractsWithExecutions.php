@@ -7,6 +7,8 @@ use TorMorten\Deck\Models\JobExecution;
 
 trait InteractsWithExecutions
 {
+    use InteractsWithActionConfirmation;
+
     public function cancelExecution(string $uuid, ?int $attempt = null): void
     {
         $cancelled = app(Deck::class)->cancelExecution($uuid, $attempt);

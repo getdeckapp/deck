@@ -10,6 +10,7 @@
     use TorMorten\Deck\Support\FormatDuration;
     use TorMorten\Deck\Support\LineChartGeometry;
 
+    $chartId = md5($title);
     $axisFormatter = match ($format) {
         'duration' => fn (int $value): string => FormatDuration::format($value),
         default => fn (int $value): string => (string) number_format($value),
@@ -45,92 +46,98 @@
             x-ref="container"
             class="deck-line-chart relative px-3 py-5 sm:px-5"
         >
-            <svg
-                x-ref="svg"
-                viewBox="0 0 {{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH }} {{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT }}"
-                class="w-full touch-none select-none"
-                preserveAspectRatio="xMidYMid meet"
-                @mousemove="move($event)"
-                @mouseleave="leave()"
-                @touchmove.prevent="move($event)"
-                @touchend="leave()"
-            >
-                <defs>
-                    <linearGradient id="deck-chart-fill-{{ md5($title) }}" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35" />
-                        <stop offset="100%" stop-color="#6366f1" stop-opacity="0.02" />
-                    </linearGradient>
-                </defs>
+            <div class="rounded-xl ring-1 ring-inset ring-zinc-200/70 p-2 dark:ring-zinc-800/80">
+                <svg
+                    x-ref="svg"
+                    viewBox="0 0 {{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH }} {{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT }}"
+                    class="w-full touch-none select-none"
+                    preserveAspectRatio="xMidYMid meet"
+                    @mousemove="move($event)"
+                    @mouseleave="leave()"
+                    @touchmove.prevent="move($event)"
+                    @touchend="leave()"
+                >
+                    <defs>
+                        <linearGradient id="deck-chart-fill-{{ $chartId }}" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" style="stop-color: var(--deck-chart-area-top)" />
+                            <stop offset="100%" style="stop-color: var(--deck-chart-area-bottom)" />
+                        </linearGradient>
+                    </defs>
 
-                @foreach ($chart['yTicks'] as $tick)
-                    <line
-                        x1="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_LEFT }}"
-                        y1="{{ $tick['y'] }}"
-                        x2="{{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH - \TorMorten\Deck\Support\LineChartGeometry::PAD_RIGHT }}"
-                        y2="{{ $tick['y'] }}"
-                        class="stroke-zinc-200 dark:stroke-zinc-700"
-                        stroke-width="1"
-                        vector-effect="non-scaling-stroke"
-                    />
-                    <text
-                        x="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_LEFT - 8 }}"
-                        y="{{ $tick['y'] + 4 }}"
-                        text-anchor="end"
-                        class="fill-zinc-400 text-[10px] font-medium dark:fill-zinc-500"
-                    >{{ $tick['label'] }}</text>
-                @endforeach
-
-                <path
-                    d="{{ $chart['areaPath'] }}"
-                    fill="url(#deck-chart-fill-{{ md5($title) }})"
-                />
-
-                <path
-                    d="{{ $chart['linePath'] }}"
-                    fill="none"
-                    class="stroke-indigo-500 dark:stroke-indigo-400"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    vector-effect="non-scaling-stroke"
-                />
-
-                @foreach ($chart['xTicks'] as $tick)
-                    <text
-                        x="{{ $tick['x'] }}"
-                        y="{{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT - 6 }}"
-                        text-anchor="middle"
-                        class="fill-zinc-400 text-[10px] font-medium dark:fill-zinc-500"
-                    >{{ $tick['label'] }}</text>
-                @endforeach
-
-                <template x-if="active">
-                    <g>
+                    @foreach ($chart['yTicks'] as $tick)
                         <line
-                            :x1="active.x"
-                            :x2="active.x"
-                            y1="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_TOP }}"
-                            y2="{{ $chart['baseline'] }}"
-                            class="stroke-indigo-300 dark:stroke-indigo-600"
+                            x1="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_LEFT }}"
+                            y1="{{ $tick['y'] }}"
+                            x2="{{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH - \TorMorten\Deck\Support\LineChartGeometry::PAD_RIGHT }}"
+                            y2="{{ $tick['y'] }}"
+                            stroke="var(--deck-chart-grid)"
                             stroke-width="1"
-                            stroke-dasharray="4 3"
                             vector-effect="non-scaling-stroke"
                         />
-                        <circle
-                            :cx="active.x"
-                            :cy="active.y"
-                            r="4.5"
-                            class="fill-indigo-500 stroke-2 stroke-white dark:stroke-zinc-900"
-                        />
-                    </g>
-                </template>
-            </svg>
+                        <text
+                            x="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_LEFT - 8 }}"
+                            y="{{ $tick['y'] + 4 }}"
+                            text-anchor="end"
+                            fill="var(--deck-chart-axis)"
+                            class="text-[10px] font-medium"
+                        >{{ $tick['label'] }}</text>
+                    @endforeach
+
+                    <path
+                        d="{{ $chart['areaPath'] }}"
+                        fill="url(#deck-chart-fill-{{ $chartId }})"
+                    />
+
+                    <path
+                        d="{{ $chart['linePath'] }}"
+                        fill="none"
+                        stroke="var(--deck-chart-line)"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        vector-effect="non-scaling-stroke"
+                    />
+
+                    @foreach ($chart['xTicks'] as $tick)
+                        <text
+                            x="{{ $tick['x'] }}"
+                            y="{{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT - 6 }}"
+                            text-anchor="middle"
+                            fill="var(--deck-chart-axis)"
+                            class="text-[10px] font-medium"
+                        >{{ $tick['label'] }}</text>
+                    @endforeach
+
+                    <template x-if="active">
+                        <g>
+                            <line
+                                :x1="active.x"
+                                :x2="active.x"
+                                y1="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_TOP }}"
+                                y2="{{ $chart['baseline'] }}"
+                                stroke="var(--deck-chart-crosshair)"
+                                stroke-width="1"
+                                stroke-dasharray="4 3"
+                                vector-effect="non-scaling-stroke"
+                            />
+                            <circle
+                                :cx="active.x"
+                                :cy="active.y"
+                                r="4.5"
+                                fill="var(--deck-chart-line)"
+                                stroke="var(--deck-chart-point-ring)"
+                                stroke-width="2"
+                            />
+                        </g>
+                    </template>
+                </svg>
+            </div>
 
             <div
                 x-show="active"
                 x-cloak
                 :style="tooltipStyle"
-                class="pointer-events-none absolute z-20 min-w-[8rem] max-w-[12rem] rounded-lg border border-zinc-200/80 bg-white/95 px-3 py-2 text-center shadow-lg backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-800/95"
+                class="pointer-events-none absolute z-20 min-w-[8rem] max-w-[12rem] rounded-lg border border-zinc-200/80 bg-white/95 px-3 py-2 text-center shadow-lg backdrop-blur-sm dark:border-zinc-600 dark:bg-zinc-800 dark:shadow-black/40"
             >
                 <p class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400" x-text="active?.label"></p>
                 <p class="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900 dark:text-white" x-text="active?.formatted"></p>

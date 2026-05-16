@@ -20,13 +20,37 @@ class CheckAlertsCommand extends Command
             return self::SUCCESS;
         }
 
-        $alerts = $checker->staleJobs();
+        $staleJobAlerts = $checker->staleJobs();
+        $unprocessedQueueAlerts = $checker->unprocessedQueues();
 
-        if ($alerts->isEmpty()) {
-            $this->components->info('No stale job alerts.');
+        if ($staleJobAlerts->isEmpty() && $unprocessedQueueAlerts->isEmpty()) {
+            $this->components->info('No Deck alerts.');
 
             return self::SUCCESS;
         }
+
+        if ($unprocessedQueueAlerts->isNotEmpty()) {
+            $this->components->warn(sprintf(
+                '%d queue(s) have pending jobs without Horizon workers:',
+                $unprocessedQueueAlerts->count(),
+            ));
+
+            foreach ($unprocessedQueueAlerts as $alert) {
+                $queue = $alert->queue;
+                $this->components->warn(sprintf(
+                    '- %s:%s (%d pending)',
+                    $queue->connection,
+                    $queue->queue,
+                    $queue->pending,
+                ));
+            }
+        }
+
+        if ($staleJobAlerts->isEmpty()) {
+            return self::SUCCESS;
+        }
+
+        $alerts = $staleJobAlerts;
 
         $notificationClass = config('deck.alerts.notification');
         $notifiableClass = config('deck.alerts.notifiable');

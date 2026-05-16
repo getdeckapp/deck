@@ -21,23 +21,30 @@
             <p class="mt-2 truncate font-mono text-sm text-zinc-500 dark:text-zinc-400">{{ $execution->job_class }}</p>
         </div>
         @if ($execution->canRetry())
-            <button
-                type="button"
-                class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-emerald-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-emerald-50 dark:bg-white/10 dark:text-emerald-400 dark:ring-white/10 dark:hover:bg-emerald-500/10"
-                wire:click="retryExecution(@js($execution->uuid), {{ $execution->attempt }})"
-                wire:confirm="Retry this failed job?"
+            <x-deck::confirm-button
+                action="retryExecution"
+                :params="[$execution->uuid, $execution->attempt]"
+                title="Retry failed job"
+                message="This queues the job again via Horizon, the failed-job store, or a fresh dispatch when possible."
+                confirm-label="Retry job"
+                progress-label="Retrying…"
+                class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-indigo-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-indigo-50 dark:bg-white/10 dark:text-indigo-400 dark:ring-white/10 dark:hover:bg-indigo-500/10"
             >
                 Retry job
-            </button>
+            </x-deck::confirm-button>
         @elseif ($execution->status->value === 'running')
-            <button
-                type="button"
+            <x-deck::confirm-button
+                action="cancelExecution"
+                :params="[$execution->uuid, $execution->attempt]"
+                title="Cancel running job"
+                message="Cancellation is cooperative: the worker stops at the next check, and Deck attempts a best-effort Redis removal."
+                confirm-label="Cancel job"
+                progress-label="Cancelling…"
+                tone="danger"
                 class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
-                wire:click="cancelExecution(@js($execution->uuid), {{ $execution->attempt }})"
-                wire:confirm="Cancel this running job?"
             >
                 Cancel job
-            </button>
+            </x-deck::confirm-button>
         @endif
     </div>
 
@@ -119,4 +126,6 @@
             <pre class="max-h-96 overflow-auto p-5 font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ json_encode($execution->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
         </section>
     @endif
+
+    @include('deck::partials.action-confirmation')
 </div>

@@ -15,6 +15,7 @@ use TorMorten\Deck\Support\ExecutionMetrics;
 use TorMorten\Deck\Support\ExecutionTagCatalog;
 use TorMorten\Deck\Support\HorizonSnapshot;
 use TorMorten\Deck\Support\QueueBusyness;
+use TorMorten\Deck\Support\UnprocessedQueueDetector;
 
 #[Layout('deck::layouts.app')]
 class Dashboard extends Component
@@ -66,6 +67,7 @@ class Dashboard extends Component
             'jobVolumeChart' => $metrics->hourlyJobVolume()->all(),
             'durationChart' => $metrics->hourlyAverageDuration()->all(),
             'queueBusyness' => app(QueueBusyness::class)->assess(),
+            'unprocessedQueues' => app(UnprocessedQueueDetector::class)->detect(),
             'horizonAvailable' => $horizon->isAvailable(),
             'running' => $running,
             'recentFailures' => $recentFailures,

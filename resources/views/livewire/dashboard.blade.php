@@ -23,6 +23,8 @@
         />
     </div>
 
+    @include('deck::partials.unprocessed-queues-card', ['queues' => $unprocessedQueues])
+
     @include('deck::partials.queue-busyness-card', ['busyness' => $queueBusyness])
 
     <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -93,4 +95,6 @@
             @include('deck::partials.execution-table', ['executions' => $recentActivity, 'emptyMessage' => 'No activity yet.'])
         </div>
     </section>
+
+    @include('deck::partials.action-confirmation')
 </div>

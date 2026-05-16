@@ -101,4 +101,6 @@
     @if ($executions->hasPages())
         <div>{{ $executions->links() }}</div>
     @endif
+
+    @include('deck::partials.action-confirmation')
 </div>

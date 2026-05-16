@@ -101,4 +101,22 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Unprocessed queue detection (Horizon)
+    |--------------------------------------------------------------------------
+    |
+    | Detect queues with pending jobs but no Horizon worker processes assigned.
+    | Requires Horizon; without it, Deck does not report unprocessed queues.
+    |
+    */
+    'unprocessed_queues' => [
+        'enabled' => (bool) env('DECK_UNPROCESSED_QUEUES_ENABLED', true),
+        'min_pending' => (int) env('DECK_UNPROCESSED_QUEUES_MIN_PENDING', 1),
+        'include_alerts' => (bool) env('DECK_UNPROCESSED_QUEUES_ALERTS', true),
+        'additional_queues' => [
+            // 'redis:notifications',
+        ],
+    ],
+
 ];

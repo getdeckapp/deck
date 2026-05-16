@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark {
+    &:where(.dark, .dark *) {
+        @slot;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        @slot;
+    }
+}
 
 @source '../views/**/*.blade.php';
 
@@ -30,13 +38,13 @@
 
     @variant dark {
         .deck-line-chart {
-            --deck-chart-grid: var(--color-zinc-700);
+            --deck-chart-grid: color-mix(in srgb, var(--color-zinc-600) 55%, transparent);
             --deck-chart-axis: var(--color-zinc-400);
             --deck-chart-line: var(--color-indigo-400);
-            --deck-chart-crosshair: var(--color-indigo-500);
+            --deck-chart-crosshair: color-mix(in srgb, var(--color-indigo-400) 70%, transparent);
             --deck-chart-point-ring: var(--color-zinc-900);
-            --deck-chart-area-top: color-mix(in srgb, var(--color-indigo-400) 26%, transparent);
-            --deck-chart-area-bottom: color-mix(in srgb, var(--color-indigo-400) 4%, transparent);
+            --deck-chart-area-top: color-mix(in srgb, var(--color-indigo-400) 22%, transparent);
+            --deck-chart-area-bottom: color-mix(in srgb, var(--color-indigo-400) 3%, transparent);
         }
     }
 }

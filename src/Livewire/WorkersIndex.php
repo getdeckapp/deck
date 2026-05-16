@@ -7,6 +7,7 @@ use Livewire\Component;
 use TorMorten\Deck\Support\DeckHorizon;
 use TorMorten\Deck\Support\HorizonSnapshot;
 use TorMorten\Deck\Support\QueueInsights;
+use TorMorten\Deck\Support\UnprocessedQueueDetector;
 
 #[Layout('deck::layouts.app')]
 class WorkersIndex extends Component
@@ -22,6 +23,7 @@ class WorkersIndex extends Component
             'horizonMasters' => $horizon->masters(),
             'horizonSupervisors' => $horizon->supervisors(),
             'queueInsights' => app(QueueInsights::class)->busyQueues(),
+            'unprocessedQueues' => app(UnprocessedQueueDetector::class)->detect(),
             'shouldPoll' => $horizon->isAvailable(),
             'horizonUrl' => DeckHorizon::dashboardUrl(),
         ]);

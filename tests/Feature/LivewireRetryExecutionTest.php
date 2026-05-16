@@ -33,7 +33,8 @@ it('shows a retry button for failed jobs on the activity index', function () {
 
     Livewire::test(JobExecutionIndex::class)
         ->assertSee('Retry')
-        ->assertSeeHtml('wire:click.stop="retryExecution');
+        ->assertSeeHtml('requestConfirmation')
+        ->assertSee('Retry');
 });
 
 it('retries a failed execution from the detail page', function () {

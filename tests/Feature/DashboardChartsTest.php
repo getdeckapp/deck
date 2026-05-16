@@ -16,6 +16,7 @@ it('renders job volume and duration charts on the overview', function () {
     $response->assertSee('Job volume');
     $response->assertSee('Average duration');
     $response->assertSee('Queue pressure');
+    $response->assertSee('Pressure index');
     $response->assertSee('deck-line-chart', false);
     $response->assertSee('deckLineChart', false);
     $response->assertSee('jobs executed', false);
@@ -35,6 +36,7 @@ it('shows queue pressure from horizon on the overview when horizon is installed'
     $snapshot->shouldReceive('workload')->andReturn([
         ['name' => 'default', 'length' => 5, 'wait' => 2, 'processes' => 2],
     ]);
+    $snapshot->shouldReceive('supervisors')->andReturn([]);
 
     $this->app->instance(HorizonSnapshot::class, $snapshot);
 
@@ -42,6 +44,7 @@ it('shows queue pressure from horizon on the overview when horizon is installed'
 
     $response->assertOk();
     $response->assertSee('Queue pressure');
+    $response->assertSee('Pressure index');
     $response->assertSee('Live from Horizon');
     $response->assertDontSee('Horizon workers');
 });

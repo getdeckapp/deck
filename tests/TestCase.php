@@ -38,5 +38,6 @@ class TestCase extends Orchestra
         config()->set('deck.retention_days', 90);
         config()->set('deck.project', 'test');
         config()->set('deck.environment', 'testing');
+        config()->set('deck.unprocessed_queues.enabled', false);
     }
 }

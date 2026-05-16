@@ -7,7 +7,7 @@
         </ol>
     </nav>
 
-    <div class="overflow-visible rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900">
+    <div class="relative z-20 overflow-visible rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900">
         <div class="md:flex md:items-start md:justify-between md:gap-6">
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
@@ -30,66 +30,86 @@
             </div>
             <div class="relative z-30 mt-4 flex flex-wrap items-center gap-2 md:mt-0 md:shrink-0">
                 @if ($runningCount > 0)
-                    <button
-                        type="button"
+                    <x-deck::confirm-button
+                        action="cancelAllRunning"
+                        title="Cancel all running jobs"
+                        :message="'Cancel all '.$runningCount.' running '.str('execution')->plural($runningCount).' for this class? Jobs without the Cancellable middleware may keep running.'"
+                        confirm-label="Cancel all ({{ $runningCount }})"
+                        progress-label="Cancelling…"
+                        tone="danger"
                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-red-50 dark:bg-white/10 dark:text-red-400 dark:ring-white/10 dark:hover:bg-red-500/10"
-                        wire:click="cancelAllRunning"
-                        wire:confirm="Cancel all {{ $runningCount }} running {{ str('execution')->plural($runningCount) }} for this class? Jobs without the Cancellable middleware may keep running."
                     >
                         Cancel all ({{ $runningCount }})
-                    </button>
+                    </x-deck::confirm-button>
                 @endif
                 @if ($isBlocked)
-                    <button
-                        type="button"
+                    <x-deck::confirm-button
+                        action="unblockClass"
+                        title="Unblock job"
+                        message="Workers will be able to process this job class again on the next queue attempt."
+                        confirm-label="Unblock"
+                        progress-label="Unblocking…"
                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 dark:bg-white/10 dark:text-white dark:ring-white/10 dark:hover:bg-white/15"
-                        wire:click="unblockClass"
-                        wire:confirm="Unblock this job so workers can process it again?"
                     >
                         Unblock
-                    </button>
+                    </x-deck::confirm-button>
                 @else
                     <div x-data="{ open: false }" class="relative">
                         <button
                             type="button"
-                            class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-amber-800 shadow-xs ring-1 ring-inset ring-amber-600/30 hover:bg-amber-50 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30 dark:hover:bg-amber-500/20"
+                            class="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-amber-800 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-amber-50 dark:bg-zinc-800 dark:text-amber-300 dark:ring-zinc-600 dark:hover:bg-zinc-700/80"
                             @click="open = ! open"
                             @click.outside="open = false"
+                            :aria-expanded="open"
+                            aria-haspopup="menu"
                         >
                             Block job
+                            <svg class="size-4 text-amber-600/80 dark:text-amber-400/80" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                            </svg>
                         </button>
                         <div
                             x-show="open"
                             x-cloak
-                            class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg border border-zinc-200/80 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            role="menu"
+                            class="absolute right-0 z-50 mt-2 w-56 origin-top-right overflow-hidden rounded-lg border border-zinc-200/80 bg-white py-1 shadow-lg ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-xl dark:shadow-black/40 dark:ring-white/10"
                         >
-                            <button
-                                type="button"
-                                class="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700/80"
-                                wire:click="blockClass('1h')"
-                                @click="open = false"
-                                wire:confirm="Block this job for 1 hour? Running jobs will be cancelled."
-                            >
-                                1 hour
-                            </button>
-                            <button
-                                type="button"
-                                class="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700/80"
-                                wire:click="blockClass('24h')"
-                                @click="open = false"
-                                wire:confirm="Block this job for 24 hours? Running jobs will be cancelled."
-                            >
-                                24 hours
-                            </button>
-                            <button
-                                type="button"
-                                class="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700/80"
-                                wire:click="blockClass"
-                                @click="open = false"
-                                wire:confirm="Block this job until you unblock it? Running jobs will be cancelled."
-                            >
-                                Until manual unblock
-                            </button>
+                            <p class="px-4 pt-2 pb-1 text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">Block for</p>
+                            <div class="mt-1 divide-y divide-zinc-100 dark:divide-zinc-800">
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['1h']), @js('Block for 1 hour'), @js('Running jobs will be cancelled. New attempts stay on the queue until the block expires.'), @js('Block 1 hour'), @js('Blocking…'), @js('warning'))"
+                                    @click="open = false"
+                                >
+                                    1 hour
+                                </button>
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js(['24h']), @js('Block for 24 hours'), @js('Running jobs will be cancelled. New attempts stay on the queue until the block expires.'), @js('Block 24 hours'), @js('Blocking…'), @js('warning'))"
+                                    @click="open = false"
+                                >
+                                    24 hours
+                                </button>
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    class="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                                    wire:click.stop="requestConfirmation(@js('blockClass'), @js([]), @js('Block until manual unblock'), @js('Running jobs will be cancelled. New attempts stay on the queue until you unblock this job.'), @js('Block job'), @js('Blocking…'), @js('warning'))"
+                                    @click="open = false"
+                                >
+                                    Until manual unblock
+                                </button>
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -98,7 +118,7 @@
     </div>
 
     @if ($stat)
-        <dl class="relative z-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <x-deck::stat-card label="Last finished" :value="$stat->last_finished_at?->diffForHumans() ?? 'Never'" />
             <x-deck::stat-card label="Success rate" :value="$stat->successRate() !== null ? $stat->successRate().'%' : '—'" />
             <x-deck::stat-card label="Avg duration" :value="\TorMorten\Deck\Support\FormatDuration::format($avgDurationMs)" />
@@ -131,4 +151,6 @@
             <div>{{ $executions->links() }}</div>
         @endif
     </section>
+
+    @include('deck::partials.action-confirmation')
 </div>
