@@ -32,7 +32,12 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
         config()->set('queue.default', 'sync');
+        config()->set('queue.connections.redis', [
+            'driver' => 'sync',
+        ]);
         config()->set('cache.default', 'array');
+        config()->set('deck.cancel_cache_store', 'array');
+        config()->set('deck.block_cache_store', 'array');
         config()->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
         config()->set('deck.auth', fn () => true);
         config()->set('deck.retention_days', 90);
