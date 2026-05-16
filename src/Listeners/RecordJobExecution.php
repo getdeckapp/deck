@@ -14,6 +14,7 @@ use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeckInstallation;
 use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
+use TorMorten\Deck\Support\JobClassIdentifierRegistry;
 use TorMorten\Deck\Support\QueuedJobMetadata;
 
 class RecordJobExecution
@@ -26,9 +27,9 @@ class RecordJobExecution
     {
         $metadata = QueuedJobMetadata::fromQueueJob($event->job);
 
-        if (JobClassBlock::isBlocked($metadata->jobClass)) {
-            $event->job->release(JobClassBlock::releaseDelaySeconds());
+        JobClassIdentifierRegistry::rememberFromQueueJob($event->job);
 
+        if (JobClassBlock::isBlockedForJob($event->job)) {
             return;
         }
 
@@ -51,6 +52,10 @@ class RecordJobExecution
             ->where('uuid', $metadata->uuid)
             ->where('attempt', $metadata->attempt)
             ->first();
+
+        if ($execution === null && $event->job->isDeletedOrReleased()) {
+            return;
+        }
 
         $startedAt = $execution?->started_at ?? $finishedAt;
         $durationMs = (int) $startedAt->diffInMilliseconds($finishedAt);

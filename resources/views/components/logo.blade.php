@@ -45,7 +45,7 @@
                     $sizeClasses['sub'],
                     'block font-medium tracking-wide',
                     'text-zinc-500' => $isDark,
-                    'text-zinc-500' => ! $isDark,
+                    'text-zinc-500',
                 ])>Queue control plane</span>
             @endif
         </div>

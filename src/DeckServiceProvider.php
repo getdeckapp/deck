@@ -2,6 +2,8 @@
 
 namespace TorMorten\Deck;
 
+use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Queue\CallQueuedHandler;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -13,6 +15,7 @@ use TorMorten\Deck\Commands\CheckAlertsCommand;
 use TorMorten\Deck\Commands\InstallCommand;
 use TorMorten\Deck\Commands\PruneCommand;
 use TorMorten\Deck\Contracts\JobExecutionRecorder;
+use TorMorten\Deck\Listeners\PreventBlockedQueueJobs;
 use TorMorten\Deck\Listeners\RecordJobExecution;
 use TorMorten\Deck\Livewire\Dashboard;
 use TorMorten\Deck\Livewire\JobClassIndex;
@@ -20,6 +23,7 @@ use TorMorten\Deck\Livewire\JobClassShow;
 use TorMorten\Deck\Livewire\JobExecutionIndex;
 use TorMorten\Deck\Livewire\JobExecutionShow;
 use TorMorten\Deck\Livewire\WorkersIndex;
+use TorMorten\Deck\Queue\DeckCallQueuedHandler;
 use TorMorten\Deck\Recorders\DatabaseJobExecutionRecorder;
 use TorMorten\Deck\Support\HorizonSnapshot;
 
@@ -46,12 +50,20 @@ class DeckServiceProvider extends PackageServiceProvider
         $this->app->singleton(JobExecutionRecorder::class, DatabaseJobExecutionRecorder::class);
         $this->app->singleton(Deck::class);
         $this->app->singleton(HorizonSnapshot::class, fn (): HorizonSnapshot => HorizonSnapshot::make());
+        $this->app->bind(CallQueuedHandler::class, function ($app): DeckCallQueuedHandler {
+            return new DeckCallQueuedHandler(
+                $app->make(Dispatcher::class),
+                $app,
+            );
+        });
     }
 
     public function packageBooted(): void
     {
+        $preventBlocked = $this->app->make(PreventBlockedQueueJobs::class);
         $listener = $this->app->make(RecordJobExecution::class);
 
+        Event::listen(JobProcessing::class, [$preventBlocked, 'handle']);
         Event::listen(JobProcessing::class, [$listener, 'handleProcessing']);
         Event::listen(JobProcessed::class, [$listener, 'handleProcessed']);
         Event::listen(JobFailed::class, [$listener, 'handleFailed']);

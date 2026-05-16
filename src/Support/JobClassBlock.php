@@ -3,6 +3,7 @@
 namespace TorMorten\Deck\Support;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Support\Carbon;
 
 class JobClassBlock
@@ -16,26 +17,27 @@ class JobClassBlock
 
     public static function block(string $jobClass, ?Carbon $until = null): void
     {
-        if ($until !== null) {
-            static::cache()->put(
-                static::cacheKey($jobClass),
-                $until->toIso8601String(),
-                $until,
-            );
-
-            return;
+        foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
+            static::putBlock($identifier, $until);
         }
-
-        static::cache()->put(
-            static::cacheKey($jobClass),
-            self::ManualMarker,
-            now()->addSeconds((int) config('deck.block_manual_ttl_seconds', 31_536_000)),
-        );
     }
 
     public static function unblock(string $jobClass): void
     {
-        static::cache()->forget(static::cacheKey($jobClass));
+        foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
+            static::cache()->forget(static::cacheKey($identifier));
+        }
+    }
+
+    public static function isBlockedForJob(QueueJobContract $job): bool
+    {
+        foreach (JobClassIdentifierRegistry::forQueueJob($job) as $identifier) {
+            if (static::isBlocked($identifier)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static function isBlocked(string $jobClass): bool
@@ -92,10 +94,38 @@ class JobClassBlock
         return max(1, (int) config('deck.block_release_seconds', 60));
     }
 
+    public static function cacheRepository(): CacheRepository
+    {
+        $store = config('deck.block_cache_store') ?? config('deck.cancel_cache_store');
+
+        if ($store === null && config('queue.default') === 'redis') {
+            $store = 'redis';
+        }
+
+        return app('cache')->store($store ?? config('cache.default'));
+    }
+
+    private static function putBlock(string $jobClass, ?Carbon $until): void
+    {
+        if ($until !== null) {
+            static::cache()->put(
+                static::cacheKey($jobClass),
+                $until->toIso8601String(),
+                $until,
+            );
+
+            return;
+        }
+
+        static::cache()->put(
+            static::cacheKey($jobClass),
+            self::ManualMarker,
+            now()->addSeconds((int) config('deck.block_manual_ttl_seconds', 31_536_000)),
+        );
+    }
+
     private static function cache(): CacheRepository
     {
-        $store = config('deck.block_cache_store') ?? config('deck.cancel_cache_store') ?? config('cache.default');
-
-        return app('cache')->store($store);
+        return static::cacheRepository();
     }
 }

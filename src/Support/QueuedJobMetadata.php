@@ -29,7 +29,9 @@ class QueuedJobMetadata
 
         return new self(
             uuid: $uuid,
-            jobClass: $job->resolveName(),
+            jobClass: method_exists($job, 'resolveQueuedJobClass')
+                ? $job->resolveQueuedJobClass()
+                : $job->resolveName(),
             connection: $job->getConnectionName(),
             queue: $job->getQueue() ?? 'default',
             attempt: $job->attempts(),
