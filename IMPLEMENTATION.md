@@ -658,14 +658,98 @@ Same shape as `JobExecutionRecord` JSON (no full job payload by default):
 
 Agent sends over HTTPS with `Authorization: Bearer {DECK_API_KEY}`. Idempotency: `(project, environment, uuid, attempt, status)`.
 
+### Command channel (C3 — remote cancel/block)
+
+Cloud needs to deliver control commands (cancel a UUID, block/unblock a class) back to the customer's app. The app executes them locally against its own cache/Redis — Cloud never touches customer infrastructure directly.
+
+**Mechanism: `Queue::looping()` piggyback**
+
+The worker process already fires a `looping` event on every iteration — including idle loops while waiting for jobs. Register the command poller there:
+
+```php
+// DeckServiceProvider
+Queue::looping(function () {
+    PollCloudCommands::runIfDue();
+});
+```
+
+`runIfDue()` is debounced via a `deck:cloud:last_poll` cache timestamp so only one actual API call fires per interval across all worker processes:
+
+```php
+class PollCloudCommands
+{
+    private const CACHE_KEY = 'deck:cloud:last_poll';
+    private const INTERVAL_SECONDS = 15;
+
+    public static function runIfDue(): void
+    {
+        $last = cache()->get(self::CACHE_KEY, 0);
+
+        if (now()->timestamp - $last < self::INTERVAL_SECONDS) {
+            return;
+        }
+
+        cache()->put(self::CACHE_KEY, now()->timestamp, 300);
+
+        app(self::class)->run();
+    }
+
+    public function run(): void
+    {
+        // fetch signed commands → verify HMAC → execute → ACK
+    }
+}
+```
+
+**Why not the Laravel scheduler?**
+
+- Requires `schedule:work` daemon or sub-minute cron — adds deployment surface
+- Many apps only run `horizon` and `queue:work` in their Procfile
+- `Queue::looping()` fires as long as workers are running, which is exactly when cancel/block commands are relevant
+- If no workers are running, there is nothing to cancel anyway
+
+**Why not webhooks from Cloud → customer app?**
+
+- Requires the app to be publicly accessible — breaks for private VPCs and corporate networks
+- Adds an inbound firewall rule for every customer
+
+**Delivery guarantees**
+
+| Scenario | Commands delivered via |
+|---|---|
+| Workers running | `Queue::looping()` — fires every ~3s idle, immediately on job pick-up |
+| Dashboard open | Livewire poll piggyback (`render()` side-effect, secondary) |
+| Scheduler running | Optional registered task as enhancement |
+| All three active | Debounce ensures one API call per interval regardless |
+
+**Security**
+
+- Commands fetched over HTTPS with `Authorization: Bearer {DECK_API_KEY}`
+- Each command is HMAC-SHA256 signed with a per-installation secret (separate from the API key)
+- Payload includes `nonce` + `issued_at`; package rejects commands older than 60s or with a seen nonce (replay prevention)
+- On success, package POSTs an ACK so Cloud does not re-deliver
+- Execution is delegated to existing `JobCancellation::cancel()` / `JobClassBlock::block()` — no new code paths for the actual control operations
+
+**Data privacy**
+
+Exception traces and job context can contain secrets. Cloud ingest should default to not forwarding traces:
+
+```php
+'cloud' => [
+    'send_exception_trace' => false, // opt-in, not opt-out
+],
+```
+
+---
+
 ### Cloud product phases
 
 | Phase | Ships |
 |-------|--------|
 | **C0** | Package identity + recorder contract ✅ (this repo) |
 | **C1** | Ingest API + API keys + project/env switcher UI (read-only) |
-| **C2** | Alerts (stale job, failure rate), team members |
-| **C3** | Remote cancel (agent polls or receives webhook → Redis flag) |
+| **C2** | Alerts (stale job, failure rate, baseline deviation), team members |
+| **C3** | Remote cancel/block via `Queue::looping()` command poller |
 | **C4** | Retry orchestration via agent (not raw Horizon API from Cloud) |
 
 ### Commercial sketch (optional)
