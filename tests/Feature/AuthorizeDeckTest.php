@@ -22,3 +22,17 @@ it('denies access to job class routes when unauthorized', function () {
     $execution = createDeckExecution();
     $this->get(route('deck.activity.show', $execution->activityRouteParameters()))->assertForbidden();
 });
+
+it('allows access in local environment when no auth is configured', function () {
+    config()->set('deck.auth', null);
+    app()->detectEnvironment(fn () => 'local');
+
+    $this->get(route('deck.index'))->assertOk();
+});
+
+it('denies access in non-local environment when no auth is configured', function () {
+    config()->set('deck.auth', null);
+    app()->detectEnvironment(fn () => 'production');
+
+    $this->get(route('deck.index'))->assertForbidden();
+});
