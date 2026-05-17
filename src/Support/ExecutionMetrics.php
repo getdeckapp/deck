@@ -28,6 +28,7 @@ class ExecutionMetrics
         $counts = JobExecution::query()
             ->forInstallation()
             ->where('started_at', '>=', $since)
+            ->select('started_at')
             ->get()
             ->groupBy(fn (JobExecution $execution): string => $execution->started_at->copy()->startOfHour()->format('Y-m-d H:00'))
             ->map(fn (Collection $group): int => $group->count());
@@ -46,6 +47,7 @@ class ExecutionMetrics
             ->forInstallation()
             ->where('started_at', '>=', $since)
             ->whereNotNull('duration_ms')
+            ->select(['started_at', 'duration_ms'])
             ->get()
             ->groupBy(fn (JobExecution $execution): string => $execution->started_at->copy()->startOfHour()->format('Y-m-d H:00'))
             ->map(fn (Collection $group): int => (int) round($group->avg('duration_ms')));

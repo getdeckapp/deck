@@ -8,6 +8,55 @@ use TorMorten\Deck\Models\JobExecution;
 
 class QueueBusyness
 {
+    // Horizon overall score: 65% from the busiest queue, 35% from the average
+    private const HORIZON_PEAK_WEIGHT = 0.65;
+
+    private const HORIZON_AVERAGE_WEIGHT = 0.35;
+
+    // Throughput pressure adds up to 20% of its raw score on top of the queue scores
+    private const HORIZON_THROUGHPUT_DIVISOR = 5;
+
+    // Deck overall score weights
+    private const DECK_PEAK_WEIGHT = 0.55;
+
+    private const DECK_AVERAGE_WEIGHT = 0.25;
+
+    private const DECK_RUNNING_FACTOR = 10;
+
+    private const DECK_RUNNING_CAP = 35;
+
+    private const DECK_THROUGHPUT_FACTOR = 18;
+
+    private const DECK_THROUGHPUT_CAP = 20;
+
+    // Horizon per-queue scoring caps and factors
+    private const HORIZON_BACKLOG_FACTOR = 6;
+
+    private const HORIZON_BACKLOG_CAP = 45;
+
+    private const HORIZON_WAIT_FACTOR = 4;
+
+    private const HORIZON_WAIT_CAP = 35;
+
+    private const HORIZON_CAPACITY_FACTOR = 4;
+
+    private const HORIZON_CAPACITY_CAP = 20;
+
+    // Deck per-queue scoring
+    private const DECK_QUEUE_RUNNING_FACTOR = 22;
+
+    private const DECK_QUEUE_THROUGHPUT_FACTOR = 22;
+
+    private const DECK_QUEUE_THROUGHPUT_CAP = 35;
+
+    private const DECK_QUEUE_COMPLETED_FACTOR = 2;
+
+    private const DECK_QUEUE_COMPLETED_CAP = 25;
+
+    private const DECK_QUEUE_LOAD_DIVISOR = 2;
+
+    private const DECK_QUEUE_LOAD_CAP = 15;
+
     public function __construct(
         private readonly HorizonSnapshot $horizon,
         private readonly QueueInsights $insights,
@@ -76,9 +125,9 @@ class QueueBusyness
 
         $overall = $scores === []
             ? $this->scoreThroughputPressure($summary)
-            : (int) min(100, round((max($scores) * 0.65) + (collect($scores)->avg() * 0.35)));
+            : (int) min(100, round((max($scores) * self::HORIZON_PEAK_WEIGHT) + (collect($scores)->avg() * self::HORIZON_AVERAGE_WEIGHT)));
 
-        $overall = min(100, $overall + $this->scoreThroughputPressure($summary) / 5);
+        $overall = min(100, $overall + $this->scoreThroughputPressure($summary) / self::HORIZON_THROUGHPUT_DIVISOR);
 
         return $this->buildAssessment(
             score: $overall,
@@ -126,10 +175,10 @@ class QueueBusyness
         $average = $scores === [] ? 0 : collect($scores)->avg();
 
         $overall = (int) min(100, round(
-            ($peak * 0.55)
-            + ($average * 0.25)
-            + min(35, $running * 10)
-            + ($throughputRatio > 1 ? min(20, ($throughputRatio - 1) * 18) : 0)
+            ($peak * self::DECK_PEAK_WEIGHT)
+            + ($average * self::DECK_AVERAGE_WEIGHT)
+            + min(self::DECK_RUNNING_CAP, $running * self::DECK_RUNNING_FACTOR)
+            + ($throughputRatio > 1 ? min(self::DECK_THROUGHPUT_CAP, ($throughputRatio - 1) * self::DECK_THROUGHPUT_FACTOR) : 0)
         ));
 
         return $this->buildAssessment(
@@ -179,9 +228,9 @@ class QueueBusyness
         $length = $queue['length'];
         $waitSeconds = (float) $queue['wait'];
 
-        $backlogScore = min(45, (int) round(sqrt($length) * 6));
-        $waitScore = min(35, (int) round($waitSeconds / 4));
-        $capacityScore = min(20, (int) round(($length / $processes) * 4));
+        $backlogScore = min(self::HORIZON_BACKLOG_CAP, (int) round(sqrt($length) * self::HORIZON_BACKLOG_FACTOR));
+        $waitScore = min(self::HORIZON_WAIT_CAP, (int) round($waitSeconds / self::HORIZON_WAIT_FACTOR));
+        $capacityScore = min(self::HORIZON_CAPACITY_CAP, (int) round(($length / $processes) * self::HORIZON_CAPACITY_FACTOR));
 
         return min(100, $backlogScore + $waitScore + $capacityScore);
     }
@@ -198,10 +247,10 @@ class QueueBusyness
             : ($queue['completed_last_hour'] > 0 ? 2.0 : 0.0);
 
         $score = (int) min(100, round(
-            ($queue['running'] * 22)
-            + min(35, (int) round(max(0, $throughputRatio - 1) * 22))
-            + min(25, $queue['completed_last_hour'] * 2)
-            + min(15, (int) round($queue['load'] / 2))
+            ($queue['running'] * self::DECK_QUEUE_RUNNING_FACTOR)
+            + min(self::DECK_QUEUE_THROUGHPUT_CAP, (int) round(max(0, $throughputRatio - 1) * self::DECK_QUEUE_THROUGHPUT_FACTOR))
+            + min(self::DECK_QUEUE_COMPLETED_CAP, $queue['completed_last_hour'] * self::DECK_QUEUE_COMPLETED_FACTOR)
+            + min(self::DECK_QUEUE_LOAD_CAP, (int) round($queue['load'] / self::DECK_QUEUE_LOAD_DIVISOR))
         ));
 
         return [
