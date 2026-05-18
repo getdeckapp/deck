@@ -26,6 +26,18 @@ return [
     */
     'recorder' => env('DECK_RECORDER', 'database'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Database connection
+    |--------------------------------------------------------------------------
+    |
+    | When set, Deck stores deck_* tables on this Laravel connection instead of
+    | the application default. Define the connection in config/database.php,
+    | then run migrations with: php artisan migrate --database=your_connection
+    |
+    */
+    'database_connection' => env('DECK_DB_CONNECTION'),
+
     'cloud' => [
         'enabled' => env('DECK_CLOUD_ENABLED', false),
         'url' => env('DECK_CLOUD_URL'),

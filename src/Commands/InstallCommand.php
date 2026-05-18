@@ -40,7 +40,14 @@ class InstallCommand extends Command
             $this->components->info('After changing Deck views or styles, run `npm run build` in the package and `deck:install --force` to refresh `public/vendor/deck/deck.css`.');
         }
 
-        $this->components->info('Run `php artisan migrate` to create Deck tables.');
+        $connection = config('deck.database_connection');
+
+        if (filled($connection)) {
+            $this->components->info("Run `php artisan migrate --database={$connection}` to create Deck tables on the `{$connection}` connection.");
+        } else {
+            $this->components->info('Run `php artisan migrate` to create Deck tables.');
+            $this->components->info('To offload Deck to a separate database, set DECK_DB_CONNECTION and add the connection in config/database.php.');
+        }
 
         $this->components->info('Opt-in cooperative cancellation: add `TorMorten\\Deck\\Middleware\\Cancellable` to job middleware, and call `JobCancellation::throwIfCancelled($this->job)` between long steps. Cancel via `Deck::cancel($uuid)` or the dashboard.');
 

@@ -38,6 +38,24 @@ class ExecutionMetrics
     /**
      * @return Collection<int, array{label: string, value: int, at: string}>
      */
+    public function hourlyJobVolumeForClass(string $jobClass): Collection
+    {
+        $since = now()->subHours($this->hours)->startOfHour();
+
+        $counts = JobExecution::query()
+            ->forInstallation()
+            ->where('job_class', $jobClass)
+            ->where('started_at', '>=', $since)
+            ->get()
+            ->groupBy(fn (JobExecution $execution): string => $execution->started_at->copy()->startOfHour()->format('Y-m-d H:00'))
+            ->map(fn (Collection $group): int => $group->count());
+
+        return $this->fillHourlySeries($since, $counts);
+    }
+
+    /**
+     * @return Collection<int, array{label: string, value: int, at: string}>
+     */
     public function hourlyAverageDuration(): Collection
     {
         $since = now()->subHours($this->hours)->startOfHour();

@@ -4,6 +4,7 @@ namespace TorMorten\Deck\Queue;
 
 use Exception;
 use Illuminate\Contracts\Queue\Job;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Queue\CallQueuedHandler;
 use TorMorten\Deck\Middleware\Blockable;
@@ -20,8 +21,6 @@ class DeckCallQueuedHandler extends CallQueuedHandler
             throw new Exception('Job is incomplete class: '.json_encode($command));
         }
 
-        $lockReleased = false;
-
         $middleware = array_merge(
             [new Blockable],
             method_exists($command, 'middleware') ? $command->middleware() : [],
@@ -30,16 +29,9 @@ class DeckCallQueuedHandler extends CallQueuedHandler
 
         return (new Pipeline($this->container))->send($command)
             ->through($middleware)
-            ->finally(function ($command) use (&$lockReleased) {
-                if (! $lockReleased && $this->commandShouldBeUniqueUntilProcessing($command) && ! $command->job->isReleased() && $command->job->attempts() <= 1) {
+            ->then(function ($command) use ($job) {
+                if ($command instanceof ShouldBeUniqueUntilProcessing) {
                     $this->ensureUniqueJobLockIsReleased($command);
-                }
-            })
-            ->then(function ($command) use ($job, &$lockReleased) {
-                if ($this->commandShouldBeUniqueUntilProcessing($command) && $job->attempts() <= 1) {
-                    $this->ensureUniqueJobLockIsReleased($command);
-
-                    $lockReleased = true;
                 }
 
                 return $this->dispatcher->dispatchNow(

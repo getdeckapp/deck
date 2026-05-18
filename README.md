@@ -51,6 +51,17 @@ php artisan migrate
 
 The install command publishes `config/deck.php`, migrations, and precompiled CSS to `public/vendor/deck`. Visit `/deck` (prefix is configurable).
 
+### Separate database (optional)
+
+To keep execution history off your primary database, add a connection in `config/database.php`, set `DECK_DB_CONNECTION` to its name, and migrate that connection only:
+
+```bash
+# .env
+DECK_DB_CONNECTION=deck
+
+php artisan migrate --database=deck
+```
+
 ### Horizon authentication & choice prompt
 
 Deck uses the **same authorization as Horizon** by default. Define access in your `HorizonServiceProvider` as you already do for `/horizon`.
@@ -159,6 +170,7 @@ Published `config/deck.php` includes:
 | `auth` | Authorization callback (`null` = use Horizon) |
 | `horizon.prompt_on_visit` | Show Horizon vs Deck prompt (default: `true`) |
 | `horizon.remember_choice` | Store choice in session (default: `true`) |
+| `database_connection` | Laravel DB connection for `deck_*` tables (`DECK_DB_CONNECTION`; default: app default) |
 | `retention_days` | How long to keep execution rows |
 | `cancel_ttl_seconds` | Redis TTL for cancel flags |
 | `long_running_threshold_seconds` | Highlight runs exceeding this duration |

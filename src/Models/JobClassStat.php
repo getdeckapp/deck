@@ -5,11 +5,13 @@ namespace TorMorten\Deck\Models;
 use Illuminate\Database\Eloquent\Model;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Models\Concerns\BelongsToDeckInstallation;
+use TorMorten\Deck\Models\Concerns\UsesDeckConnection;
 use TorMorten\Deck\Support\FormatDuration;
 
 class JobClassStat extends Model
 {
     use BelongsToDeckInstallation;
+    use UsesDeckConnection;
 
     protected $guarded = [];
 

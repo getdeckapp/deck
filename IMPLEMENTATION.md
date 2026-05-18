@@ -395,6 +395,8 @@ return [
         'remember_choice' => env('DECK_HORIZON_REMEMBER_CHOICE', true),
     ],
 
+    'database_connection' => env('DECK_DB_CONNECTION'), // null = app default
+
     'retention_days' => 90,
     'cancel_ttl_seconds' => 86_400,
     'long_running_threshold_seconds' => 300,

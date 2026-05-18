@@ -11,6 +11,7 @@ use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
 use TorMorten\Deck\Models\JobClassStat;
 use TorMorten\Deck\Models\JobExecution;
+use TorMorten\Deck\Support\ExecutionMetrics;
 use TorMorten\Deck\Support\JobClassBlock;
 
 #[Layout('deck::layouts.app')]
@@ -149,9 +150,12 @@ class JobClassShow extends Component
         $blockedUntil = JobClassBlock::blockedUntil($this->jobClass);
         $isManualBlock = JobClassBlock::isManualBlock($this->jobClass);
 
+        $volumeChart = ExecutionMetrics::make()->hourlyJobVolumeForClass($this->jobClass)->all();
+
         return view('deck::livewire.job-class-show', [
             'stat' => $stat,
             'executions' => $executions,
+            'volumeChart' => $volumeChart,
             'hasRunning' => $this->executionsHaveRunning($executions),
             'shouldPoll' => $runningCount > 0 || JobExecution::hasPendingCancellationsForInstallation(),
             'pollSeconds' => $this->executionPollSeconds(),

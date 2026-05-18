@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat /tmp/deck_design/deck-design-system/project/ui_kits/deck/screens.jsx)",
+      "Bash(cat /tmp/deck_design/deck-design-system/project/upstream/deck-source.css)",
+      "Bash(cat /tmp/deck_design2/deck-design-system/chats/chat1.md | tail -n 200)",
+      "Bash(cat /tmp/deck_design2/deck-design-system/project/ui_kits/deck-v2/README.md)"
+    ]
+  }
+}

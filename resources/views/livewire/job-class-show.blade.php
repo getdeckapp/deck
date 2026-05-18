@@ -139,6 +139,14 @@
         </dl>
     @endif
 
+    <x-deck::chart-panel
+        title="Volume — last 24h"
+        :subtitle="'Executions of '.class_basename($jobClass).' per hour'"
+        :data="$volumeChart"
+        empty="No executions in this period."
+        format="jobs"
+    />
+
     <section class="space-y-4 rounded-xl border border-zinc-200/80 bg-white p-5 shadow-sm">
         <div class="flex flex-col gap-4 border-b border-zinc-100 pb-4 lg:flex-row lg:items-center lg:justify-between">
             <h2 class="text-sm font-semibold text-zinc-900">Executions</h2>

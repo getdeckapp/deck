@@ -5,12 +5,14 @@ namespace TorMorten\Deck\Models;
 use Illuminate\Database\Eloquent\Model;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Models\Concerns\BelongsToDeckInstallation;
+use TorMorten\Deck\Models\Concerns\UsesDeckConnection;
 use TorMorten\Deck\Support\FormatDuration;
 use TorMorten\Deck\Support\JobCancellation;
 
 class JobExecution extends Model
 {
     use BelongsToDeckInstallation;
+    use UsesDeckConnection;
 
     public $timestamps = false;
 

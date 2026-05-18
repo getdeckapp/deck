@@ -106,12 +106,16 @@ class UnprocessedQueueDetector
             if (! is_array($supervisor)) {
                 continue;
             }
-
             $connection = (string) ($supervisor['connection'] ?? config('queue.default'));
-            $queueList = (string) ($supervisor['queue'] ?? config("queue.connections.{$connection}.queue", 'default'));
+            $queueList = $supervisor['queue'] ?? config("queue.connections.{$connection}.queue", 'default');
+            $queueNames = is_array($queueList) ? $queueList : explode(',', (string) $queueList);
 
-            foreach (explode(',', $queueList) as $queueName) {
-                $queueName = trim($queueName);
+            foreach ($queueNames as $queueName) {
+                if (! is_scalar($queueName)) {
+                    continue;
+                }
+
+                $queueName = trim((string) $queueName);
 
                 if ($queueName !== '') {
                     $keys[] = "{$connection}:{$queueName}";

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use TorMorten\Deck\Support\DeckDatabase;
 
 return new class extends Migration
 {
@@ -11,7 +11,7 @@ return new class extends Migration
         $statsTable = config('deck.tables.job_class_stats', 'deck_job_class_stats');
         $executionsTable = config('deck.tables.job_executions', 'deck_job_executions');
 
-        Schema::create($statsTable, function (Blueprint $table) {
+        DeckDatabase::schema()->create($statsTable, function (Blueprint $table) {
             $table->id();
             $table->string('project');
             $table->string('environment');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->index(['project', 'environment', 'last_finished_at']);
         });
 
-        Schema::create($executionsTable, function (Blueprint $table) {
+        DeckDatabase::schema()->create($executionsTable, function (Blueprint $table) {
             $table->id();
             $table->string('project');
             $table->string('environment');
@@ -50,14 +50,14 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
 
             $table->unique(['uuid', 'attempt']);
-            $table->index(['project', 'environment', 'job_class', 'started_at']);
-            $table->index(['project', 'environment', 'status', 'started_at']);
+            $table->index(['project', 'environment', 'job_class', 'started_at'], 'deck_exec_proj_env_class_started_idx');
+            $table->index(['project', 'environment', 'status', 'started_at'], 'deck_exec_proj_env_status_started_idx');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists(config('deck.tables.job_executions', 'deck_job_executions'));
-        Schema::dropIfExists(config('deck.tables.job_class_stats', 'deck_job_class_stats'));
+        DeckDatabase::schema()->dropIfExists(config('deck.tables.job_executions', 'deck_job_executions'));
+        DeckDatabase::schema()->dropIfExists(config('deck.tables.job_class_stats', 'deck_job_class_stats'));
     }
 };
