@@ -1,12 +1,22 @@
 <x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">Overview</h1>
-            <p class="mt-1 text-sm text-zinc-500">Live status, trends, and jobs that need action.</p>
+            <div class="mb-1.5 flex items-center gap-2">
+                <p class="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-indigo-600">Deck</p>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                    <span class="relative inline-flex size-1.5">
+                        <span class="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-70" aria-hidden="true"></span>
+                        <span class="relative size-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                    </span>
+                    Live
+                </span>
+            </div>
+            <h1 class="text-[28px] font-semibold tracking-[-0.022em] text-zinc-900 leading-[1.15]">Overview</h1>
+            <p class="mt-1.5 text-[14px] text-zinc-500">Live status, trends, and jobs that need action.</p>
         </div>
         <a
             href="{{ route('deck.activity.index') }}"
-            class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            class="text-[13px] font-medium text-indigo-600 hover:text-indigo-500"
         >
             Full activity feed →
         </a>

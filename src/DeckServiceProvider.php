@@ -21,6 +21,7 @@ use TorMorten\Deck\Commands\PruneCommand;
 use TorMorten\Deck\Contracts\JobExecutionRecorder;
 use TorMorten\Deck\Listeners\RecordJobExecution;
 use TorMorten\Deck\Livewire\Dashboard;
+use TorMorten\Deck\Livewire\GlobalSearch;
 use TorMorten\Deck\Livewire\JobClassIndex;
 use TorMorten\Deck\Livewire\JobClassShow;
 use TorMorten\Deck\Livewire\JobExecutionIndex;
@@ -70,6 +71,7 @@ class DeckServiceProvider extends PackageServiceProvider
 
         if (class_exists(Livewire::class)) {
             Livewire::component('deck.dashboard', Dashboard::class);
+            Livewire::component('deck.global-search', GlobalSearch::class);
             Livewire::component('deck.job-class-index', JobClassIndex::class);
             Livewire::component('deck.job-class-show', JobClassShow::class);
             Livewire::component('deck.job-execution-index', JobExecutionIndex::class);

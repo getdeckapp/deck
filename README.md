@@ -4,11 +4,24 @@
 
 > Horizon flies the workers. Deck runs the operation.
 
-Horizon excels at supervising Redis workers, balancing queues, and showing a short-lived window of recent activity. Deck complements it with a **durable control plane**: when each job class last ran, execution history, search and filters, and cooperative cancellation for long-running work.
+Horizon excels at supervising Redis workers, balancing queues, and showing a short-lived window of recent activity. Deck complements it with a **durable control plane**: when each job class last ran, execution history, search and filters, cooperative cancellation, and dispatch blocking for incident response.
 
-Deck does **not** replace Horizon. Keep `php artisan horizon` in production; open Deck when you need job-class history and ops actions Horizon does not provide.
+Deck does **not** replace Horizon. Keep `php artisan horizon` in production; use Deck when you need job-class history and operational actions Horizon does not provide.
 
-**Deck Cloud (future):** The package tags every run with `DECK_PROJECT` and `DECK_ENVIRONMENT` so one hosted dashboard can unify all your apps. See [IMPLEMENTATION.md](IMPLEMENTATION.md#deck-cloud-future).
+---
+
+## Contents
+
+- [Why Deck?](#why-deck)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Production best practices](#production-best-practices)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Artisan commands](#artisan-commands)
+- [Relationship to Horizon](#relationship-to-horizon)
+- [Development](#development)
+- [License](#license)
 
 ---
 
@@ -18,11 +31,15 @@ Deck does **not** replace Horizon. Keep `php artisan horizon` in production; ope
 |-------------------|-----------|
 | Worker supervision and auto-balancing | Per job-class **last run** and status |
 | Recent jobs in Redis (short retention) | **Durable execution log** in your database |
-| Failed job retry UI | **Search and filter** by class, queue, connection |
+| Failed job retry UI | **Search and filter** by class, queue, connection, tag |
 | Throughput and wait-time metrics | **Cooperative cancel** for opt-in jobs |
-| Tags on failed jobs (limited elsewhere) | **Tags** captured on every recorded run |
+| Tags on failed jobs (limited elsewhere) | **Tags** on every recorded run |
+| — | **Block job classes** at dispatch during incidents |
+| — | **Stale-job** and **unprocessed-queue** alerts |
 
-Common pain points Deck targets: jobs disappearing from Recent before delayed runs execute, no answer to “when did `ProcessInvoice` last succeed?”, and no safe way to cancel a specific pending or running job from a dashboard.
+Common pain points Deck targets: jobs disappearing from Recent before delayed runs execute, no answer to “when did `ProcessInvoice` last succeed?”, and no safe way to stop or block a job class from a dashboard.
+
+Every recorded row is tagged with `project` and `environment` (Deck Cloud–ready). See [IMPLEMENTATION.md](IMPLEMENTATION.md#deck-cloud-future) for the multi-tenant roadmap.
 
 ---
 
@@ -30,9 +47,9 @@ Common pain points Deck targets: jobs disappearing from Recent before delayed ru
 
 - PHP 8.4+
 - Laravel 11, 12, or 13
-- [Laravel Horizon](https://laravel.com/docs/horizon) 5.x (Redis queues)
-- A database (MySQL, PostgreSQL, SQLite, etc.) for Deck’s execution log
-- Redis (shared with Horizon for queues and cancel flags)
+- [Laravel Horizon](https://laravel.com/docs/horizon) 5.x (Redis queues recommended)
+- A database for Deck’s execution log (MySQL, PostgreSQL, SQLite, etc.)
+- Redis for queues (Horizon) and for cancel/block flags (typically the same Redis instance)
 
 ---
 
@@ -40,58 +57,183 @@ Common pain points Deck targets: jobs disappearing from Recent before delayed ru
 
 ```bash
 composer require tormjens/deck
+php artisan deck:install
 ```
 
-Publish config and migrations, then migrate:
+`deck:install` publishes `config/deck.php`, migrations, and precompiled CSS to `public/vendor/deck`.
+
+Run migrations on the connection Deck will use. For the default application database:
 
 ```bash
-php artisan deck:install
 php artisan migrate
 ```
 
-The install command publishes `config/deck.php`, migrations, and precompiled CSS to `public/vendor/deck`. Visit `/deck` (prefix is configurable).
+When using a [dedicated database](#dedicated-database-recommended), migrate only the Deck migration files on that connection (see that section for paths).
 
-### Separate database (optional)
+Open `/deck` (prefix is configurable via `deck.route_prefix`).
 
-To keep execution history off your primary database, add a connection in `config/database.php`, set `DECK_DB_CONNECTION` to its name, and migrate that connection only:
+### Horizon authorization
 
-```bash
-# .env
-DECK_DB_CONNECTION=deck
+Deck uses **the same authorization as Horizon** by default. Define access in `App\Providers\HorizonServiceProvider` as you already do for `/horizon`.
 
-php artisan migrate --database=deck
-```
+When both dashboards are installed, `deck:install` can add middleware so the first visit to `/horizon` offers **Deck** or **Horizon**. Set `DECK_HORIZON_PROMPT=false` to disable the prompt. Horizon’s runtime (`php artisan horizon`) is never affected.
 
-### Horizon authentication & choice prompt
+### UI assets
 
-Deck uses the **same authorization as Horizon** by default. Define access in your `HorizonServiceProvider` as you already do for `/horizon`.
-
-When both are installed, **`deck:install` adds a middleware** so the first visit to `/horizon` shows a short prompt: go to **Deck** (job-class history, cancel) or **continue to Horizon** (workers, throughput, supervisors). Users can **remember their choice** for the session. Horizon’s runtime (`php artisan horizon`) is never affected.
-
-Set `DECK_HORIZON_PROMPT=false` to skip the prompt and use Horizon as usual.
-
-### UI
-
-The dashboard ships with **precompiled Tailwind CSS** — no Vite or `@source` setup in your app. Livewire powers interactivity; run `deck:install` to publish assets to `public/vendor/deck`. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for layout details.
+The dashboard ships with **precompiled Tailwind CSS** — no Vite or `@source` setup in your app. Re-run `deck:install --force` after upgrading the package to refresh published assets.
 
 ---
 
-## Quick start
+## Production best practices
 
-### 1. Record runs automatically
+Use this checklist when deploying Deck to production.
 
-Once installed, Deck listens to queue events and records starts, completions, and failures. No change is required for basic history.
+### Dedicated database (recommended)
 
-### 2. View the dashboard
+Deck appends a row on every job start, completion, and failure. On busy queues, that load belongs on a **separate database**, not your primary application DB.
 
-Open `/deck` (or your configured prefix) for the **overview** — running jobs, recent failures, and latest activity. From there:
+1. Add a connection in `config/database.php`:
 
-- **Job classes** — per-class history, success rate, filters
-- **Activity** — searchable execution log across all classes (status, queue, UUID)
-- **Cancel** — cooperative stop for running jobs (Horizon does not offer this)
-- Drill-down into recent executions
+```php
+'connections' => [
+  'deck' => [
+    'driver' => 'mysql',
+    'host' => env('DECK_DB_HOST', '127.0.0.1'),
+    'database' => env('DECK_DB_DATABASE', 'deck'),
+    'username' => env('DECK_DB_USERNAME', 'deck'),
+    'password' => env('DECK_DB_PASSWORD', ''),
+    // ...
+  ],
+],
+```
 
-### 3. Make jobs cancellable (opt-in)
+2. Point Deck at that connection:
+
+```env
+DECK_DB_CONNECTION=deck
+```
+
+3. Run **only** the Deck migrations on that connection. After `deck:install`, published files live in `database/migrations/` and include `deck` in the filename. Deck migrations call `DeckDatabase` and respect `DECK_DB_CONNECTION`:
+
+```bash
+# Replace timestamps with your published filenames
+php artisan migrate --database=deck --path=database/migrations/2025_01_01_000000_create_deck_tables.php
+php artisan migrate --database=deck --path=database/migrations/2025_01_01_000001_add_project_and_environment_to_deck_tables.php
+php artisan migrate --database=deck --path=database/migrations/2025_01_01_000002_add_exception_trace_to_deck_job_executions.php
+```
+
+Do **not** run a blanket `php artisan migrate --database=deck` unless that database is dedicated to Deck and you intend to run every pending migration in `database/migrations/` against it.
+
+4. Grant the app user read/write on `deck_*` tables only. No cross-DB joins are required.
+
+If `DECK_DB_CONNECTION` is unset, Deck uses Laravel’s default connection.
+
+### Stable installation identity
+
+Set explicit values per deployable and environment so stats and history never collide (especially across staging and production, or multiple apps):
+
+```env
+DECK_PROJECT=billing-api
+DECK_ENVIRONMENT=production
+```
+
+Use a stable `DECK_PROJECT` per service (not machine-specific names). Defaults fall back to `APP_NAME` and `APP_ENV`, which are often too generic for multi-app teams.
+
+### Retention and pruning
+
+Execution rows accumulate quickly. Tune retention and prune on a schedule:
+
+```env
+DECK_RETENTION_DAYS=90
+```
+
+In `routes/console.php`:
+
+```php
+Schedule::command('deck:prune')->daily();
+```
+
+`deck:prune` deletes rows older than `retention_days` from `deck_job_executions`. Adjust retention for compliance and disk budget; shorter retention reduces database size on high-throughput apps.
+
+### Secure the dashboard
+
+- Restrict `/deck` to operators only — reuse Horizon’s gate or set `deck.auth` to a callable that returns `true` only for authorized users.
+- Do not expose Deck on a public URL without authentication.
+- Treat cancel, block, and retry actions as **privileged**; they affect production queues.
+
+```php
+// config/deck.php — example custom gate
+'auth' => fn ($request) => $request->user()?->can('view-horizon') ?? false,
+```
+
+### Redis cache for cancel and block flags
+
+Cancel and block state live in **cache** (Redis recommended in production), not in the Deck database. All Horizon workers must see the same store.
+
+```env
+# Use the same Redis as queues, or a dedicated cache connection
+DECK_CANCEL_CACHE_STORE=redis
+DECK_BLOCK_CACHE_STORE=redis
+```
+
+If unset, block flags fall back to the same store as cancel (`cancel_cache_store`, then `cache.default`). In multi-server deployments, **never** use `file` or `array` drivers for these flags.
+
+### High job volume
+
+- Prefer a **dedicated database** and appropriate indexes (included in migrations).
+- Keep `store_context` disabled unless you need opt-in debug fields (see below).
+- Lower `retention_days` or prune more aggressively when volume is extreme.
+- Deck records synchronously on queue events; ensure the Deck DB connection has sensible pool limits and monitoring.
+
+### Schedule operational commands
+
+| Command | Suggested schedule | Purpose |
+|---------|-------------------|---------|
+| `deck:prune` | Daily | Remove old execution history |
+| `deck:check-alerts` | Hourly (when alerts enabled) | Stale jobs and unprocessed queues |
+
+### Payloads and sensitive data
+
+Deck **does not** store serialized job payloads by default. Exception messages are truncated; stack traces are capped (`DECK_EXCEPTION_TRACE_BYTES`, default 64 KB).
+
+To attach safe, scalar debug context from a job, implement `TorMorten\Deck\Contracts\ExposesDeckContext` and enable:
+
+```env
+DECK_STORE_CONTEXT=true
+```
+
+Only expose non-sensitive scalars from `deckContext()` — never tokens, passwords, or PII.
+
+### Incident response
+
+- **Block a job class** — stops new dispatches and records a `blocked` execution; optional cancel of in-flight runs. Use the job-class UI or `Deck::blockClass()`.
+- **Cancel running jobs** — cooperative; jobs must use `Cancellable` middleware and check `JobCancellation::throwIfCancelled()`.
+- **Retry failed jobs** — from Activity; uses Horizon’s failed-job store when available.
+
+During incidents, block first to stop the bleed, then cancel long-running work, then retry failures after a fix is deployed.
+
+### Unprocessed queue warnings
+
+When Horizon is installed, Deck can surface queues that have pending jobs but no assigned workers (`DECK_UNPROCESSED_QUEUES_ENABLED`, default `true`). Review the **Workers** page after deploys or Horizon config changes.
+
+---
+
+## Usage
+
+### Automatic recording
+
+After installation, Deck listens to queue events and records starts, completions, and failures. No code changes are required for basic history.
+
+### Dashboard
+
+| Route | Purpose |
+|-------|---------|
+| `/deck` | Overview, charts, recent failures, queue health |
+| `/deck/classes` | Per-class stats and history |
+| `/deck/activity` | Searchable execution log |
+| `/deck/workers` | Horizon snapshot and unprocessed queues |
+
+### Cooperative cancellation (opt-in)
 
 Long-running jobs should check a cancel flag between steps:
 
@@ -125,15 +267,26 @@ use TorMorten\Deck\Facades\Deck;
 Deck::cancel($jobUuid);
 ```
 
-Cancellation is **cooperative**: the worker checks the flag between steps. Deck does not force-kill PHP processes.
+Cancellation is **cooperative** — Deck does not force-kill PHP workers. Pending cancel on Redis queues is **best effort** and can race with workers.
 
-### Cancel queued jobs (best effort)
+### Block a job class
 
-On **Activity**, cancel a job by UUID before a worker picks it up. Deck sets the cancel flag and attempts to remove the payload from Redis queues (when using the Redis driver). This can race with workers — treat it as best effort.
+Blocked classes are intercepted at dispatch (never pushed to the queue) and recorded with status `blocked`:
+
+```php
+use TorMorten\Deck\Facades\Deck;
+
+Deck::blockClass(\App\Jobs\SyncInventory::class, until: now()->addHour(), reason: 'Upstream API outage');
+
+// Later
+Deck::unblockClass(\App\Jobs\SyncInventory::class);
+```
+
+Blocking is available from the job-class detail UI as well. Jobs already on the queue are dropped when a worker picks them up.
 
 ### Retry failed jobs
 
-Failed executions show a **Retry** action. Deck prefers Horizon's failed-job store, then Laravel's `failed_jobs` table, then a parameterless re-dispatch when the job class allows it.
+Failed executions show a **Retry** action. Deck prefers Horizon’s failed-job store, then Laravel’s `failed_jobs` table, then a parameterless re-dispatch when the job class allows it.
 
 ### Stale job alerts (optional)
 
@@ -142,42 +295,60 @@ Failed executions show a **Retry** action. Deck prefers Horizon's failed-job sto
 'alerts' => [
     'enabled' => env('DECK_ALERTS_ENABLED', false),
     'notification' => \App\Notifications\DeckStaleJobsNotification::class,
-    'notifiable' => \App\Models\User::class, // resolved from the container
+    'notifiable' => \App\Models\User::class,
     'stale_jobs' => [
         \App\Jobs\SyncInventory::class => ['max_age_hours' => 24],
     ],
 ],
 ```
 
-Schedule in `routes/console.php`:
-
 ```php
+// routes/console.php
 Schedule::command('deck:check-alerts')->hourly();
 ```
 
-Your notification receives a `Collection` of `TorMorten\Deck\Data\DeckStaleJobAlert` instances.
+Your notification receives a `Collection` of `TorMorten\Deck\Data\DeckStaleJobAlert` (and optionally unprocessed-queue alerts when `unprocessed_queues.include_alerts` is true).
 
 ---
 
 ## Configuration
 
-Published `config/deck.php` includes:
+Published `config/deck.php`. Common environment variables:
 
-| Option | Purpose |
-|--------|---------|
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `DECK_DB_CONNECTION` | — | Laravel connection name for `deck_*` tables |
+| `DECK_PROJECT` | `APP_NAME` | Stable deployable identifier |
+| `DECK_ENVIRONMENT` | `APP_ENV` | Environment label (`production`, `staging`, …) |
+| `DECK_RETENTION_DAYS` | `90` | Execution history retention |
+| `DECK_CANCEL_CACHE_STORE` | `cache.default` | Cache store for cancel flags |
+| `DECK_BLOCK_CACHE_STORE` | same as cancel | Cache store for block flags |
+| `DECK_LONG_RUNNING_THRESHOLD_SECONDS` | `300` | Highlight running jobs beyond this duration |
+| `DECK_STORE_CONTEXT` | `false` | Persist opt-in `deckContext()` from jobs |
+| `DECK_ALERTS_ENABLED` | `false` | Enable stale-job notifications |
+| `DECK_UNPROCESSED_QUEUES_ENABLED` | `true` | Detect queues without Horizon workers |
+| `DECK_HORIZON_PROMPT` | `true` | Show Horizon vs Deck choice on `/horizon` |
+| `DECK_DEFER_SIDE_EFFECTS` | `true` | Defer block side effects during web requests |
+
+Config keys (see file for full list):
+
+| Key | Purpose |
+|-----|---------|
 | `route_prefix` | Dashboard URL prefix (default: `deck`) |
 | `middleware` | Route middleware stack |
 | `auth` | Authorization callback (`null` = use Horizon) |
-| `horizon.prompt_on_visit` | Show Horizon vs Deck prompt (default: `true`) |
-| `horizon.remember_choice` | Store choice in session (default: `true`) |
-| `database_connection` | Laravel DB connection for `deck_*` tables (`DECK_DB_CONNECTION`; default: app default) |
-| `retention_days` | How long to keep execution rows |
+| `database_connection` | Same as `DECK_DB_CONNECTION` |
+| `retention_days` | Prune threshold |
 | `cancel_ttl_seconds` | Redis TTL for cancel flags |
-| `long_running_threshold_seconds` | Highlight runs exceeding this duration |
-| `store_context` | Persist opt-in `deckContext()` from jobs (default: `false`) |
-| `alerts.*` | Stale-job rules, notification class, notifiable |
+| `long_running_threshold_seconds` | Long-running highlight |
+| `store_context` | Opt-in job context JSON |
+| `alerts.*` | Stale-job rules, notification, notifiable |
+| `unprocessed_queues.*` | Unprocessed-queue detection |
+| `horizon.*` | Prompt, banner, remember choice |
+| `poll.*` | Livewire polling intervals (seconds) |
+| `tables.*` | Table names if customized |
 
-See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full config surface.
+See [IMPLEMENTATION.md](IMPLEMENTATION.md) for architecture and schema details.
 
 ---
 
@@ -185,9 +356,9 @@ See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full config surface.
 
 | Command | Description |
 |---------|-------------|
-| `deck:install` | Publish config and migrations |
-| `deck:prune` | Remove execution rows older than retention |
-| `deck:check-alerts` | Evaluate stale-job rules and notify (when enabled) |
+| `deck:install` | Publish config, migrations, and assets |
+| `deck:prune` | Delete execution rows older than `retention_days` |
+| `deck:check-alerts` | Evaluate stale-job and unprocessed-queue rules |
 
 ---
 
@@ -197,35 +368,28 @@ See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full config surface.
 ┌─────────────────────────────────────────────────────────┐
 │  Your Laravel app                                        │
 ├──────────────────────────┬──────────────────────────────┤
-│  Horizon (runtime)       │  Deck (control plane)       │
-│  • horizon artisan       │  • Queue event listeners    │
-│  • Workers & balancing   │  • DB execution log         │
-│  • /horizon dashboard    │  • /deck dashboard          │
-│  • Recent/failed in Redis│  • Last run, search, cancel │
+│  Horizon (runtime)       │  Deck (control plane)        │
+│  • horizon artisan       │  • Queue event listeners     │
+│  • Workers & balancing   │  • DB execution log          │
+│  • /horizon dashboard    │  • /deck dashboard           │
+│  • Recent/failed in Redis│  • Last run, search, cancel  │
 └──────────────────────────┴──────────────────────────────┘
                           Redis queues
 ```
 
-Use **Horizon** for worker health, scaling, and failed-job retry. Use **Deck** for job-class history, discovery, and cancellation.
+| Task | Use |
+|------|-----|
+| Worker health, scaling, supervisors, throughput | **Horizon** |
+| Job-class history, search, cancel, block, alerts | **Deck** |
 
 ---
 
-## Roadmap
+## Development
 
-Development is phased. See **[IMPLEMENTATION.md](IMPLEMENTATION.md)** for the detailed plan, schema, and milestones.
-
-| Phase | Focus |
-|-------|--------|
-| **MVP** | Execution log, per-class aggregates, dashboard, cooperative cancel |
-| **V1** | Filters (queue, connection, tag), pending cancel, stale-job alerts, long-running highlights |
-| **V2** | Runtime rollups, progress API, queue admin actions |
-
----
-
-## Testing
+Package tests (from this repository):
 
 ```bash
-cd packages/deck && composer test
+composer test
 ```
 
 ---

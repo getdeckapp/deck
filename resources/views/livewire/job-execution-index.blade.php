@@ -1,12 +1,13 @@
 <x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
-    <div class="rounded-xl border border-zinc-200/80 bg-white px-6 py-5 shadow-sm">
-        <h1 class="text-lg font-semibold tracking-tight text-zinc-900">Activity</h1>
-        <p class="mt-2 text-sm text-zinc-600">
+    <div>
+        <p class="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-indigo-600">Activity</p>
+        <h1 class="text-[28px] font-semibold tracking-[-0.022em] text-zinc-900 leading-[1.15]">Execution Log</h1>
+        <p class="mt-1.5 text-[14px] text-zinc-500">
             Searchable execution log across all jobs. Horizon shows recent Redis jobs; Deck keeps the durable record.
         </p>
     </div>
 
-    <div class="flex flex-col gap-4 rounded-xl border border-zinc-200/80 bg-white p-5 shadow-sm">
+    <div class="flex flex-col gap-4 rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
         <x-deck::filter-tabs
             :options="['' => 'All', 'running' => 'Running', 'failed' => 'Failed', 'completed' => 'Completed', 'cancelled' => 'Cancelled', 'blocked' => 'Blocked']"
             :current="$status"
@@ -65,13 +66,7 @@
         </div>
     </div>
 
-    <div class="flow-root">
-        <div class="-mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                @include('deck::partials.execution-table', ['executions' => $executions])
-            </div>
-        </div>
-    </div>
+    @include('deck::partials.execution-table', ['executions' => $executions])
 
     @if ($executions->hasPages())
         <div>{{ $executions->links() }}</div>
