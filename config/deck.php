@@ -43,6 +43,7 @@ return [
         'url' => env('DECK_CLOUD_URL'),
         'api_key' => env('DECK_API_KEY'),
         'timeout_seconds' => (int) env('DECK_CLOUD_TIMEOUT', 5),
+        'promo' => env('DECK_CLOUD_PROMO', true),
     ],
 
     'route_prefix' => 'deck',
