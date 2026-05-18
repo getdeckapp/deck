@@ -1,11 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @import 'tailwindcss';
 
 @source '../views';
 @source '../views/**/*.blade.php';
 
 @theme {
-    --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas',
+        'Liberation Mono', 'Courier New', monospace;
 }
 
 @layer components {
@@ -25,5 +29,9 @@
         --deck-chart-point-ring: var(--color-white);
         --deck-chart-area-top: color-mix(in srgb, var(--color-indigo-500) 32%, transparent);
         --deck-chart-area-bottom: color-mix(in srgb, var(--color-indigo-500) 2%, transparent);
+    }
+
+    .deck-line-chart text {
+        font-family: var(--font-mono);
     }
 }
