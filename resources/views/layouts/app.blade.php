@@ -174,7 +174,7 @@
                         <p class="mt-1.5 text-[12.5px] font-medium leading-snug text-zinc-200">Multi-app visibility,
                             hosted &amp; zero infrastructure.</p>
                         <a
-                            href="https://deck.build?utm_source=deck-oss&utm_medium=sidebar"
+                            href="https://deckapp.cloud?utm_source=deck-oss&utm_medium=sidebar"
                             target="_blank"
                             rel="noopener noreferrer"
                             class="mt-3 inline-flex items-center gap-1 font-mono text-[11.5px] font-semibold text-indigo-300 transition hover:text-indigo-100"

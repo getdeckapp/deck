@@ -73,6 +73,10 @@ return [
 
     'cancel_cache_store' => env('DECK_CANCEL_CACHE_STORE'),
 
+    'progress_ttl_seconds' => (int) env('DECK_PROGRESS_TTL_SECONDS', 86_400),
+
+    'progress_cache_store' => env('DECK_PROGRESS_CACHE_STORE'),
+
     /*
     |--------------------------------------------------------------------------
     | Job class blocker
@@ -144,6 +148,27 @@ return [
         'stale_jobs' => [
             // 'App\\Jobs\\SyncInventory' => ['max_age_hours' => 24],
         ],
+        'failure_rate_jobs' => [
+            // 'App\\Jobs\\SyncInventory' => [
+            //     'max_failure_rate' => 10,
+            //     'window_hours' => 24,
+            //     'min_samples' => 5,
+            // ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue administration
+    |--------------------------------------------------------------------------
+    |
+    | Allows clearing pending jobs from a Redis queue via the Workers page.
+    | Reserved and in-flight payloads are not removed.
+    |
+    */
+    'queue_admin' => [
+        'enabled' => (bool) env('DECK_QUEUE_ADMIN_ENABLED', true),
+        'allowed_connections' => null,
     ],
 
     /*

@@ -15,6 +15,7 @@ use TorMorten\Deck\Support\DeckInstallation;
 use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
 use TorMorten\Deck\Support\JobClassIdentifierRegistry;
+use TorMorten\Deck\Support\JobProgress;
 use TorMorten\Deck\Support\QueuedJobMetadata;
 
 class RecordJobExecution
@@ -77,6 +78,8 @@ class RecordJobExecution
             tags: $metadata->tags,
         ));
 
+        JobProgress::clear($metadata->uuid);
+
         if ($wasCancelled) {
             JobCancellation::clear($metadata->uuid);
         }
@@ -111,6 +114,8 @@ class RecordJobExecution
             exceptionMessage: $isCancelled ? null : $this->truncateExceptionMessage($exception->getMessage()),
             exceptionTrace: $isCancelled ? null : $this->truncateExceptionTrace($exception),
         ));
+
+        JobProgress::clear($metadata->uuid);
 
         if ($isCancelled) {
             JobCancellation::clear($metadata->uuid);

@@ -13,6 +13,27 @@
         @include('deck::partials.cancellation-pending-banner')
     @endif
 
+    @php($progress = $execution->progress())
+
+    @if ($progress)
+        <section class="overflow-hidden rounded-2xl border border-indigo-200/80 bg-white shadow-sm">
+            <div class="border-b border-indigo-100 bg-indigo-50/40 px-5 py-4">
+                <div class="flex items-center justify-between gap-4">
+                    <h2 class="text-sm font-semibold text-indigo-900">Progress</h2>
+                    <span class="text-sm font-semibold tabular-nums text-indigo-700">{{ $progress->percent }}%</span>
+                </div>
+                @if ($progress->message)
+                    <p class="mt-1 text-sm text-indigo-800/90">{{ $progress->message }}</p>
+                @endif
+            </div>
+            <div class="px-5 py-4">
+                <div class="h-2 overflow-hidden rounded-full bg-indigo-100">
+                    <div class="h-full rounded-full bg-indigo-600 transition-all duration-500" style="width: {{ max(2, $progress->percent) }}%"></div>
+                </div>
+            </div>
+        </section>
+    @endif
+
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-3">
@@ -95,11 +116,22 @@
     </section>
 
     @if ($execution->hasFailureDetails())
+        @php($horizonFailedUrl = $execution->horizonFailedJobUrl())
         <section class="overflow-hidden rounded-2xl border border-red-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
-            <div class="border-b border-red-100 bg-red-50/50 px-5 py-4">
-                <h2 class="text-sm font-semibold text-red-800">Failure</h2>
-                @if ($execution->exception_class)
-                    <p class="mt-1 font-mono text-sm text-red-700">{{ $execution->exception_class }}</p>
+            <div class="flex flex-wrap items-start justify-between gap-3 border-b border-red-100 bg-red-50/50 px-5 py-4">
+                <div>
+                    <h2 class="text-sm font-semibold text-red-800">Failure</h2>
+                    @if ($execution->exception_class)
+                        <p class="mt-1 font-mono text-sm text-red-700">{{ $execution->exception_class }}</p>
+                    @endif
+                </div>
+                @if ($horizonFailedUrl)
+                    <a
+                        href="{{ $horizonFailedUrl }}"
+                        class="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                        View in Horizon
+                    </a>
                 @endif
             </div>
             <div class="space-y-5 p-5">

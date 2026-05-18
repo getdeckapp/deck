@@ -13,6 +13,7 @@ use TorMorten\Deck\Models\JobClassStat;
 use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\ExecutionMetrics;
 use TorMorten\Deck\Support\JobClassBlock;
+use TorMorten\Deck\Support\RuntimeRollups;
 
 #[Layout('deck::layouts.app')]
 class JobClassShow extends Component
@@ -134,11 +135,7 @@ class JobClassShow extends Component
 
         $executions = $query->paginate(50);
 
-        $avgDuration = JobExecution::query()
-            ->forInstallation()
-            ->where('job_class', $this->jobClass)
-            ->whereNotNull('duration_ms')
-            ->avg('duration_ms');
+        $runtimeRollup = RuntimeRollups::make()->forJobClass($this->jobClass);
 
         $runningCount = JobExecution::query()
             ->forInstallation()
@@ -165,7 +162,8 @@ class JobClassShow extends Component
             'isManualBlock' => $isManualBlock,
             'blockAudit' => JobClassBlock::audit($this->jobClass),
             'jobClass' => $this->jobClass,
-            'avgDurationMs' => $avgDuration ? (int) round($avgDuration) : null,
+            'runtimeRollup' => $runtimeRollup,
+            'rollupHours' => (int) config('deck.charts.hours', 24),
             'statuses' => JobExecutionStatus::cases(),
         ]);
     }

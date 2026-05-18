@@ -29,7 +29,8 @@ class JobExecutionShow extends Component
         $this->execution->refresh();
 
         $shouldPoll = $this->execution->status->value === 'running'
-            || $this->execution->isCancellationPending();
+            || $this->execution->isCancellationPending()
+            || $this->execution->progress() !== null;
 
         return view('deck::livewire.job-execution-show', [
             'execution' => $this->execution,

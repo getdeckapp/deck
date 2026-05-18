@@ -469,15 +469,15 @@ return [
 
 ---
 
-## Phase 2 — V2 analytics
+## Phase 2 — V2 analytics (shipped in package)
 
 | ID | Feature | Notes |
 |----|---------|-------|
-| V2.1 | Runtime rollups (avg, p95) | Hourly aggregate table or scheduled job |
-| V2.2 | `JobProgress::update($uuid, %)` | Redis + UI poll |
-| V2.3 | Failure-rate alerts | Per class / queue |
-| V2.4 | Link to Horizon failed job | Deep link when UUID exists in Horizon store |
-| V2.5 | Clear single queue (admin) | Dangerous; audit log + confirmation |
+| V2.1 | Runtime rollups (avg, p50, p95) | `RuntimeRollups` on job-class detail; window = `deck.charts.hours` |
+| V2.2 | `JobProgress::update($uuid, %)` | Redis/cache + progress bar on execution detail |
+| V2.3 | Failure-rate alerts | `deck.alerts.failure_rate_jobs` + `deck:check-alerts` console output |
+| V2.4 | Link to Horizon failed job | `DeckHorizon::failedJobUrl()` on failed execution detail |
+| V2.5 | Clear single queue (admin) | Workers page; Redis only; `deck.queue_admin` config |
 
 ---
 

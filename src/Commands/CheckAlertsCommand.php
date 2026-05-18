@@ -21,9 +21,10 @@ class CheckAlertsCommand extends Command
         }
 
         $staleJobAlerts = $checker->staleJobs();
+        $failureRateAlerts = $checker->failureRates();
         $unprocessedQueueAlerts = $checker->unprocessedQueues();
 
-        if ($staleJobAlerts->isEmpty() && $unprocessedQueueAlerts->isEmpty()) {
+        if ($staleJobAlerts->isEmpty() && $failureRateAlerts->isEmpty() && $unprocessedQueueAlerts->isEmpty()) {
             $this->components->info('No Deck alerts.');
 
             return self::SUCCESS;
@@ -42,6 +43,24 @@ class CheckAlertsCommand extends Command
                     $queue->connection,
                     $queue->queue,
                     $queue->pending,
+                ));
+            }
+        }
+
+        if ($failureRateAlerts->isNotEmpty()) {
+            $this->components->warn(sprintf(
+                '%d job class(es) exceeded the configured failure-rate threshold:',
+                $failureRateAlerts->count(),
+            ));
+
+            foreach ($failureRateAlerts as $alert) {
+                $this->components->warn(sprintf(
+                    '- %s (%.1f%% failed, max %.1f%%, %d samples / %dh)',
+                    $alert->jobClass,
+                    $alert->failureRate,
+                    $alert->maxFailureRate,
+                    $alert->sampleCount,
+                    $alert->windowHours,
                 ));
             }
         }

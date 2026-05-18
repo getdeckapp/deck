@@ -3,6 +3,7 @@
 namespace TorMorten\Deck;
 
 use Illuminate\Support\Carbon;
+use TorMorten\Deck\Data\ClearQueueResult;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Models\JobExecution;
 use TorMorten\Deck\Support\DeferDeckSideEffects;
@@ -10,9 +11,11 @@ use TorMorten\Deck\Support\JobCancellation;
 use TorMorten\Deck\Support\JobClassBlock;
 use TorMorten\Deck\Support\JobClassBlockAudit;
 use TorMorten\Deck\Support\JobExecutionRetry;
+use TorMorten\Deck\Support\JobProgress;
 use TorMorten\Deck\Support\MarkExecutionCancelled;
 use TorMorten\Deck\Support\PendingCancelResult;
 use TorMorten\Deck\Support\PendingJobCancellation;
+use TorMorten\Deck\Support\QueueAdmin;
 use TorMorten\Deck\Support\RetryExecutionResult;
 
 class Deck
@@ -140,6 +143,16 @@ class Deck
     public function classBlockAudit(string $jobClass): ?JobClassBlockAudit
     {
         return JobClassBlock::audit($jobClass);
+    }
+
+    public function updateProgress(string $uuid, int $percent, ?string $message = null): void
+    {
+        JobProgress::update($uuid, $percent, $message);
+    }
+
+    public function clearQueue(string $connection, string $queue): ClearQueueResult
+    {
+        return QueueAdmin::clear($connection, $queue);
     }
 
     private function findRunningExecution(string $uuid, ?int $attempt): ?JobExecution

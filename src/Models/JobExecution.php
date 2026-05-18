@@ -3,11 +3,14 @@
 namespace TorMorten\Deck\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use TorMorten\Deck\Data\JobProgressState;
 use TorMorten\Deck\Enums\JobExecutionStatus;
 use TorMorten\Deck\Models\Concerns\BelongsToDeckInstallation;
 use TorMorten\Deck\Models\Concerns\UsesDeckConnection;
+use TorMorten\Deck\Support\DeckHorizon;
 use TorMorten\Deck\Support\FormatDuration;
 use TorMorten\Deck\Support\JobCancellation;
+use TorMorten\Deck\Support\JobProgress;
 
 class JobExecution extends Model
 {
@@ -61,6 +64,24 @@ class JobExecution extends Model
     public function canRetry(): bool
     {
         return $this->status === JobExecutionStatus::Failed;
+    }
+
+    public function progress(): ?JobProgressState
+    {
+        if ($this->status !== JobExecutionStatus::Running) {
+            return null;
+        }
+
+        return JobProgress::get($this->uuid);
+    }
+
+    public function horizonFailedJobUrl(): ?string
+    {
+        if ($this->status !== JobExecutionStatus::Failed) {
+            return null;
+        }
+
+        return DeckHorizon::failedJobUrl($this->uuid);
     }
 
     public function isCancellationPending(): bool

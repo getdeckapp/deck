@@ -29,6 +29,7 @@
         'horizonWorkload' => $horizonWorkload,
         'horizonMasters' => $horizonMasters,
         'queueInsights' => $queueInsights,
+        'queueAdminEnabled' => $queueAdminEnabled,
     ])
 
     @if ($horizonAvailable && count($horizonSupervisors) > 0)
@@ -69,4 +70,6 @@
             </div>
         </section>
     @endif
+
+    @include('deck::partials.action-confirmation')
 </x-deck::poll-container>

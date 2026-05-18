@@ -133,14 +133,21 @@
     @if ($stat)
         <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <x-deck::stat-card label="Last finished" :value="$stat->last_finished_at?->diffForHumans() ?? 'Never'" />
-            <x-deck::stat-card label="Success rate" :value="$stat->successRate() !== null ? $stat->successRate().'%' : '—'" />
-            <x-deck::stat-card label="Avg duration" :value="\TorMorten\Deck\Support\FormatDuration::format($avgDurationMs)" />
+            <x-deck::stat-card label="Success rate (all time)" :value="$stat->successRate() !== null ? $stat->successRate().'%' : '—'" />
+            <x-deck::stat-card label="Failure rate ({{ $rollupHours }}h)" :value="$runtimeRollup->failureRate !== null ? $runtimeRollup->failureRate.'%' : '—'" />
             <x-deck::stat-card label="Success / failed" :value="$stat->success_count.' / '.$stat->failure_count" />
         </dl>
     @endif
 
+    <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <x-deck::stat-card label="Avg duration ({{ $rollupHours }}h)" :value="\TorMorten\Deck\Support\FormatDuration::format($runtimeRollup->avgMs)" />
+        <x-deck::stat-card label="p50 ({{ $rollupHours }}h)" :value="\TorMorten\Deck\Support\FormatDuration::format($runtimeRollup->p50Ms)" />
+        <x-deck::stat-card label="p95 ({{ $rollupHours }}h)" :value="\TorMorten\Deck\Support\FormatDuration::format($runtimeRollup->p95Ms)" />
+        <x-deck::stat-card label="Samples ({{ $rollupHours }}h)" :value="(string) $runtimeRollup->sampleCount" />
+    </dl>
+
     <x-deck::chart-panel
-        title="Volume — last 24h"
+        title="Volume — last {{ $rollupHours }}h"
         :subtitle="'Executions of '.class_basename($jobClass).' per hour'"
         :data="$volumeChart"
         empty="No executions in this period."

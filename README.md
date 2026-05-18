@@ -288,7 +288,24 @@ Blocking is available from the job-class detail UI as well. Jobs already on the 
 
 Failed executions show a **Retry** action. Deck prefers Horizon’s failed-job store, then Laravel’s `failed_jobs` table, then a parameterless re-dispatch when the job class allows it.
 
-### Stale job alerts (optional)
+### Job progress (long-running jobs)
+
+Report progress from inside a job (stored in cache, shown on the execution detail page while running):
+
+```php
+use TorMorten\Deck\Support\JobProgress;
+
+JobProgress::update($this->job->uuid(), 45, 'Imported 450 of 1000 rows');
+// or: Deck::updateProgress($this->job->uuid(), 45, '...');
+```
+
+Progress is cleared automatically when the job completes or fails.
+
+### Runtime analytics
+
+Job-class detail shows **avg**, **p50**, **p95**, and **failure rate** for the window configured in `DECK_CHART_HOURS` (default 24h).
+
+### Stale job and failure-rate alerts (optional)
 
 ```php
 // config/deck.php
@@ -299,6 +316,13 @@ Failed executions show a **Retry** action. Deck prefers Horizon’s failed-job s
     'stale_jobs' => [
         \App\Jobs\SyncInventory::class => ['max_age_hours' => 24],
     ],
+    'failure_rate_jobs' => [
+        \App\Jobs\SyncInventory::class => [
+            'max_failure_rate' => 10,
+            'window_hours' => 24,
+            'min_samples' => 5,
+        ],
+    ],
 ],
 ```
 
@@ -307,7 +331,13 @@ Failed executions show a **Retry** action. Deck prefers Horizon’s failed-job s
 Schedule::command('deck:check-alerts')->hourly();
 ```
 
-Your notification receives a `Collection` of `TorMorten\Deck\Data\DeckStaleJobAlert` (and optionally unprocessed-queue alerts when `unprocessed_queues.include_alerts` is true).
+Your notification receives a `Collection` of `TorMorten\Deck\Data\DeckStaleJobAlert` for stale jobs. Failure-rate and unprocessed-queue issues are reported on the console by `deck:check-alerts` (extend with a custom notification if needed).
+
+### Queue administration
+
+On the **Workers** page, clear all **pending** jobs from a Redis queue (with confirmation). Configure via `deck.queue_admin` (`DECK_QUEUE_ADMIN_ENABLED`). Does not remove reserved or in-flight payloads.
+
+Failed executions link to **Horizon** when the job still exists in Horizon's failed-job store.
 
 ---
 

@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool isClassBlocked(string $jobClass)
  * @method static ?\Illuminate\Support\Carbon classBlockedUntil(string $jobClass)
  * @method static \TorMorten\Deck\Support\JobClassBlockAudit|null classBlockAudit(string $jobClass)
+ * @method static void updateProgress(string $uuid, int $percent, ?string $message = null)
+ * @method static \TorMorten\Deck\Data\ClearQueueResult clearQueue(string $connection, string $queue)
  *
  * @see \TorMorten\Deck\Deck
  */

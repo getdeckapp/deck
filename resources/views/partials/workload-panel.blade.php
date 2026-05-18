@@ -4,6 +4,7 @@
     'horizonWorkload' => [],
     'horizonMasters' => [],
     'queueInsights' => collect(),
+    'queueAdminEnabled' => false,
 ])
 
 <div class="overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
@@ -69,6 +70,18 @@
                                 </div>
                                 @if ($queue['wait'] > 0)
                                     <p class="mt-1 text-xs text-zinc-500">Est. wait ~{{ \TorMorten\Deck\Support\FormatDuration::format((int) round($queue['wait'] * 1000)) }}</p>
+                                @endif
+                                @if ($queueAdminEnabled && ($queue['length'] ?? 0) > 0)
+                                    @php
+                                        $parsedQueue = \TorMorten\Deck\Support\QueueAdmin::parseQueueKey($queue['name']);
+                                    @endphp
+                                    <button
+                                        type="button"
+                                        wire:click.stop="confirmClearQueue(@js($parsedQueue['connection']), @js($parsedQueue['queue']))"
+                                        class="mt-2 text-xs font-medium text-red-600 hover:text-red-500"
+                                    >
+                                        Clear pending jobs
+                                    </button>
                                 @endif
                             </div>
                         @endforeach

@@ -2,6 +2,7 @@
 
 namespace TorMorten\Deck\Support;
 
+use Laravel\Horizon\Contracts\JobRepository;
 use Laravel\Horizon\Horizon;
 
 class DeckHorizon
@@ -20,5 +21,26 @@ class DeckHorizon
         $path = trim((string) config('horizon.path', 'horizon'), '/');
 
         return url($path);
+    }
+
+    public static function failedJobUrl(string $uuid): ?string
+    {
+        if (! static::isInstalled() || $uuid === '') {
+            return null;
+        }
+
+        if (! interface_exists(JobRepository::class)) {
+            return null;
+        }
+
+        $failed = app(JobRepository::class)->findFailed($uuid);
+
+        if ($failed === null) {
+            return null;
+        }
+
+        $path = trim((string) config('horizon.path', 'horizon'), '/');
+
+        return url("{$path}/failed/{$uuid}");
     }
 }
