@@ -1,5 +1,5 @@
 {
-    "name": "tormjens/deck",
+    "name": "deck/deck",
     "description": "Job-class observability and safe cancellation for Laravel queues. Works with or without Horizon.",
     "keywords": [
         "laravel",
