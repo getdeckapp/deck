@@ -21,6 +21,10 @@ trait RegistersCloudAgent
 {
     protected function registerCloudAgent(): void
     {
+        if (! DeckCloud::isEnabled()) {
+            return;
+        }
+
         $this->app->singleton(HttpClient::class);
         $this->app->singleton(SyncThrottle::class);
         $this->app->singleton(WorkerSnapshotCollector::class);

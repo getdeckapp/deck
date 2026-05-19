@@ -38,6 +38,16 @@ return [
     */
     'database_connection' => env('DECK_DB_CONNECTION'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Deck Cloud (optional, opt-in)
+    |--------------------------------------------------------------------------
+    |
+    | Disabled by default. No outbound HTTP is made unless enabled is true and
+    | both url and api_key are set. Set DECK_CLOUD_PROMO=false to hide sidebar
+    | links to deckapp.cloud in the dashboard UI.
+    |
+    */
     'cloud' => [
         'enabled' => env('DECK_CLOUD_ENABLED', false),
         'url' => env('DECK_CLOUD_URL'),

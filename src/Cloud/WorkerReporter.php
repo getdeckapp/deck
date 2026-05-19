@@ -15,7 +15,7 @@ class WorkerReporter
      */
     public function send(array $snapshots): void
     {
-        if ($snapshots === []) {
+        if (! DeckCloud::workersEnabled() || $snapshots === []) {
             return;
         }
 

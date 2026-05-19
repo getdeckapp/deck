@@ -42,6 +42,10 @@ class HttpClient
      */
     private function request(string $method, string $path, array $payload = [], array $query = []): ?Response
     {
+        if (! DeckCloud::isEnabled()) {
+            return null;
+        }
+
         $url = DeckCloud::baseUrl().'/'.ltrim($path, '/');
         $timeout = max(1, (int) config('deck.cloud.timeout_seconds', 5));
         $maxAttempts = max(1, (int) config('deck.cloud.retry_attempts', 3));

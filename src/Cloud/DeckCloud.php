@@ -7,9 +7,13 @@ use Illuminate\Support\Str;
 
 class DeckCloud
 {
+    /**
+     * Deck Cloud is strictly opt-in. When this returns false, the package must not
+     * open outbound HTTP connections to Deck Cloud (or any remote URL).
+     */
     public static function isEnabled(): bool
     {
-        if (! config('deck.cloud.enabled')) {
+        if (! config('deck.cloud.enabled', false)) {
             return false;
         }
 
