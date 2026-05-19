@@ -1,11 +1,11 @@
 <?php
 
-namespace TorMorten\Deck\Commands;
+namespace Deck\Deck\Commands;
 
+use Deck\Deck\Support\DeckAssets;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Laravel\Horizon\Horizon;
-use TorMorten\Deck\Support\DeckAssets;
 
 class InstallCommand extends Command
 {
@@ -49,7 +49,7 @@ class InstallCommand extends Command
             $this->components->info('To offload Deck to a separate database, set DECK_DB_CONNECTION and add the connection in config/database.php.');
         }
 
-        $this->components->info('Opt-in cooperative cancellation: add `TorMorten\\Deck\\Middleware\\Cancellable` to job middleware, and call `JobCancellation::throwIfCancelled($this->job)` between long steps. Cancel via `Deck::cancel($uuid)` or the dashboard.');
+        $this->components->info('Opt-in cooperative cancellation: add `Deck\\Deck\\Middleware\\Cancellable` to job middleware, and call `JobCancellation::throwIfCancelled($this->job)` between long steps. Cancel via `Deck::cancel($uuid)` or the dashboard.');
 
         $this->components->info('Job blocking is enabled automatically: blocked dispatches are recorded in Deck and never pushed to the queue. Use `Deck::blockClass()` / the job detail UI.');
 
@@ -69,8 +69,8 @@ class InstallCommand extends Command
         $horizonConfig = config_path('horizon.php');
 
         $middleware = [
-            '\\TorMorten\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class',
-            '\\TorMorten\\Deck\\Http\\Middleware\\InjectHorizonDeckBanner::class',
+            '\\Deck\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class',
+            '\\Deck\\Deck\\Http\\Middleware\\InjectHorizonDeckBanner::class',
         ];
 
         if (! File::exists($horizonConfig)) {

@@ -1,14 +1,14 @@
 <?php
 
+use Deck\Deck\Deck;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobExecutionShow;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobExecutionShow;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckInstallation;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('marks a running execution cancelled when force cancelled', function () {
     $execution = JobExecution::query()->create([

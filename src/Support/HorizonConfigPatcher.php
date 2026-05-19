@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Illuminate\Support\Facades\File;
 
@@ -14,7 +14,7 @@ class HorizonConfigPatcher
             return false;
         }
 
-        $middleware = 'TorMorten\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class';
+        $middleware = 'Deck\\Deck\\Http\\Middleware\\PromptHorizonOrDeck::class';
         $contents = File::get($path);
 
         if (str_contains($contents, $middleware)) {

@@ -1,9 +1,9 @@
 <?php
 
-use TorMorten\Deck\Commands\CheckAlertsCommand;
-use TorMorten\Deck\Data\UnprocessedQueue;
-use TorMorten\Deck\Support\DeckAlertChecker;
-use TorMorten\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Commands\CheckAlertsCommand;
+use Deck\Deck\Data\UnprocessedQueue;
+use Deck\Deck\Support\DeckAlertChecker;
+use Deck\Deck\Support\UnprocessedQueueDetector;
 
 it('reports stale jobs when alerts are enabled without notification config', function () {
     config()->set('deck.alerts.enabled', true);

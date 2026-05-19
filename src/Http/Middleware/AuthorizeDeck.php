@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Http\Middleware;
+namespace Deck\Deck\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

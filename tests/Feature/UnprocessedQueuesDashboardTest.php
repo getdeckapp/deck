@@ -1,8 +1,8 @@
 <?php
 
-use TorMorten\Deck\Data\UnprocessedQueue;
-use TorMorten\Deck\Support\HorizonSnapshot;
-use TorMorten\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Data\UnprocessedQueue;
+use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\UnprocessedQueueDetector;
 
 it('shows unprocessed queues warning on the dashboard', function () {
     $queue = new UnprocessedQueue(

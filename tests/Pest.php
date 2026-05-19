@@ -1,10 +1,10 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckInstallation;
-use TorMorten\Deck\Tests\TestCase;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Tests\TestCase;
 
 uses(TestCase::class)->in('Feature', 'Unit');
 

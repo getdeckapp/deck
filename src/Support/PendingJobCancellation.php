@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Illuminate\Queue\Jobs\InspectedJob;
 use Illuminate\Queue\RedisQueue;

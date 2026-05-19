@@ -196,7 +196,7 @@ If unset, block flags fall back to the same store as cancel (`cancel_cache_store
 
 Deck **does not** store serialized job payloads by default. Exception messages are truncated; stack traces are capped (`DECK_EXCEPTION_TRACE_BYTES`, default 64 KB).
 
-To attach safe, scalar debug context from a job, implement `TorMorten\Deck\Contracts\ExposesDeckContext` and enable:
+To attach safe, scalar debug context from a job, implement `Deck\Deck\Contracts\ExposesDeckContext` and enable:
 
 ```env
 DECK_STORE_CONTEXT=true
@@ -238,8 +238,8 @@ After installation, Deck listens to queue events and records starts, completions
 Long-running jobs should check a cancel flag between steps:
 
 ```php
-use TorMorten\Deck\Middleware\Cancellable;
-use TorMorten\Deck\Support\JobCancellation;
+use Deck\Deck\Middleware\Cancellable;
+use Deck\Deck\Support\JobCancellation;
 
 class GenerateReport implements ShouldQueue
 {
@@ -262,7 +262,7 @@ class GenerateReport implements ShouldQueue
 Cancel from the dashboard or programmatically:
 
 ```php
-use TorMorten\Deck\Facades\Deck;
+use Deck\Deck\Facades\Deck;
 
 Deck::cancel($jobUuid);
 ```
@@ -274,7 +274,7 @@ Cancellation is **cooperative** — Deck does not force-kill PHP workers. Pendin
 Blocked classes are intercepted at dispatch (never pushed to the queue) and recorded with status `blocked`:
 
 ```php
-use TorMorten\Deck\Facades\Deck;
+use Deck\Deck\Facades\Deck;
 
 Deck::blockClass(\App\Jobs\SyncInventory::class, until: now()->addHour(), reason: 'Upstream API outage');
 
@@ -293,7 +293,7 @@ Failed executions show a **Retry** action. Deck prefers Horizon’s failed-job s
 Report progress from inside a job (stored in cache, shown on the execution detail page while running):
 
 ```php
-use TorMorten\Deck\Support\JobProgress;
+use Deck\Deck\Support\JobProgress;
 
 JobProgress::update($this->job->uuid(), 45, 'Imported 450 of 1000 rows');
 // or: Deck::updateProgress($this->job->uuid(), 45, '...');
@@ -331,7 +331,7 @@ Job-class detail shows **avg**, **p50**, **p95**, and **failure rate** for the w
 Schedule::command('deck:check-alerts')->hourly();
 ```
 
-Your notification receives a `Collection` of `TorMorten\Deck\Data\DeckStaleJobAlert` for stale jobs. Failure-rate and unprocessed-queue issues are reported on the console by `deck:check-alerts` (extend with a custom notification if needed).
+Your notification receives a `Collection` of `Deck\Deck\Data\DeckStaleJobAlert` for stale jobs. Failure-rate and unprocessed-queue issues are reported on the console by `deck:check-alerts` (extend with a custom notification if needed).
 
 ### Queue administration
 

@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\DeferDeckSideEffects;
+use Deck\Deck\Support\DeferDeckSideEffects;
 
 it('does not defer side effects in tests or the console', function () {
     config()->set('deck.defer_side_effects', true);

@@ -1,10 +1,10 @@
 <?php
 
+use Deck\Deck\Deck;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Bus;
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('cancels a running execution by uuid', function () {
     $execution = createDeckExecution([

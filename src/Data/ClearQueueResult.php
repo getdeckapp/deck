@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Data;
+namespace Deck\Deck\Data;
 
 readonly class ClearQueueResult
 {

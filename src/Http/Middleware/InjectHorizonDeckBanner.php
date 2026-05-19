@@ -1,11 +1,11 @@
 <?php
 
-namespace TorMorten\Deck\Http\Middleware;
+namespace Deck\Deck\Http\Middleware;
 
 use Closure;
+use Deck\Deck\Support\HorizonDashboardRequest;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use TorMorten\Deck\Support\HorizonDashboardRequest;
 
 class InjectHorizonDeckBanner
 {

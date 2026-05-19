@@ -1,10 +1,10 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobExecutionIndex;
+use Deck\Deck\Livewire\JobExecutionShow;
+use Deck\Deck\Support\JobCancellation;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
-use TorMorten\Deck\Livewire\JobExecutionShow;
-use TorMorten\Deck\Support\JobCancellation;
 
 it('requests cancellation for a running execution via livewire', function () {
     $execution = createDeckExecution([

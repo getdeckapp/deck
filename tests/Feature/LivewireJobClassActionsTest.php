@@ -1,10 +1,10 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobClassShow;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Support\JobClassBlock;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobClassShow;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Support\JobClassBlock;
 
 it('cancels all running executions for a class via livewire', function () {
     $jobClass = 'App\\Jobs\\LivewireBulkCancelJob';

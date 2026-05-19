@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Exceptions\JobCancelledException;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
-use TorMorten\Deck\Exceptions\JobCancelledException;
 
 class JobCancellation
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Data\JobProgressState;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use TorMorten\Deck\Data\JobProgressState;
 
 class JobProgress
 {

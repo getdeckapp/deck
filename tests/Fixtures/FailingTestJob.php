@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Tests\Fixtures;
+namespace Deck\Deck\Tests\Fixtures;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

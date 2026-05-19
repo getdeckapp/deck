@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Livewire\Concerns;
+namespace Deck\Deck\Livewire\Concerns;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobExecution;
 use Illuminate\Database\Eloquent\Builder;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobExecution;
 
 trait FiltersExecutions
 {

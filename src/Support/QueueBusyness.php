@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Enums\QueueBusynessLevel;
-use TorMorten\Deck\Models\JobExecution;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Enums\QueueBusynessLevel;
+use Deck\Deck\Models\JobExecution;
 
 class QueueBusyness
 {

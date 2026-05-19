@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobExecutionIndex;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
 
 it('always enables polling on the activity feed', function () {
     createDeckExecution([

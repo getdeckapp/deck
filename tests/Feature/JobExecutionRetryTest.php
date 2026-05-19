@@ -1,11 +1,11 @@
 <?php
 
+use Deck\Deck\Deck;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\JobExecutionRetry;
+use Deck\Deck\Tests\Fixtures\ParameterizedTestJob;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Bus;
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\JobExecutionRetry;
-use TorMorten\Deck\Tests\Fixtures\ParameterizedTestJob;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('returns not found when retrying a missing failed execution', function () {
     $result = app(Deck::class)->retryExecution((string) str()->uuid());

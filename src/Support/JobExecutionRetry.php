@@ -1,7 +1,9 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobExecution;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Artisan;
@@ -9,8 +11,6 @@ use Laravel\Horizon\Contracts\JobRepository;
 use Laravel\Horizon\Jobs\RetryFailedJob;
 use ReflectionClass;
 use ReflectionException;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobExecution;
 
 class JobExecutionRetry
 {

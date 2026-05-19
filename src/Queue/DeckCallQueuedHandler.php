@@ -1,13 +1,13 @@
 <?php
 
-namespace TorMorten\Deck\Queue;
+namespace Deck\Deck\Queue;
 
+use Deck\Deck\Middleware\Blockable;
 use Exception;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Queue\CallQueuedHandler;
-use TorMorten\Deck\Middleware\Blockable;
 
 class DeckCallQueuedHandler extends CallQueuedHandler
 {

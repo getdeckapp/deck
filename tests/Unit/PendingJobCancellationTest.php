@@ -1,7 +1,7 @@
 <?php
 
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Support\PendingJobCancellation;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Support\PendingJobCancellation;
 
 it('sets the cancellation flag for pending cancel', function () {
     $uuid = (string) str()->uuid();

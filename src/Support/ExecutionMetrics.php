@@ -1,11 +1,11 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Deck\Deck\Models\JobExecution;
 use Illuminate\Support\Collection;
-use TorMorten\Deck\Models\JobExecution;
 
 class ExecutionMetrics
 {

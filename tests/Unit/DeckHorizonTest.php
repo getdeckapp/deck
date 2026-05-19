@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\DeckHorizon;
+use Deck\Deck\Support\DeckHorizon;
 
 it('reports horizon as not installed in the test harness', function () {
     expect(DeckHorizon::isInstalled())->toBeFalse();

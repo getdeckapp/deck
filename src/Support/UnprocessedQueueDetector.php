@@ -1,12 +1,12 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Data\UnprocessedQueue;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use TorMorten\Deck\Data\UnprocessedQueue;
 
 class UnprocessedQueueDetector
 {

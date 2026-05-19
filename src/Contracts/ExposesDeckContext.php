@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Contracts;
+namespace Deck\Deck\Contracts;
 
 interface ExposesDeckContext
 {

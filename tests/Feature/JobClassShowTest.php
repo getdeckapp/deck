@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobClassShow;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobClassShow;
 
 it('renders the job class detail page', function () {
     $jobClass = 'App\\Jobs\\DetailJob';

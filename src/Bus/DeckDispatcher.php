@@ -1,9 +1,9 @@
 <?php
 
-namespace TorMorten\Deck\Bus;
+namespace Deck\Deck\Bus;
 
+use Deck\Deck\Support\InterceptBlockedDispatch;
 use Illuminate\Bus\Dispatcher;
-use TorMorten\Deck\Support\InterceptBlockedDispatch;
 
 class DeckDispatcher extends Dispatcher
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Data\ClearQueueResult;
 use Illuminate\Queue\RedisQueue;
 use Illuminate\Support\Facades\Queue;
-use TorMorten\Deck\Data\ClearQueueResult;
 
 class QueueAdmin
 {

@@ -1,7 +1,7 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\ExecutionMetrics;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\ExecutionMetrics;
 
 it('builds hourly job volume from executions', function () {
     createDeckExecution([

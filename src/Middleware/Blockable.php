@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Middleware;
+namespace Deck\Deck\Middleware;
 
+use Deck\Deck\Support\InterceptBlockedQueueJob;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Queue\InteractsWithQueue;
-use TorMorten\Deck\Support\InterceptBlockedQueueJob;
 
 class Blockable
 {

@@ -1,11 +1,11 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobExecutionIndex;
+use Deck\Deck\Livewire\JobExecutionShow;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Bus;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
-use TorMorten\Deck\Livewire\JobExecutionShow;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('retries a failed execution via livewire on the activity index', function () {
     Bus::fake();

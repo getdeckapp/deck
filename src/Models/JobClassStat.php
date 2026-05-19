@@ -1,12 +1,12 @@
 <?php
 
-namespace TorMorten\Deck\Models;
+namespace Deck\Deck\Models;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\Concerns\BelongsToDeckInstallation;
+use Deck\Deck\Models\Concerns\UsesDeckConnection;
+use Deck\Deck\Support\FormatDuration;
 use Illuminate\Database\Eloquent\Model;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\Concerns\BelongsToDeckInstallation;
-use TorMorten\Deck\Models\Concerns\UsesDeckConnection;
-use TorMorten\Deck\Support\FormatDuration;
 
 class JobClassStat extends Model
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Exceptions;
+namespace Deck\Deck\Exceptions;
 
 use RuntimeException;
 

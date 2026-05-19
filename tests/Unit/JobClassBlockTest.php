@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\JobClassBlock;
+use Deck\Deck\Support\JobClassBlock;
 
 it('blocks and unblocks a job class', function () {
     $class = 'App\\Jobs\\BlockedJob';

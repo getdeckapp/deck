@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\FormatDuration;
+use Deck\Deck\Support\FormatDuration;
 
 it('formats null as em dash', function () {
     expect(FormatDuration::format(null))->toBe('—');

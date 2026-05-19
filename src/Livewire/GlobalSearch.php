@@ -1,13 +1,13 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
 
 class GlobalSearch extends Component
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Enums;
+namespace Deck\Deck\Enums;
 
 enum JobExecutionStatus: string
 {

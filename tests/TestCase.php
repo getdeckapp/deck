@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Tests;
+namespace Deck\Deck\Tests;
 
+use Deck\Deck\DeckServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use TorMorten\Deck\DeckServiceProvider;
 
 class TestCase extends Orchestra
 {

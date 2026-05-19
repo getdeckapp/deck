@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Livewire\Concerns;
+namespace Deck\Deck\Livewire\Concerns;
 
 trait InteractsWithActionConfirmation
 {

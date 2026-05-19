@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Laravel\Horizon\Contracts\JobRepository;
 use Laravel\Horizon\Horizon;

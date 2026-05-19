@@ -1,12 +1,12 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckPolling;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckPolling;
 
 #[Layout('deck::layouts.app')]
 class JobExecutionShow extends Component

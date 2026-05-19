@@ -3,7 +3,7 @@
 This document is the source of truth for building `tormjens/deck`. It complements [README.md](README.md) with architecture, phases, and file-level tasks.
 
 **Status:** Phase 0 in progress (recording + Cloud-ready identity)  
-**Namespace:** `TorMorten\Deck`  
+**Namespace:** `Deck\Deck`  
 **Package path:** `packages/deck` in `package-dev` sandbox
 
 ---
@@ -73,7 +73,7 @@ Deck ships **precompiled CSS** in `resources/dist/deck.css`, built from package 
 | `resources/dist/deck.css` | Committed build output (shipped to Composer) |
 | `public/vendor/deck/deck.css` | Published copy in consuming apps |
 
-`TorMorten\Deck\Support\DeckAssets` resolves the stylesheet URL (published file, else package route).
+`Deck\Deck\Support\DeckAssets` resolves the stylesheet URL (published file, else package route).
 
 ---
 
@@ -192,7 +192,7 @@ Optional: `POST /deck/horizon-preference` to switch later from Deck settings foo
 
 #### `deck:install` integration
 
-1. Append `TorMorten\Deck\Http\Middleware\PromptHorizonOrDeck::class` to `config/horizon.php` `middleware` array (or print manual step if config not published).
+1. Append `Deck\Deck\Http\Middleware\PromptHorizonOrDeck::class` to `config/horizon.php` `middleware` array (or print manual step if config not published).
 2. Do **not** modify `Horizon::auth()`.
 
 #### Disabling the prompt

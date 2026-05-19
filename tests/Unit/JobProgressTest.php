@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\JobProgress;
+use Deck\Deck\Support\JobProgress;
 
 it('stores and retrieves job progress', function () {
     $uuid = (string) str()->uuid();

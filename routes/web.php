@@ -1,15 +1,15 @@
 <?php
 
+use Deck\Deck\Http\Controllers\HorizonPreferenceController;
+use Deck\Deck\Http\Middleware\AuthorizeDeck;
+use Deck\Deck\Livewire\Dashboard;
+use Deck\Deck\Livewire\JobClassIndex;
+use Deck\Deck\Livewire\JobClassShow;
+use Deck\Deck\Livewire\JobExecutionIndex;
+use Deck\Deck\Livewire\JobExecutionShow;
+use Deck\Deck\Livewire\WorkersIndex;
+use Deck\Deck\Support\DeckAssets;
 use Illuminate\Support\Facades\Route;
-use TorMorten\Deck\Http\Controllers\HorizonPreferenceController;
-use TorMorten\Deck\Http\Middleware\AuthorizeDeck;
-use TorMorten\Deck\Livewire\Dashboard;
-use TorMorten\Deck\Livewire\JobClassIndex;
-use TorMorten\Deck\Livewire\JobClassShow;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
-use TorMorten\Deck\Livewire\JobExecutionShow;
-use TorMorten\Deck\Livewire\WorkersIndex;
-use TorMorten\Deck\Support\DeckAssets;
 
 $prefix = trim(config('deck.route_prefix', 'deck'), '/');
 $middleware = array_merge(config('deck.middleware', ['web']), [AuthorizeDeck::class]);

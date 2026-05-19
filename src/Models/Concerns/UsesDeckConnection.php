@@ -1,8 +1,8 @@
 <?php
 
-namespace TorMorten\Deck\Models\Concerns;
+namespace Deck\Deck\Models\Concerns;
 
-use TorMorten\Deck\Support\DeckDatabase;
+use Deck\Deck\Support\DeckDatabase;
 
 trait UsesDeckConnection
 {

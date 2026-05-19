@@ -1,7 +1,7 @@
 @props(['busyness'])
 
 @php
-    use TorMorten\Deck\Enums\QueueBusynessLevel;
+    use Deck\Deck\Enums\QueueBusynessLevel;
 
     $level = $busyness['level'];
     $topQueues = collect($busyness['queues'])->take(4);

@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Http\Controllers;
+namespace Deck\Deck\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

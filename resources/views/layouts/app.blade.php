@@ -11,7 +11,7 @@
 <body class="h-full bg-zinc-100 antialiased">
 @php
     $routeName = request()->route()?->getName() ?? '';
-    $horizonUrl = \TorMorten\Deck\Support\DeckHorizon::dashboardUrl();
+    $horizonUrl = \Deck\Deck\Support\DeckHorizon::dashboardUrl();
 @endphp
 
 <div class="flex min-h-full">
@@ -65,16 +65,16 @@
             {{-- Project + environment chips --}}
             <div class="px-5 pb-5">
                 <div class="flex flex-wrap items-center gap-2 text-[11.5px]">
-                        <span
-                            class="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-zinc-300 ring-1 ring-white/[0.06]">
-                            <span class="size-1.5 rounded-full bg-zinc-500" aria-hidden="true"></span>
-                            {{ \TorMorten\Deck\Support\DeckInstallation::project() }}
-                        </span>
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-zinc-300 ring-1 ring-white/[0.06]">
+                        <span class="size-1.5 rounded-full bg-zinc-500" aria-hidden="true"></span>
+                        {{ \Deck\Deck\Support\DeckInstallation::project() }}
+                    </span>
                     <span
                         class="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/[0.12] px-2 py-0.5 font-mono text-indigo-200 ring-1 ring-indigo-400/20">
-                            <span class="size-1.5 rounded-full bg-indigo-400" aria-hidden="true"></span>
-                            {{ \TorMorten\Deck\Support\DeckInstallation::environment() }}
-                        </span>
+                        <span class="size-1.5 rounded-full bg-indigo-400" aria-hidden="true"></span>
+                        {{ \Deck\Deck\Support\DeckInstallation::environment() }}
+                    </span>
                 </div>
             </div>
 

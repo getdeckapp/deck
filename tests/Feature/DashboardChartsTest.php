@@ -1,7 +1,7 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\HorizonSnapshot;
 
 it('renders job volume and duration charts on the overview', function () {
     createDeckExecution([

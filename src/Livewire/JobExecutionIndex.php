@@ -1,17 +1,17 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\Concerns\FiltersExecutions;
+use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckPolling;
+use Deck\Deck\Support\ExecutionTagCatalog;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\Concerns\FiltersExecutions;
-use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckPolling;
-use TorMorten\Deck\Support\ExecutionTagCatalog;
 
 #[Layout('deck::layouts.app')]
 class JobExecutionIndex extends Component

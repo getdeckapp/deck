@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\DeckAssets;
+use Deck\Deck\Support\DeckAssets;
 
 it('prefers the newer package dist css over a stale published copy', function () {
     $published = public_path('vendor/deck/deck.css');

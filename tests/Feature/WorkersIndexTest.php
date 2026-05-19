@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\HorizonSnapshot;
 
 it('renders the workers and queues page', function () {
     $response = $this->get(route('deck.workers.index'));

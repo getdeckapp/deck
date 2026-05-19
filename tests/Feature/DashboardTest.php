@@ -1,8 +1,8 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
 
 it('renders the overview dashboard', function () {
     JobClassStat::query()->create([

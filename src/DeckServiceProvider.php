@@ -1,7 +1,26 @@
 <?php
 
-namespace TorMorten\Deck;
+namespace Deck\Deck;
 
+use Deck\Deck\Bus\DeckDispatcher;
+use Deck\Deck\Commands\CheckAlertsCommand;
+use Deck\Deck\Commands\InstallCommand;
+use Deck\Deck\Commands\PruneCommand;
+use Deck\Deck\Commands\ReportWorkersCommand;
+use Deck\Deck\Concerns\RegistersCloudAgent;
+use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Listeners\RecordJobExecution;
+use Deck\Deck\Livewire\Dashboard;
+use Deck\Deck\Livewire\GlobalSearch;
+use Deck\Deck\Livewire\JobClassIndex;
+use Deck\Deck\Livewire\JobClassShow;
+use Deck\Deck\Livewire\JobExecutionIndex;
+use Deck\Deck\Livewire\JobExecutionShow;
+use Deck\Deck\Livewire\WorkersIndex;
+use Deck\Deck\Queue\DeckCallQueuedHandler;
+use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
+use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\InterceptBlockedQueueJob;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
@@ -14,26 +33,11 @@ use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use TorMorten\Deck\Bus\DeckDispatcher;
-use TorMorten\Deck\Commands\CheckAlertsCommand;
-use TorMorten\Deck\Commands\InstallCommand;
-use TorMorten\Deck\Commands\PruneCommand;
-use TorMorten\Deck\Contracts\JobExecutionRecorder;
-use TorMorten\Deck\Listeners\RecordJobExecution;
-use TorMorten\Deck\Livewire\Dashboard;
-use TorMorten\Deck\Livewire\GlobalSearch;
-use TorMorten\Deck\Livewire\JobClassIndex;
-use TorMorten\Deck\Livewire\JobClassShow;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
-use TorMorten\Deck\Livewire\JobExecutionShow;
-use TorMorten\Deck\Livewire\WorkersIndex;
-use TorMorten\Deck\Queue\DeckCallQueuedHandler;
-use TorMorten\Deck\Recorders\DatabaseJobExecutionRecorder;
-use TorMorten\Deck\Support\HorizonSnapshot;
-use TorMorten\Deck\Support\InterceptBlockedQueueJob;
 
 class DeckServiceProvider extends PackageServiceProvider
 {
+    use RegistersCloudAgent;
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -47,7 +51,8 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasMigration('add_exception_trace_to_deck_job_executions')
             ->hasCommand(InstallCommand::class)
             ->hasCommand(PruneCommand::class)
-            ->hasCommand(CheckAlertsCommand::class);
+            ->hasCommand(CheckAlertsCommand::class)
+            ->hasCommand(ReportWorkersCommand::class);
     }
 
     public function packageRegistered(): void
@@ -56,6 +61,7 @@ class DeckServiceProvider extends PackageServiceProvider
         $this->app->singleton(Deck::class);
         $this->app->singleton(HorizonSnapshot::class, fn (): HorizonSnapshot => HorizonSnapshot::make());
 
+        $this->registerCloudAgent();
         $this->registerDeckCallQueuedHandler();
     }
 
@@ -63,6 +69,8 @@ class DeckServiceProvider extends PackageServiceProvider
     {
         $this->registerDeckDispatcher();
         $this->registerQueueInterception();
+        $this->bootCloudAgent();
+        $this->scheduleCloudAgent();
 
         $listener = $this->app->make(RecordJobExecution::class);
 

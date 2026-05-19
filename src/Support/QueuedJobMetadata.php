@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Support\Str;

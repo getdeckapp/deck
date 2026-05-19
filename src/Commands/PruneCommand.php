@@ -1,9 +1,9 @@
 <?php
 
-namespace TorMorten\Deck\Commands;
+namespace Deck\Deck\Commands;
 
+use Deck\Deck\Models\JobExecution;
 use Illuminate\Console\Command;
-use TorMorten\Deck\Models\JobExecution;
 
 class PruneCommand extends Command
 {

@@ -1,16 +1,16 @@
 <?php
 
-namespace TorMorten\Deck\Models;
+namespace Deck\Deck\Models;
 
+use Deck\Deck\Data\JobProgressState;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\Concerns\BelongsToDeckInstallation;
+use Deck\Deck\Models\Concerns\UsesDeckConnection;
+use Deck\Deck\Support\DeckHorizon;
+use Deck\Deck\Support\FormatDuration;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Support\JobProgress;
 use Illuminate\Database\Eloquent\Model;
-use TorMorten\Deck\Data\JobProgressState;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\Concerns\BelongsToDeckInstallation;
-use TorMorten\Deck\Models\Concerns\UsesDeckConnection;
-use TorMorten\Deck\Support\DeckHorizon;
-use TorMorten\Deck\Support\FormatDuration;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Support\JobProgress;
 
 class JobExecution extends Model
 {

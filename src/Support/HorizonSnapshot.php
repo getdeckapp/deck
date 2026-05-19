@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Illuminate\Support\Collection;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;

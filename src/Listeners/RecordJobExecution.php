@@ -1,22 +1,22 @@
 <?php
 
-namespace TorMorten\Deck\Listeners;
+namespace Deck\Deck\Listeners;
 
+use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Data\JobExecutionRecord;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Exceptions\JobCancelledException;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Support\JobClassIdentifierRegistry;
+use Deck\Deck\Support\JobProgress;
+use Deck\Deck\Support\QueuedJobMetadata;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Carbon;
-use TorMorten\Deck\Contracts\JobExecutionRecorder;
-use TorMorten\Deck\Data\JobExecutionRecord;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Exceptions\JobCancelledException;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckInstallation;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Support\JobClassBlock;
-use TorMorten\Deck\Support\JobClassIdentifierRegistry;
-use TorMorten\Deck\Support\JobProgress;
-use TorMorten\Deck\Support\QueuedJobMetadata;
 
 class RecordJobExecution
 {

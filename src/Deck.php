@@ -1,22 +1,22 @@
 <?php
 
-namespace TorMorten\Deck;
+namespace Deck\Deck;
 
+use Deck\Deck\Data\ClearQueueResult;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeferDeckSideEffects;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Support\JobClassBlockAudit;
+use Deck\Deck\Support\JobExecutionRetry;
+use Deck\Deck\Support\JobProgress;
+use Deck\Deck\Support\MarkExecutionCancelled;
+use Deck\Deck\Support\PendingCancelResult;
+use Deck\Deck\Support\PendingJobCancellation;
+use Deck\Deck\Support\QueueAdmin;
+use Deck\Deck\Support\RetryExecutionResult;
 use Illuminate\Support\Carbon;
-use TorMorten\Deck\Data\ClearQueueResult;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeferDeckSideEffects;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Support\JobClassBlock;
-use TorMorten\Deck\Support\JobClassBlockAudit;
-use TorMorten\Deck\Support\JobExecutionRetry;
-use TorMorten\Deck\Support\JobProgress;
-use TorMorten\Deck\Support\MarkExecutionCancelled;
-use TorMorten\Deck\Support\PendingCancelResult;
-use TorMorten\Deck\Support\PendingJobCancellation;
-use TorMorten\Deck\Support\QueueAdmin;
-use TorMorten\Deck\Support\RetryExecutionResult;
 
 class Deck
 {

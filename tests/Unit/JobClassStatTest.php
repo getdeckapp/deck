@@ -1,8 +1,8 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Support\DeckInstallation;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Support\DeckInstallation;
 
 it('scopes stats to the current installation', function () {
     createDeckStat(['job_class' => 'App\\Jobs\\ScopedJob']);

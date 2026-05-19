@@ -1,19 +1,19 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Deck;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\ExecutionMetrics;
+use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Support\RuntimeRollups;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\ExecutionMetrics;
-use TorMorten\Deck\Support\JobClassBlock;
-use TorMorten\Deck\Support\RuntimeRollups;
 
 #[Layout('deck::layouts.app')]
 class JobClassShow extends Component

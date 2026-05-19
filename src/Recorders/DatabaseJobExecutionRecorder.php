@@ -1,12 +1,12 @@
 <?php
 
-namespace TorMorten\Deck\Recorders;
+namespace Deck\Deck\Recorders;
 
-use TorMorten\Deck\Contracts\JobExecutionRecorder;
-use TorMorten\Deck\Data\JobExecutionRecord;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
+use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Data\JobExecutionRecord;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
 
 class DatabaseJobExecutionRecorder implements JobExecutionRecorder
 {

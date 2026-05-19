@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Data;
+namespace Deck\Deck\Data;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\QueuedJobMetadata;
 use Illuminate\Support\Carbon;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\QueuedJobMetadata;
 
 readonly class JobExecutionRecord
 {

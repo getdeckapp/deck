@@ -1,9 +1,9 @@
 <?php
 
-namespace TorMorten\Deck\Models\Concerns;
+namespace Deck\Deck\Models\Concerns;
 
+use Deck\Deck\Support\DeckInstallation;
 use Illuminate\Database\Eloquent\Builder;
-use TorMorten\Deck\Support\DeckInstallation;
 
 trait BelongsToDeckInstallation
 {

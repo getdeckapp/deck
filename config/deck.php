@@ -44,6 +44,15 @@ return [
         'api_key' => env('DECK_API_KEY'),
         'timeout_seconds' => (int) env('DECK_CLOUD_TIMEOUT', 5),
         'promo' => env('DECK_CLOUD_PROMO', true),
+        'retry_attempts' => (int) env('DECK_CLOUD_RETRY_ATTEMPTS', 3),
+        'log_failures' => (bool) env('DECK_CLOUD_LOG_FAILURES', true),
+        'workers' => [
+            'enabled' => (bool) env('DECK_CLOUD_WORKERS_ENABLED', true),
+            'interval_seconds' => (int) env('DECK_CLOUD_WORKERS_INTERVAL', 30),
+        ],
+        'commands' => [
+            'enabled' => (bool) env('DECK_CLOUD_COMMANDS_ENABLED', true),
+        ],
     ],
 
     'route_prefix' => 'deck',

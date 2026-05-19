@@ -1,14 +1,14 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Data\DeckFailureRateAlert;
+use Deck\Deck\Data\DeckStaleJobAlert;
+use Deck\Deck\Data\DeckUnprocessedQueueAlert;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
 use Illuminate\Support\Collection;
-use TorMorten\Deck\Data\DeckFailureRateAlert;
-use TorMorten\Deck\Data\DeckStaleJobAlert;
-use TorMorten\Deck\Data\DeckUnprocessedQueueAlert;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
 
 class DeckAlertChecker
 {

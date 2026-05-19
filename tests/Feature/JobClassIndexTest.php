@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobClassIndex;
+use Deck\Deck\Models\JobClassStat;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobClassIndex;
-use TorMorten\Deck\Models\JobClassStat;
 
 it('filters job classes by search term', function () {
     createDeckStat(['job_class' => 'App\\Jobs\\BillingJob']);

@@ -1,9 +1,9 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Enums\QueueBusynessLevel;
-use TorMorten\Deck\Support\HorizonSnapshot;
-use TorMorten\Deck\Support\QueueBusyness;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Enums\QueueBusynessLevel;
+use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\QueueBusyness;
 
 it('scores busy queues from deck execution history', function () {
     createDeckExecution([

@@ -1,7 +1,7 @@
 <?php
 
+use Deck\Deck\Support\HorizonDashboardRequest;
 use Illuminate\Http\Request;
-use TorMorten\Deck\Support\HorizonDashboardRequest;
 
 it('matches horizon dashboard html routes', function () {
     config(['horizon.path' => 'horizon']);

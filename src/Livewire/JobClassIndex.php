@@ -1,13 +1,13 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
 
 #[Layout('deck::layouts.app')]
 class JobClassIndex extends Component

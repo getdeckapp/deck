@@ -69,11 +69,11 @@
                                     <div class="h-full rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400" style="width: {{ max(8, $loadPercent) }}%"></div>
                                 </div>
                                 @if ($queue['wait'] > 0)
-                                    <p class="mt-1 text-xs text-zinc-500">Est. wait ~{{ \TorMorten\Deck\Support\FormatDuration::format((int) round($queue['wait'] * 1000)) }}</p>
+                                    <p class="mt-1 text-xs text-zinc-500">Est. wait ~{{ \Deck\Deck\Support\FormatDuration::format((int) round($queue['wait'] * 1000)) }}</p>
                                 @endif
                                 @if ($queueAdminEnabled && ($queue['length'] ?? 0) > 0)
                                     @php
-                                        $parsedQueue = \TorMorten\Deck\Support\QueueAdmin::parseQueueKey($queue['name']);
+                                        $parsedQueue = \Deck\Deck\Support\QueueAdmin::parseQueueKey($queue['name']);
                                     @endphp
                                     <button
                                         type="button"
@@ -132,7 +132,7 @@
                                 <td class="py-3 font-medium text-zinc-900">{{ $queue['queue'] }}</td>
                                 <td class="py-3 tabular-nums text-zinc-600">{{ $queue['running'] }}</td>
                                 <td class="py-3 tabular-nums text-zinc-600">{{ $queue['completed_last_hour'] }}</td>
-                                <td class="py-3 text-zinc-600">{{ $queue['avg_duration_ms'] !== null ? \TorMorten\Deck\Support\FormatDuration::format($queue['avg_duration_ms']) : '—' }}</td>
+                                <td class="py-3 text-zinc-600">{{ $queue['avg_duration_ms'] !== null ? \Deck\Deck\Support\FormatDuration::format($queue['avg_duration_ms']) : '—' }}</td>
                                 <td class="py-3">
                                     <div class="flex items-center gap-2">
                                         <div class="h-2 w-24 overflow-hidden rounded-full bg-zinc-100">

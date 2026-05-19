@@ -1,12 +1,12 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Tests\Fixtures\FailingTestJob;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Str;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckInstallation;
-use TorMorten\Deck\Tests\Fixtures\FailingTestJob;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('records a successful job execution and class stats', function () {
     SuccessfulTestJob::dispatch();

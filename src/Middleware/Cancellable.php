@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Middleware;
+namespace Deck\Deck\Middleware;
 
+use Deck\Deck\Support\JobCancellation;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Queue\InteractsWithQueue;
-use TorMorten\Deck\Support\JobCancellation;
 
 class Cancellable
 {

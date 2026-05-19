@@ -1,16 +1,16 @@
 <?php
 
+use Deck\Deck\Bus\DeckDispatcher;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\InterceptBlockedQueueJob;
+use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Support\JobClassIdentifierRegistry;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Support\Facades\Queue;
-use TorMorten\Deck\Bus\DeckDispatcher;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\InterceptBlockedQueueJob;
-use TorMorten\Deck\Support\JobClassBlock;
-use TorMorten\Deck\Support\JobClassIdentifierRegistry;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('uses the deck bus dispatcher', function () {
     expect(app(BusDispatcher::class))->toBeInstanceOf(DeckDispatcher::class);

@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobExecutionIndex;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
 
 it('filters activity by queue', function () {
     createDeckExecution(['queue' => 'high', 'job_class' => 'App\\Jobs\\HighQueueJob']);

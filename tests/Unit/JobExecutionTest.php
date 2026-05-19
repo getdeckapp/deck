@@ -1,7 +1,7 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobExecution;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobExecution;
 
 it('scopes executions to the current installation', function () {
     createDeckExecution(['job_class' => 'App\\Jobs\\ScopedExecution']);

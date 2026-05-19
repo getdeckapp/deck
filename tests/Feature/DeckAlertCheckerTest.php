@@ -1,8 +1,8 @@
 <?php
 
-use TorMorten\Deck\Data\UnprocessedQueue;
-use TorMorten\Deck\Support\DeckAlertChecker;
-use TorMorten\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Data\UnprocessedQueue;
+use Deck\Deck\Support\DeckAlertChecker;
+use Deck\Deck\Support\UnprocessedQueueDetector;
 
 it('detects stale job classes from config rules', function () {
     config()->set('deck.alerts.enabled', true);

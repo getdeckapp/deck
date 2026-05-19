@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Models\JobExecution;
 use Illuminate\Support\Collection;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Models\JobExecution;
 
 class QueueInsights
 {

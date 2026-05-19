@@ -1,6 +1,6 @@
 <?php
 
-namespace TorMorten\Deck\Support;
+namespace Deck\Deck\Support;
 
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;

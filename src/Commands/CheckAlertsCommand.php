@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Commands;
+namespace Deck\Deck\Commands;
 
+use Deck\Deck\Support\DeckAlertChecker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
-use TorMorten\Deck\Support\DeckAlertChecker;
 
 class CheckAlertsCommand extends Command
 {

@@ -7,8 +7,8 @@
 ])
 
 @php
-    use TorMorten\Deck\Support\FormatDuration;
-    use TorMorten\Deck\Support\LineChartGeometry;
+    use Deck\Deck\Support\FormatDuration;
+    use Deck\Deck\Support\LineChartGeometry;
 
     $chartId = md5($title);
     $axisFormatter = match ($format) {
@@ -40,8 +40,8 @@
         <div
             x-data="deckLineChart({
                 points: @js($chart['points']),
-                width: {{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH }},
-                height: {{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT }},
+                width: {{ \Deck\Deck\Support\LineChartGeometry::WIDTH }},
+                height: {{ \Deck\Deck\Support\LineChartGeometry::HEIGHT }},
             })"
             x-ref="container"
             class="deck-line-chart relative px-3 py-5 sm:px-5"
@@ -49,7 +49,7 @@
             <div class="rounded-xl ring-1 ring-inset ring-zinc-200/70 p-2">
                 <svg
                     x-ref="svg"
-                    viewBox="0 0 {{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH }} {{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT }}"
+                    viewBox="0 0 {{ \Deck\Deck\Support\LineChartGeometry::WIDTH }} {{ \Deck\Deck\Support\LineChartGeometry::HEIGHT }}"
                     class="w-full touch-none select-none"
                     preserveAspectRatio="xMidYMid meet"
                     @mousemove="move($event)"
@@ -66,16 +66,16 @@
 
                     @foreach ($chart['yTicks'] as $tick)
                         <line
-                            x1="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_LEFT }}"
+                            x1="{{ \Deck\Deck\Support\LineChartGeometry::PAD_LEFT }}"
                             y1="{{ $tick['y'] }}"
-                            x2="{{ \TorMorten\Deck\Support\LineChartGeometry::WIDTH - \TorMorten\Deck\Support\LineChartGeometry::PAD_RIGHT }}"
+                            x2="{{ \Deck\Deck\Support\LineChartGeometry::WIDTH - \Deck\Deck\Support\LineChartGeometry::PAD_RIGHT }}"
                             y2="{{ $tick['y'] }}"
                             stroke="var(--deck-chart-grid)"
                             stroke-width="1"
                             vector-effect="non-scaling-stroke"
                         />
                         <text
-                            x="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_LEFT - 8 }}"
+                            x="{{ \Deck\Deck\Support\LineChartGeometry::PAD_LEFT - 8 }}"
                             y="{{ $tick['y'] + 4 }}"
                             text-anchor="end"
                             fill="var(--deck-chart-axis)"
@@ -101,7 +101,7 @@
                     @foreach ($chart['xTicks'] as $tick)
                         <text
                             x="{{ $tick['x'] }}"
-                            y="{{ \TorMorten\Deck\Support\LineChartGeometry::HEIGHT - 6 }}"
+                            y="{{ \Deck\Deck\Support\LineChartGeometry::HEIGHT - 6 }}"
                             text-anchor="middle"
                             fill="var(--deck-chart-axis)"
                             class="text-[10px] font-medium"
@@ -113,7 +113,7 @@
                             <line
                                 :x1="active.x"
                                 :x2="active.x"
-                                y1="{{ \TorMorten\Deck\Support\LineChartGeometry::PAD_TOP }}"
+                                y1="{{ \Deck\Deck\Support\LineChartGeometry::PAD_TOP }}"
                                 y2="{{ $chart['baseline'] }}"
                                 stroke="var(--deck-chart-crosshair)"
                                 stroke-width="1"

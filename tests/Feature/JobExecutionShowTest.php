@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Enums\JobExecutionStatus;
 
 it('uses job uuid and attempt in the activity show url', function () {
     $execution = createDeckExecution();

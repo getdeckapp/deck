@@ -1,14 +1,14 @@
 <?php
 
-namespace TorMorten\Deck\Tests\Fixtures;
+namespace Deck\Deck\Tests\Fixtures;
 
+use Deck\Deck\Middleware\Cancellable;
+use Deck\Deck\Support\JobCancellation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use TorMorten\Deck\Middleware\Cancellable;
-use TorMorten\Deck\Support\JobCancellation;
 
 class SlowCancellableTestJob implements ShouldQueue
 {

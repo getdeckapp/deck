@@ -1,20 +1,20 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Enums\QueueBusynessLevel;
+use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
+use Deck\Deck\Models\JobClassStat;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckHorizon;
+use Deck\Deck\Support\DeckPolling;
+use Deck\Deck\Support\ExecutionMetrics;
+use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\QueueBusyness;
+use Deck\Deck\Support\UnprocessedQueueDetector;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Enums\QueueBusynessLevel;
-use TorMorten\Deck\Livewire\Concerns\InteractsWithExecutions;
-use TorMorten\Deck\Models\JobClassStat;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckHorizon;
-use TorMorten\Deck\Support\DeckPolling;
-use TorMorten\Deck\Support\ExecutionMetrics;
-use TorMorten\Deck\Support\HorizonSnapshot;
-use TorMorten\Deck\Support\QueueBusyness;
-use TorMorten\Deck\Support\UnprocessedQueueDetector;
 
 #[Layout('deck::layouts.app')]
 class Dashboard extends Component

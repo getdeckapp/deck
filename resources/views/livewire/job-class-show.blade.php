@@ -140,9 +140,9 @@
     @endif
 
     <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <x-deck::stat-card label="Avg duration ({{ $rollupHours }}h)" :value="\TorMorten\Deck\Support\FormatDuration::format($runtimeRollup->avgMs)" />
-        <x-deck::stat-card label="p50 ({{ $rollupHours }}h)" :value="\TorMorten\Deck\Support\FormatDuration::format($runtimeRollup->p50Ms)" />
-        <x-deck::stat-card label="p95 ({{ $rollupHours }}h)" :value="\TorMorten\Deck\Support\FormatDuration::format($runtimeRollup->p95Ms)" />
+        <x-deck::stat-card label="Avg duration ({{ $rollupHours }}h)" :value="\Deck\Deck\Support\FormatDuration::format($runtimeRollup->avgMs)" />
+        <x-deck::stat-card label="p50 ({{ $rollupHours }}h)" :value="\Deck\Deck\Support\FormatDuration::format($runtimeRollup->p50Ms)" />
+        <x-deck::stat-card label="p95 ({{ $rollupHours }}h)" :value="\Deck\Deck\Support\FormatDuration::format($runtimeRollup->p95Ms)" />
         <x-deck::stat-card label="Samples ({{ $rollupHours }}h)" :value="(string) $runtimeRollup->sampleCount" />
     </dl>
 

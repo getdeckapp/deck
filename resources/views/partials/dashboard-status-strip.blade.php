@@ -10,7 +10,7 @@
 ])
 
 @php
-    use TorMorten\Deck\Enums\QueueBusynessLevel;
+    use Deck\Deck\Enums\QueueBusynessLevel;
 
     $unprocessedCount = $unprocessedQueues->count();
     $pressureLevel = $busyness['level'];

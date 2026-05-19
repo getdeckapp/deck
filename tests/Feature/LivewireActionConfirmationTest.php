@@ -1,10 +1,10 @@
 <?php
 
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Livewire\JobExecutionIndex;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Bus;
 use Livewire\Livewire;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Livewire\JobExecutionIndex;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('opens a confirmation modal before retrying a failed job', function () {
     Bus::fake();

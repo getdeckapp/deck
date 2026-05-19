@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\DeckAssets;
+use Deck\Deck\Support\DeckAssets;
 
 it('returns a stylesheet link tag from styles', function () {
     $html = DeckAssets::styles();

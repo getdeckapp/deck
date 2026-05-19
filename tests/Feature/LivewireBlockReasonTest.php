@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Livewire\JobClassShow;
+use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Livewire\Livewire;
-use TorMorten\Deck\Livewire\JobClassShow;
-use TorMorten\Deck\Support\JobClassBlock;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('opens the block confirmation with a reason field', function () {
     Livewire::test(JobClassShow::class, ['jobClass' => SuccessfulTestJob::class])

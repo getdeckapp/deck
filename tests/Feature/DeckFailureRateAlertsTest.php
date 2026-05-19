@@ -1,8 +1,8 @@
 <?php
 
-use TorMorten\Deck\Commands\CheckAlertsCommand;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\DeckAlertChecker;
+use Deck\Deck\Commands\CheckAlertsCommand;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\DeckAlertChecker;
 
 it('detects job classes above the configured failure-rate threshold', function () {
     config()->set('deck.alerts.enabled', true);

@@ -1,16 +1,16 @@
 <?php
 
-namespace TorMorten\Deck\Livewire;
+namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Livewire\Concerns\InteractsWithActionConfirmation;
+use Deck\Deck\Support\DeckHorizon;
+use Deck\Deck\Support\DeckPolling;
+use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\QueueAdmin;
+use Deck\Deck\Support\QueueInsights;
+use Deck\Deck\Support\UnprocessedQueueDetector;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use TorMorten\Deck\Livewire\Concerns\InteractsWithActionConfirmation;
-use TorMorten\Deck\Support\DeckHorizon;
-use TorMorten\Deck\Support\DeckPolling;
-use TorMorten\Deck\Support\HorizonSnapshot;
-use TorMorten\Deck\Support\QueueAdmin;
-use TorMorten\Deck\Support\QueueInsights;
-use TorMorten\Deck\Support\UnprocessedQueueDetector;
 
 #[Layout('deck::layouts.app')]
 class WorkersIndex extends Component

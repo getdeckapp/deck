@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Support\UnprocessedQueueDetector;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 use Illuminate\Contracts\Queue\Queue;
-use TorMorten\Deck\Support\HorizonSnapshot;
-use TorMorten\Deck\Support\UnprocessedQueueDetector;
 
 it('returns empty when horizon is unavailable', function () {
     $snapshot = Mockery::mock(HorizonSnapshot::class);

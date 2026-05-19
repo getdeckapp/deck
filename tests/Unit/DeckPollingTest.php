@@ -1,6 +1,6 @@
 <?php
 
-use TorMorten\Deck\Support\DeckPolling;
+use Deck\Deck\Support\DeckPolling;
 
 it('polls the dashboard faster while jobs are running', function () {
     config()->set('deck.poll.dashboard_seconds', 8);

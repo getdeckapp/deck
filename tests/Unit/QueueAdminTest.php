@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Support\QueueAdmin;
 use Illuminate\Queue\RedisQueue;
 use Illuminate\Support\Facades\Queue;
-use TorMorten\Deck\Support\QueueAdmin;
 
 it('rejects clearing when queue admin is disabled', function () {
     config()->set('deck.queue_admin.enabled', false);

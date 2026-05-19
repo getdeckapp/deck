@@ -1,20 +1,20 @@
 <?php
 
+use Deck\Deck\Deck;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Exceptions\JobCancelledException;
+use Deck\Deck\Facades\Deck as DeckFacade;
+use Deck\Deck\Livewire\Dashboard;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Tests\Fixtures\CancellableOnlyTestJob;
+use Deck\Deck\Tests\Fixtures\SlowCancellableTestJob;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Exceptions\JobCancelledException;
-use TorMorten\Deck\Facades\Deck as DeckFacade;
-use TorMorten\Deck\Livewire\Dashboard;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckInstallation;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Tests\Fixtures\CancellableOnlyTestJob;
-use TorMorten\Deck\Tests\Fixtures\SlowCancellableTestJob;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('stores a cancel flag in cache', function () {
     JobCancellation::cancel('test-uuid');

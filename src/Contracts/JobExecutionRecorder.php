@@ -1,9 +1,9 @@
 <?php
 
-namespace TorMorten\Deck\Contracts;
+namespace Deck\Deck\Contracts;
 
-use TorMorten\Deck\Data\JobExecutionRecord;
-use TorMorten\Deck\Recorders\DatabaseJobExecutionRecorder;
+use Deck\Deck\Data\JobExecutionRecord;
+use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
 
 /**
  * Persists job execution lifecycle events.

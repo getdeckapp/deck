@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Http\Middleware\InjectHorizonDeckBanner;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use TorMorten\Deck\Http\Middleware\InjectHorizonDeckBanner;
 
 it('injects the deck banner into horizon dashboard html', function () {
     config([

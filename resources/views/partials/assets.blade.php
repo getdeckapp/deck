@@ -1,1 +1,1 @@
-{!! \TorMorten\Deck\Support\DeckAssets::styles() !!}
+{!! \Deck\Deck\Support\DeckAssets::styles() !!}

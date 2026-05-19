@@ -1,11 +1,11 @@
 <?php
 
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Facades\Deck as DeckFacade;
-use TorMorten\Deck\Support\JobCancellation;
-use TorMorten\Deck\Support\JobClassBlock;
-use TorMorten\Deck\Tests\Fixtures\SuccessfulTestJob;
+use Deck\Deck\Deck;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Facades\Deck as DeckFacade;
+use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('cancels all running executions for a class', function () {
     $jobClass = 'App\\Jobs\\BulkCancelJob';

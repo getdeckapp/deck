@@ -1,7 +1,7 @@
 <?php
 
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckDatabase;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckDatabase;
 
 it('returns null when no dedicated connection is configured', function () {
     config()->set('deck.database_connection', null);

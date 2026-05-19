@@ -1,10 +1,10 @@
 <?php
 
-namespace TorMorten\Deck\Livewire\Concerns;
+namespace Deck\Deck\Livewire\Concerns;
 
-use TorMorten\Deck\Deck;
-use TorMorten\Deck\Models\JobExecution;
-use TorMorten\Deck\Support\DeckPolling;
+use Deck\Deck\Deck;
+use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckPolling;
 
 trait InteractsWithExecutions
 {

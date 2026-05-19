@@ -1,7 +1,7 @@
 <?php
 
-use TorMorten\Deck\Enums\JobExecutionStatus;
-use TorMorten\Deck\Support\QueueInsights;
+use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Support\QueueInsights;
 
 it('ranks busy queues from deck execution data', function () {
     createDeckExecution([
