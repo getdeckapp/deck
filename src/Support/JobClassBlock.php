@@ -22,17 +22,21 @@ class JobClassBlock
 
     public static function block(string $jobClass, ?Carbon $until = null, ?string $reason = null): void
     {
-        foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
-            static::putBlock($identifier, $until, $reason);
-        }
+        DeckResilience::runSilentlyVoid(function () use ($jobClass, $until, $reason): void {
+            foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
+                static::putBlock($identifier, $until, $reason);
+            }
+        });
     }
 
     public static function unblock(string $jobClass): void
     {
-        foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
-            static::cache()->forget(static::cacheKey($identifier));
-            static::cache()->forget(static::auditCacheKey($identifier));
-        }
+        DeckResilience::runSilentlyVoid(function () use ($jobClass): void {
+            foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
+                static::cache()->forget(static::cacheKey($identifier));
+                static::cache()->forget(static::auditCacheKey($identifier));
+            }
+        });
     }
 
     public static function audit(string $jobClass): ?JobClassBlockAudit
@@ -52,19 +56,44 @@ class JobClassBlock
 
     public static function isBlockedForCommand(object $command): bool
     {
-        foreach (JobClassIdentifierRegistry::expand($command::class) as $identifier) {
-            if (static::isBlocked($identifier)) {
-                return true;
-            }
-        }
-
-        return false;
+        return static::isAnyBlocked(JobClassIdentifierRegistry::expand($command::class));
     }
 
     public static function isBlockedForJob(QueueJobContract $job): bool
     {
-        foreach (JobClassIdentifierRegistry::forQueueJob($job) as $identifier) {
-            if (static::isBlocked($identifier)) {
+        return static::isAnyBlocked(JobClassIdentifierRegistry::forQueueJob($job));
+    }
+
+    /**
+     * @param  list<string>  $jobClasses
+     */
+    public static function isAnyBlocked(array $jobClasses): bool
+    {
+        if ($jobClasses === []) {
+            return false;
+        }
+
+        return DeckResilience::runSilently(
+            fn (): bool => static::isAnyBlockedUnchecked($jobClasses),
+            false,
+        );
+    }
+
+    public static function isBlocked(string $jobClass): bool
+    {
+        return static::isAnyBlocked([$jobClass]);
+    }
+
+    /**
+     * @param  list<string>  $jobClasses
+     */
+    private static function isAnyBlockedUnchecked(array $jobClasses): bool
+    {
+        $keys = array_map(static::cacheKey(...), $jobClasses);
+        $values = static::cache()->many($keys);
+
+        foreach ($jobClasses as $jobClass) {
+            if (static::interpretBlockValue($values[static::cacheKey($jobClass)] ?? null, $jobClass)) {
                 return true;
             }
         }
@@ -72,10 +101,8 @@ class JobClassBlock
         return false;
     }
 
-    public static function isBlocked(string $jobClass): bool
+    private static function interpretBlockValue(mixed $value, string $jobClass): bool
     {
-        $value = static::cache()->get(static::cacheKey($jobClass));
-
         if ($value === null) {
             return false;
         }

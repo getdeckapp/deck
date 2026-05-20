@@ -61,7 +61,10 @@ class JobClassIdentifierRegistry
             return;
         }
 
-        static::link($job->resolveName(), $job->resolveQueuedJobClass());
+        // Identifier linking is only needed for future dispatches — defer off the hot path.
+        DeferJobLifecycleRecording::run(
+            fn (): mixed => static::link($job->resolveName(), $job->resolveQueuedJobClass()),
+        );
     }
 
     private static function linkedIdentifiers(string $identifier): array

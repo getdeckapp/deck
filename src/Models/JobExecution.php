@@ -100,11 +100,14 @@ class JobExecution extends Model
 
     public static function hasPendingCancellationsForInstallation(): bool
     {
-        return static::query()
+        /** @var list<string> $uuids */
+        $uuids = static::query()
             ->forInstallation()
             ->where('status', JobExecutionStatus::Running)
             ->pluck('uuid')
-            ->contains(fn (string $uuid): bool => JobCancellation::isCancelled($uuid));
+            ->all();
+
+        return JobCancellation::anyCancelled($uuids);
     }
 
     /**

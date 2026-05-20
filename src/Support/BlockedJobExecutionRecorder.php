@@ -16,6 +16,13 @@ class BlockedJobExecutionRecorder
 
     public static function recordNow(QueuedJobMetadata $metadata): void
     {
+        DeckResilience::runSilentlyVoid(function () use ($metadata): void {
+            static::recordNowUnchecked($metadata);
+        });
+    }
+
+    private static function recordNowUnchecked(QueuedJobMetadata $metadata): void
+    {
         $alreadyRecorded = JobExecution::query()
             ->where('uuid', $metadata->uuid)
             ->where('attempt', $metadata->attempt)
@@ -40,3 +47,4 @@ class BlockedJobExecutionRecorder
         ));
     }
 }
+

@@ -11,6 +11,13 @@ class MarkExecutionCancelled
 {
     public static function mark(JobExecution $execution): void
     {
+        DeckResilience::runSilentlyVoid(function () use ($execution): void {
+            static::markUnchecked($execution);
+        });
+    }
+
+    private static function markUnchecked(JobExecution $execution): void
+    {
         $finishedAt = now();
         $startedAt = $execution->started_at ?? $finishedAt;
         $durationMs = (int) $startedAt->diffInMilliseconds($finishedAt);

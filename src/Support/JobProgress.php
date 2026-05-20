@@ -16,20 +16,24 @@ class JobProgress
     {
         $percent = max(0, min(100, $percent));
 
-        static::cache()->put(
-            static::cacheKey($uuid),
-            [
-                'percent' => $percent,
-                'message' => $message !== null && $message !== '' ? mb_substr($message, 0, 500) : null,
-                'updated_at' => now()->toIso8601String(),
-            ],
-            now()->addSeconds((int) config('deck.progress_ttl_seconds', 86_400)),
-        );
+        DeckResilience::runSilentlyVoid(function () use ($uuid, $percent, $message): void {
+            static::cache()->put(
+                static::cacheKey($uuid),
+                [
+                    'percent' => $percent,
+                    'message' => $message !== null && $message !== '' ? mb_substr($message, 0, 500) : null,
+                    'updated_at' => now()->toIso8601String(),
+                ],
+                now()->addSeconds((int) config('deck.progress_ttl_seconds', 86_400)),
+            );
+        });
     }
 
     public static function get(string $uuid): ?JobProgressState
     {
-        $payload = static::cache()->get(static::cacheKey($uuid));
+        $payload = DeckResilience::runSilently(
+            fn (): mixed => static::cache()->get(static::cacheKey($uuid)),
+        );
 
         if (! is_array($payload)) {
             return null;
@@ -44,7 +48,9 @@ class JobProgress
 
     public static function clear(string $uuid): void
     {
-        static::cache()->forget(static::cacheKey($uuid));
+        DeckResilience::runSilentlyVoid(
+            fn (): mixed => static::cache()->forget(static::cacheKey($uuid)),
+        );
     }
 
     private static function cache(): CacheRepository
