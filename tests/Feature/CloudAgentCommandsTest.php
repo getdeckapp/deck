@@ -4,22 +4,17 @@ use Deck\Deck\Cloud\AgentSync;
 use Deck\Deck\Cloud\CommandApplicator;
 use Deck\Deck\Cloud\CommandPoller;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\SyncThrottle;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Support\JobCancellation;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
-    config()->set('deck.cloud.enabled', true);
-    config()->set('deck.cloud.url', 'https://cloud.deck.test');
-    config()->set('deck.cloud.api_key', 'test-api-key');
-    config()->set('deck.cloud.workers.interval_seconds', 30);
-    config()->set('deck.cloud.commands.enabled', true);
+    enableDeckCloudForTests();
     config()->set('deck.project', 'billing-api');
     config()->set('deck.environment', 'production');
 
-    app(SyncThrottle::class)->reset();
+    resetDeckCloudSyncThrottle();
 });
 
 it('is disabled when cloud is not enabled', function () {
@@ -245,6 +240,19 @@ it('deduplicates duplicate command ids in a single pull batch', function () {
     });
 });
 
+it('polls commands when worker sync is throttled', function () {
+    $poller = Mockery::mock(CommandPoller::class);
+    $poller->shouldReceive('poll')->once();
+    app()->instance(CommandPoller::class, $poller);
+
+    $throttle = Mockery::mock(\Deck\Deck\Cloud\SyncThrottle::class);
+    $throttle->shouldReceive('shouldSync')->with('workers', 'redis:default')->andReturnFalse();
+    $throttle->shouldReceive('shouldSync')->with('commands', 'installation')->andReturnTrue();
+    app()->instance(\Deck\Deck\Cloud\SyncThrottle::class, $throttle);
+
+    app(AgentSync::class)->syncQueueWorker('redis', 'default');
+});
+
 it('polls commands after worker reporting on the same sync tick', function () {
     Http::fake([
         'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 0], 202),
@@ -254,6 +262,150 @@ it('polls commands after worker reporting on the same sync tick', function () {
     app(AgentSync::class)->syncQueueWorker('redis', 'default');
 
     Http::assertSent(fn ($request) => $request->method() === 'GET' && str_contains($request->url(), '/api/v1/agent/commands'));
+});
+
+it('applies block class commands from cloud', function () {
+    $jobClass = \Deck\Deck\Tests\Fixtures\SuccessfulTestJob::class;
+
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
+            'commands' => [
+                [
+                    'id' => 'cmd_block_1',
+                    'type' => 'block_class',
+                    'project' => 'billing-api',
+                    'environment' => 'production',
+                    'issued_at' => now()->toIso8601String(),
+                    'payload' => [
+                        'job_class' => $jobClass,
+                        'cancel_running' => false,
+                    ],
+                ],
+            ],
+        ]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+    ]);
+
+    app(CommandPoller::class)->poll();
+
+    expect(app(Deck::class)->isClassBlocked($jobClass))->toBeTrue();
+
+    Http::assertSent(fn ($request) => $request->url() === 'https://cloud.deck.test/api/v1/agent/commands/ack'
+        && ($request->data()['results'][0]['status'] ?? null) === 'applied');
+});
+
+it('applies timed block class commands from cloud', function () {
+    $jobClass = \Deck\Deck\Tests\Fixtures\SuccessfulTestJob::class;
+    $until = now()->addHour()->toIso8601String();
+
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
+            'commands' => [
+                [
+                    'id' => 'cmd_block_timed',
+                    'type' => 'block_class',
+                    'project' => 'billing-api',
+                    'environment' => 'production',
+                    'issued_at' => now()->toIso8601String(),
+                    'payload' => [
+                        'job_class' => $jobClass,
+                        'until' => $until,
+                        'cancel_running' => false,
+                    ],
+                ],
+            ],
+        ]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+    ]);
+
+    app(CommandPoller::class)->poll();
+
+    expect(app(Deck::class)->isClassBlocked($jobClass))->toBeTrue()
+        ->and(app(Deck::class)->classBlockedUntil($jobClass)?->toIso8601String())->toBe($until);
+});
+
+it('applies unblock class commands from cloud', function () {
+    $jobClass = \Deck\Deck\Tests\Fixtures\SuccessfulTestJob::class;
+
+    app(Deck::class)->blockClass($jobClass, now()->addHour());
+
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
+            'commands' => [
+                [
+                    'id' => 'cmd_unblock_1',
+                    'type' => 'unblock_class',
+                    'project' => 'billing-api',
+                    'environment' => 'production',
+                    'issued_at' => now()->toIso8601String(),
+                    'payload' => [
+                        'job_class' => $jobClass,
+                    ],
+                ],
+            ],
+        ]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+    ]);
+
+    app(CommandPoller::class)->poll();
+
+    expect(app(Deck::class)->isClassBlocked($jobClass))->toBeFalse();
+});
+
+it('applies cancel all running for class commands from cloud', function () {
+    $execution = createDeckExecution([
+        'job_class' => 'App\\Jobs\\SyncInvoices',
+        'status' => JobExecutionStatus::Running,
+        'started_at' => now()->subMinute(),
+        'finished_at' => null,
+        'duration_ms' => null,
+    ]);
+
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
+            'commands' => [
+                [
+                    'id' => 'cmd_cancel_class_1',
+                    'type' => 'cancel_all_running_for_class',
+                    'project' => 'billing-api',
+                    'environment' => 'production',
+                    'issued_at' => now()->toIso8601String(),
+                    'payload' => [
+                        'job_class' => 'App\\Jobs\\SyncInvoices',
+                    ],
+                ],
+            ],
+        ]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+    ]);
+
+    app(CommandPoller::class)->poll();
+
+    expect(JobCancellation::isCancelled($execution->uuid))->toBeTrue();
+});
+
+it('acks failed for unknown command types', function () {
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
+            'commands' => [
+                [
+                    'id' => 'cmd_unknown',
+                    'type' => 'restart_supervisor',
+                    'project' => 'billing-api',
+                    'environment' => 'production',
+                    'issued_at' => now()->toIso8601String(),
+                    'payload' => [],
+                ],
+            ],
+        ]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+    ]);
+
+    app(CommandPoller::class)->poll();
+
+    Http::assertSent(fn ($request) => $request->url() === 'https://cloud.deck.test/api/v1/agent/commands/ack'
+        && $request['results'][0]['status'] === 'failed'
+        && str_contains($request['results'][0]['message'], 'Unknown command type'));
 });
 
 it('does not poll commands when command sync is disabled', function () {

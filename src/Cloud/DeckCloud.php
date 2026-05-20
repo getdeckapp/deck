@@ -7,6 +7,14 @@ use Illuminate\Support\Str;
 
 class DeckCloud
 {
+    public const string WorkersIngestPath = '/api/v1/ingest/workers';
+
+    public const string EventsIngestPath = '/api/v1/ingest/events';
+
+    public const string CommandsPullPath = '/api/v1/agent/commands';
+
+    public const string CommandsAckPath = '/api/v1/agent/commands/ack';
+
     /**
      * Deck Cloud is strictly opt-in. When this returns false, the package must not
      * open outbound HTTP connections to Deck Cloud (or any remote URL).
@@ -28,6 +36,11 @@ class DeckCloud
     public static function commandsEnabled(): bool
     {
         return static::isEnabled() && config('deck.cloud.commands.enabled', true);
+    }
+
+    public static function eventsEnabled(): bool
+    {
+        return static::isEnabled() && config('deck.cloud.events.enabled', true);
     }
 
     public static function baseUrl(): string

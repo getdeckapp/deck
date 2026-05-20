@@ -360,6 +360,30 @@ Published `config/deck.php`. Common environment variables:
 | `DECK_HORIZON_PROMPT` | `true` | Show Horizon vs Deck choice on `/horizon` |
 | `DECK_DEFER_SIDE_EFFECTS` | `true` | Defer block side effects during web requests |
 
+### Deck Cloud agent (optional)
+
+**Disabled by default.** The package does not open outbound HTTP unless you explicitly enable Cloud and provide credentials.
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `DECK_CLOUD_ENABLED` | `false` | Master switch for Cloud agent |
+| `DECK_CLOUD_URL` | — | Base URL of your Deck Cloud instance |
+| `DECK_API_KEY` | — | Bearer token for agent API |
+| `DECK_CLOUD_WORKERS_ENABLED` | `true` | Push worker snapshots (requires master switch) |
+| `DECK_CLOUD_WORKERS_INTERVAL` | `30` | Throttle interval (seconds) for sync |
+| `DECK_CLOUD_COMMANDS_ENABLED` | `true` | Pull remote cancel commands |
+| `DECK_CLOUD_PROMO` | `true` | Show sidebar link to deckapp.cloud in UI (browser only) |
+
+When enabled, the agent:
+
+1. **POST** `{DECK_CLOUD_URL}/api/v1/ingest/workers` — worker snapshots (Horizon supervisors or queue workers) and optional Horizon queue workload (`workers[]`, `queues[]` on the first chunk), max 100 workers per request.
+2. **GET** `{DECK_CLOUD_URL}/api/v1/agent/commands` — pull remote commands for this `project` + `environment`.
+3. **POST** `{DECK_CLOUD_URL}/api/v1/agent/commands/ack` — acknowledge applied / failed / ignored results.
+
+Sync runs on Horizon `MasterSupervisorLooped`, throttled `Queue::looping` (non-Horizon), and scheduled `deck:report-workers`. Remote commands map to `Deck::requestCancelExecution()`, `forceCancelExecution()`, `cancelPending()`, `blockClass()`, `unblockClass()`, and `cancelAllRunningForClass()`.
+
+Execution history ingest to Cloud via `DECK_RECORDER=http` is not implemented yet — local database recording is unchanged.
+
 Config keys (see file for full list):
 
 | Key | Purpose |
@@ -389,6 +413,7 @@ See [IMPLEMENTATION.md](IMPLEMENTATION.md) for architecture and schema details.
 | `deck:install` | Publish config, migrations, and assets |
 | `deck:prune` | Delete execution rows older than `retention_days` |
 | `deck:check-alerts` | Evaluate stale-job and unprocessed-queue rules |
+| `deck:report-workers` | Push worker snapshots to Deck Cloud (no-op when Cloud disabled) |
 
 ---
 

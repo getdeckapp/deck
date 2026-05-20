@@ -6,11 +6,11 @@ use Deck\Deck\Cloud\AgentSync;
 use Deck\Deck\Cloud\DeckCloud;
 use Illuminate\Console\Command;
 
-class ReportWorkersCommand extends Command
+class PollCommandsCommand extends Command
 {
-    protected $signature = 'deck:report-workers';
+    protected $signature = 'deck:poll-commands';
 
-    protected $description = 'Report queue worker snapshots to Deck Cloud';
+    protected $description = 'Pull and apply remote commands from Deck Cloud';
 
     public function handle(): int
     {
@@ -20,15 +20,15 @@ class ReportWorkersCommand extends Command
             return self::SUCCESS;
         }
 
-        if (! DeckCloud::workersEnabled()) {
-            $this->components->warn('Deck Cloud worker reporting is disabled (DECK_CLOUD_WORKERS_ENABLED=false).');
+        if (! DeckCloud::commandsEnabled()) {
+            $this->components->warn('Deck Cloud command polling is disabled (DECK_CLOUD_COMMANDS_ENABLED=false).');
 
             return self::SUCCESS;
         }
 
-        app(AgentSync::class)->report();
+        app(AgentSync::class)->pollCommands();
 
-        $this->components->info('Worker snapshots sent to Deck Cloud.');
+        $this->components->info('Polled Deck Cloud for remote commands.');
 
         return self::SUCCESS;
     }

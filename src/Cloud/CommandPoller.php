@@ -14,7 +14,7 @@ class CommandPoller
 
     public function poll(): void
     {
-        if (! DeckCloud::commandsEnabled()) {
+        if (! DeckCloud::isEnabled() || ! DeckCloud::commandsEnabled()) {
             return;
         }
 
@@ -40,7 +40,7 @@ class CommandPoller
      */
     private function pull(): array
     {
-        $response = $this->http->get('/api/v1/agent/commands', [
+        $response = $this->http->get(DeckCloud::CommandsPullPath, [
             ...DeckCloud::installationIdentity(),
             'limit' => 50,
         ]);
@@ -100,7 +100,7 @@ class CommandPoller
             return;
         }
 
-        $this->http->post('/api/v1/agent/commands/ack', [
+        $this->http->post(DeckCloud::CommandsAckPath, [
             ...DeckCloud::installationIdentity(),
             'results' => array_map(
                 fn (AgentCommandResult $result): array => $result->toArray(),

@@ -16,43 +16,45 @@ class AgentSync
 
     public static function isEnabled(): bool
     {
-        return DeckCloud::workersEnabled();
+        return DeckCloud::isEnabled() && (DeckCloud::workersEnabled() || DeckCloud::commandsEnabled());
     }
 
     public function report(): void
     {
-        if (! $this->throttle->shouldSync('workers', 'host')) {
-            return;
+        if ($this->throttle->shouldSync('workers', 'host')) {
+            $this->workerReporter->send(
+                $this->workers->collectFromHorizon(),
+                $this->workers->collectWorkloadFromHorizon(),
+            );
         }
 
-        $this->workerReporter->send($this->workers->collectFromHorizon());
-
-        $this->syncCommands();
+        $this->pollCommands();
     }
 
     public function syncHorizon(): void
     {
-        if (! $this->throttle->shouldSync('workers', 'host')) {
-            return;
+        if ($this->throttle->shouldSync('workers', 'host')) {
+            $this->workerReporter->send(
+                $this->workers->collectFromHorizon(),
+                $this->workers->collectWorkloadFromHorizon(),
+            );
         }
 
-        $this->workerReporter->send($this->workers->collectFromHorizon());
-
-        $this->syncCommands();
+        $this->pollCommands();
     }
 
     public function syncQueueWorker(string $connection, string $queue): void
     {
-        if (! $this->throttle->shouldSync('workers', "{$connection}:{$queue}")) {
-            return;
+        if ($this->throttle->shouldSync('workers', "{$connection}:{$queue}")) {
+            $this->workerReporter->send(
+                $this->workers->collectFromQueueWorker($connection, $queue),
+            );
         }
 
-        $this->workerReporter->send($this->workers->collectFromQueueWorker($connection, $queue));
-
-        $this->syncCommands();
+        $this->pollCommands();
     }
 
-    public function syncCommands(): void
+    public function pollCommands(): void
     {
         if (! DeckCloud::commandsEnabled() || ! $this->throttle->shouldSync('commands', 'installation')) {
             return;

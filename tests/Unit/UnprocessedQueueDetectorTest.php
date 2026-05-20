@@ -3,7 +3,7 @@
 use Deck\Deck\Support\HorizonSnapshot;
 use Deck\Deck\Support\UnprocessedQueueDetector;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
-use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Queue\RedisQueue;
 
 it('returns empty when horizon is unavailable', function () {
     $snapshot = Mockery::mock(HorizonSnapshot::class);
@@ -52,7 +52,7 @@ it('detects queues with pending jobs and no workers', function () {
         ['name' => 'orphan', 'length' => 15, 'wait' => 0, 'processes' => 0],
     ]);
 
-    $queue = Mockery::mock(Queue::class);
+    $queue = Mockery::mock(RedisQueue::class);
     $queue->shouldReceive('readyNow')->with('default')->andReturn(0);
     $queue->shouldReceive('readyNow')->with('orphan')->andReturn(15);
 
@@ -98,7 +98,7 @@ it('does not flag queues that have workers assigned', function () {
     ]);
     $snapshot->shouldReceive('workload')->andReturn([]);
 
-    $queue = Mockery::mock(Queue::class);
+    $queue = Mockery::mock(RedisQueue::class);
     $queue->shouldReceive('readyNow')->with('default')->andReturn(25);
 
     $queues = Mockery::mock(QueueFactory::class);
@@ -127,7 +127,7 @@ it('flags all waited queues when horizon is inactive', function () {
     $snapshot->shouldReceive('supervisors')->andReturn([]);
     $snapshot->shouldReceive('workload')->andReturn([]);
 
-    $queue = Mockery::mock(Queue::class);
+    $queue = Mockery::mock(RedisQueue::class);
     $queue->shouldReceive('readyNow')->with('default')->andReturn(3);
 
     $queues = Mockery::mock(QueueFactory::class);

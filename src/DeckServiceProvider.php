@@ -5,9 +5,11 @@ namespace Deck\Deck;
 use Deck\Deck\Bus\DeckDispatcher;
 use Deck\Deck\Commands\CheckAlertsCommand;
 use Deck\Deck\Commands\InstallCommand;
+use Deck\Deck\Commands\PollCommandsCommand;
 use Deck\Deck\Commands\PruneCommand;
 use Deck\Deck\Commands\ReportWorkersCommand;
 use Deck\Deck\Concerns\RegistersCloudAgent;
+use Deck\Deck\Cloud\DeckCloud;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Listeners\RecordJobExecution;
 use Deck\Deck\Livewire\Dashboard;
@@ -18,7 +20,9 @@ use Deck\Deck\Livewire\JobExecutionIndex;
 use Deck\Deck\Livewire\JobExecutionShow;
 use Deck\Deck\Livewire\WorkersIndex;
 use Deck\Deck\Queue\DeckCallQueuedHandler;
+use Deck\Deck\Recorders\CompositeJobExecutionRecorder;
 use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
+use Deck\Deck\Recorders\HttpJobExecutionRecorder;
 use Deck\Deck\Support\HorizonSnapshot;
 use Deck\Deck\Support\InterceptBlockedQueueJob;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
@@ -53,12 +57,22 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasCommand(InstallCommand::class)
             ->hasCommand(PruneCommand::class)
             ->hasCommand(CheckAlertsCommand::class)
+            ->hasCommand(PollCommandsCommand::class)
             ->hasCommand(ReportWorkersCommand::class);
     }
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(JobExecutionRecorder::class, DatabaseJobExecutionRecorder::class);
+        $this->app->singleton(DatabaseJobExecutionRecorder::class);
+        $this->app->singleton(HttpJobExecutionRecorder::class);
+        $this->app->singleton(CompositeJobExecutionRecorder::class);
+        $this->app->singleton(JobExecutionRecorder::class, function ($app): JobExecutionRecorder {
+            if (DeckCloud::eventsEnabled()) {
+                return $app->make(CompositeJobExecutionRecorder::class);
+            }
+
+            return $app->make(DatabaseJobExecutionRecorder::class);
+        });
         $this->app->singleton(Deck::class);
         $this->app->singleton(HorizonSnapshot::class, fn (): HorizonSnapshot => HorizonSnapshot::make());
 

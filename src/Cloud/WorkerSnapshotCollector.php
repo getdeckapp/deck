@@ -47,6 +47,51 @@ class WorkerSnapshotCollector
     }
 
     /**
+     * @return list<WorkerSnapshot>
+     */
+    public function collectFallbackQueueWorkers(): array
+    {
+        $connection = (string) config('queue.default', 'redis');
+
+        if ($connection === '' || $connection === 'sync') {
+            return [];
+        }
+
+        $queue = config("queue.connections.{$connection}.queue", 'default');
+
+        if (is_array($queue)) {
+            $queue = $queue[0] ?? 'default';
+        }
+
+        return $this->collectFromQueueWorker($connection, (string) $queue);
+    }
+
+    /**
+     * @return list<QueueWorkloadSnapshot>
+     */
+    public function collectWorkloadFromHorizon(): array
+    {
+        if (! $this->horizon->isAvailable()) {
+            return [];
+        }
+
+        return collect($this->horizon->workload())
+            ->map(function (array $queue): QueueWorkloadSnapshot {
+                [$connection, $name] = $this->parseQueueKey((string) $queue['name']);
+
+                return new QueueWorkloadSnapshot(
+                    connection: $connection,
+                    queue: $name,
+                    length: (int) ($queue['length'] ?? 0),
+                    waitSeconds: (float) ($queue['wait'] ?? 0),
+                    processes: (int) ($queue['processes'] ?? 0),
+                );
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
      * @param  list<object>  $supervisors
      * @return list<WorkerSnapshot>
      */

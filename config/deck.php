@@ -63,6 +63,10 @@ return [
         'commands' => [
             'enabled' => (bool) env('DECK_CLOUD_COMMANDS_ENABLED', true),
         ],
+        'events' => [
+            'enabled' => (bool) env('DECK_CLOUD_EVENTS_ENABLED', true),
+            'send_exception_trace' => (bool) env('DECK_CLOUD_SEND_EXCEPTION_TRACE', true),
+        ],
     ],
 
     'route_prefix' => 'deck',

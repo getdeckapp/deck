@@ -556,11 +556,31 @@ Before Packagist 1.0: remove `minimum-stability: dev` consumer friction, tag `v0
 
 ---
 
-## Deck Cloud (future)
+## Deck Cloud
 
 **Vision:** One dashboard at work for every Laravel app and environment you run — without replacing Horizon or hosting customer Redis.
 
-Deck (self-hosted package) remains the **agent**. Deck Cloud is the **multi-tenant control plane** that ingests the same events the local recorder sees today.
+Deck (self-hosted package) remains the **agent**. Deck Cloud is the **multi-tenant control plane**.
+
+### Agent sync (implemented in package)
+
+Opt-in via `DECK_CLOUD_ENABLED`, `DECK_CLOUD_URL`, and `DECK_API_KEY`. No outbound HTTP when disabled.
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/ingest/workers` | POST | Worker snapshots (`workers[]`, max 100 per request) and optional Horizon queue workload (`queues[]` on the first chunk) |
+| `/api/v1/agent/commands` | GET | Pull commands (`project`, `environment`, `limit`) |
+| `/api/v1/agent/commands/ack` | POST | Ack results (`applied`, `failed`, `ignored`) |
+
+**Command types:** `cancel_execution`, `force_cancel_execution`, `cancel_pending` (payload: `uuid`, `connection`, `queue`, optional `attempt`, `force`); `block_class`, `unblock_class` (payload: `job_class`, optional `until`, `reason`, `cancel_running`); `cancel_all_running_for_class` (payload: `job_class`, optional `force`).
+
+**Code:** `src/Cloud/` — `AgentSync`, `WorkerSnapshotCollector`, `CommandPoller`, `HttpClient`, `CloudAgentRegistry`.
+
+**Sync triggers:** Horizon `MasterSupervisorLooped`; throttled `Queue::looping` without Horizon; scheduled `deck:report-workers` (10s / 30s / 1m from `DECK_CLOUD_WORKERS_INTERVAL`).
+
+### Execution ingest (not implemented yet)
+
+Deck (self-hosted package) can still record locally only. Future: `HttpJobExecutionRecorder` POSTing `JobExecutionRecord` batches to Cloud.
 
 ### Problem it solves
 
@@ -632,6 +652,8 @@ Config today:
     'enabled' => env('DECK_CLOUD_ENABLED', false),
     'url' => env('DECK_CLOUD_URL'),
     'api_key' => env('DECK_API_KEY'),
+    'workers' => ['enabled' => true, 'interval_seconds' => 30],
+    'commands' => ['enabled' => true],
 ],
 ```
 

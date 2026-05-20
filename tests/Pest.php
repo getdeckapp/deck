@@ -1,12 +1,46 @@
 <?php
 
+use Deck\Deck\Cloud\CloudAgentRegistry;
+use Deck\Deck\Cloud\SyncThrottle;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Support\DeckInstallation;
 use Deck\Deck\Tests\TestCase;
+use Illuminate\Support\Facades\Http;
 
 uses(TestCase::class)->in('Feature', 'Unit');
+
+function enableDeckCloudForTests(): void
+{
+    config()->set('deck.cloud.enabled', true);
+    config()->set('deck.cloud.url', 'https://cloud.deck.test');
+    config()->set('deck.cloud.api_key', 'test-api-key');
+    config()->set('deck.cloud.workers.interval_seconds', 30);
+    config()->set('deck.cloud.workers.enabled', true);
+    config()->set('deck.cloud.commands.enabled', true);
+    config()->set('deck.cloud.events.enabled', true);
+
+    CloudAgentRegistry::register(app());
+}
+
+function resetDeckCloudSyncThrottle(): void
+{
+    if (app()->bound(SyncThrottle::class)) {
+        app(SyncThrottle::class)->reset();
+    }
+}
+
+/**
+ * @param  list<array<string, mixed>>  $commands
+ */
+function fakeDeckCloudCommandsHttp(array $commands = []): void
+{
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => $commands]),
+    ]);
+}
 
 function deckProject(): string
 {

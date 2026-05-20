@@ -1,7 +1,7 @@
 <?php
 
 use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\SyncThrottle;
+use Deck\Deck\Cloud\QueueWorkloadSnapshot;
 use Deck\Deck\Cloud\WorkerReporter;
 use Deck\Deck\Cloud\WorkerSnapshot;
 use Deck\Deck\Cloud\WorkerSnapshotCollector;
@@ -11,15 +11,12 @@ use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
-    config()->set('deck.cloud.enabled', true);
-    config()->set('deck.cloud.url', 'https://cloud.deck.test');
-    config()->set('deck.cloud.api_key', 'test-api-key');
-    config()->set('deck.cloud.workers.interval_seconds', 30);
+    enableDeckCloudForTests();
     config()->set('deck.cloud.timeout_seconds', 5);
     config()->set('deck.project', 'billing-api');
     config()->set('deck.environment', 'production');
 
-    app(SyncThrottle::class)->reset();
+    resetDeckCloudSyncThrottle();
 });
 
 it('is disabled when cloud is not enabled', function () {
@@ -82,10 +79,44 @@ it('chunks worker snapshots when more than one hundred are reported', function (
     Http::assertSentCount(2);
 });
 
+it('includes horizon queue workload snapshots on the first worker batch', function () {
+    Http::fake([
+        'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 1, 'queues_accepted' => 1], 202),
+    ]);
+
+    app(WorkerReporter::class)->send([
+        new WorkerSnapshot(
+            supervisor: 'supervisor-1',
+            name: 'redis:default',
+            connection: 'redis',
+            queue: 'default',
+            status: 'running',
+            processes: 3,
+        ),
+    ], [
+        new QueueWorkloadSnapshot(
+            connection: 'redis',
+            queue: 'default',
+            length: 142,
+            waitSeconds: 45,
+            processes: 3,
+        ),
+    ]);
+
+    Http::assertSent(function ($request) {
+        $data = $request->data();
+
+        return $request->url() === 'https://cloud.deck.test/api/v1/ingest/workers'
+            && ($data['queues'][0]['length'] ?? null) === 142
+            && (int) ($data['queues'][0]['wait_seconds'] ?? 0) === 45;
+    });
+});
+
 it('reports queue workers without horizon', function () {
     Http::fake([
         'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 1], 202),
-        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response(['commands' => []]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => []]),
     ]);
 
     app(AgentSync::class)->syncQueueWorker('redis', 'default');
@@ -126,7 +157,8 @@ it('does not throw when cloud worker ingest fails', function () {
 it('reports workers from the queue looping listener', function () {
     Http::fake([
         'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 1], 202),
-        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response(['commands' => []]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => []]),
     ]);
 
     app(SyncCloudAgent::class)->onQueueLoop(new Looping('redis', 'default'));
@@ -138,7 +170,8 @@ it('reports workers from the queue looping listener', function () {
 it('reports all horizon supervisors from the horizon loop listener', function () {
     Http::fake([
         'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 2], 202),
-        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response(['commands' => []]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => []]),
     ]);
 
     $horizon = Mockery::mock(HorizonSnapshot::class);
@@ -151,6 +184,7 @@ it('reports all horizon supervisors from the horizon loop listener', function ()
         new WorkerSnapshot('supervisor-1', 'redis:default', 'redis', 'default', 'running', 3),
         new WorkerSnapshot('supervisor-1', 'redis:billing', 'redis', 'billing', 'paused', 2, paused: true),
     ]);
+    $collector->shouldReceive('collectWorkloadFromHorizon')->once()->andReturn([]);
 
     $this->app->instance(WorkerSnapshotCollector::class, $collector);
     $this->app->forgetInstance(AgentSync::class);

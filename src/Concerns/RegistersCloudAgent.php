@@ -3,13 +3,8 @@
 namespace Deck\Deck\Concerns;
 
 use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\CommandApplicator;
-use Deck\Deck\Cloud\CommandPoller;
+use Deck\Deck\Cloud\CloudAgentRegistry;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\HttpClient;
-use Deck\Deck\Cloud\SyncThrottle;
-use Deck\Deck\Cloud\WorkerReporter;
-use Deck\Deck\Cloud\WorkerSnapshotCollector;
 use Deck\Deck\Listeners\SyncCloudAgent;
 use Deck\Deck\Support\DeckHorizon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -21,22 +16,12 @@ trait RegistersCloudAgent
 {
     protected function registerCloudAgent(): void
     {
-        if (! DeckCloud::isEnabled()) {
-            return;
-        }
-
-        $this->app->singleton(HttpClient::class);
-        $this->app->singleton(SyncThrottle::class);
-        $this->app->singleton(WorkerSnapshotCollector::class);
-        $this->app->singleton(WorkerReporter::class);
-        $this->app->singleton(CommandApplicator::class);
-        $this->app->singleton(CommandPoller::class);
-        $this->app->singleton(AgentSync::class);
+        CloudAgentRegistry::register($this->app);
     }
 
     protected function bootCloudAgent(): void
     {
-        if (! AgentSync::isEnabled() || ! $this->app->runningInConsole()) {
+        if (! AgentSync::isEnabled()) {
             return;
         }
 
@@ -47,16 +32,15 @@ trait RegistersCloudAgent
                 'Laravel\Horizon\Events\MasterSupervisorLooped',
                 [$listener, 'onHorizonLoop'],
             );
-
-            return;
         }
 
+        // Also sync when using queue:work / queue:listen (common when Horizon is installed but not running).
         Queue::looping(fn (Looping $event) => $listener->onQueueLoop($event));
     }
 
     protected function scheduleCloudAgent(): void
     {
-        if (! AgentSync::isEnabled()) {
+        if (! DeckCloud::isEnabled()) {
             return;
         }
 
@@ -65,15 +49,25 @@ trait RegistersCloudAgent
         $this->app->booted(function () use ($interval): void {
             $schedule = $this->app->make(Schedule::class);
 
-            if ($interval >= 60) {
-                $event = $schedule->command('deck:report-workers')->everyMinute();
-            } elseif ($interval >= 30) {
-                $event = $schedule->command('deck:report-workers')->everyThirtySeconds();
-            } else {
-                $event = $schedule->command('deck:report-workers')->everyTenSeconds();
+            if (DeckCloud::workersEnabled()) {
+                $event = match (true) {
+                    $interval >= 60 => $schedule->command('deck:report-workers')->everyMinute(),
+                    $interval >= 30 => $schedule->command('deck:report-workers')->everyThirtySeconds(),
+                    default => $schedule->command('deck:report-workers')->everyTenSeconds(),
+                };
+
+                $event->withoutOverlapping();
             }
 
-            $event->withoutOverlapping();
+            if (DeckCloud::commandsEnabled()) {
+                $event = match (true) {
+                    $interval >= 60 => $schedule->command('deck:poll-commands')->everyMinute(),
+                    $interval >= 30 => $schedule->command('deck:poll-commands')->everyThirtySeconds(),
+                    default => $schedule->command('deck:poll-commands')->everyTenSeconds(),
+                };
+
+                $event->withoutOverlapping();
+            }
         });
     }
 }
