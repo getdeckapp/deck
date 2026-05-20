@@ -45,12 +45,13 @@ class QueuedJobMetadata
         $uuid = is_string($uuid) && $uuid !== '' ? $uuid : (string) Str::uuid();
 
         $tags = $payload['tags'] ?? null;
+        $queue = $job->getQueue();
 
         return new self(
             uuid: $uuid,
             jobClass: $job->resolveQueuedJobClass(),
             connection: $job->getConnectionName(),
-            queue: $job->getQueue() !== null && $job->getQueue() !== '' ? $job->getQueue() : 'default',
+            queue: $queue !== '' ? $queue : 'default',
             attempt: $job->attempts(),
             tags: is_array($tags) ? array_values(array_map('strval', $tags)) : null,
         );
