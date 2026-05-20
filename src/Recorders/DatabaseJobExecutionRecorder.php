@@ -7,27 +7,55 @@ use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Support\DeckResilience;
 
 class DatabaseJobExecutionRecorder implements JobExecutionRecorder
 {
     public function record(JobExecutionRecord $record): void
     {
+        DeckResilience::runSilentlyVoid(function () use ($record): void {
+            $metadata = $record->metadata;
+
+            JobExecution::query()->updateOrCreate(
+                [
+                    'uuid' => $metadata->uuid,
+                    'attempt' => $metadata->attempt,
+                ],
+                $this->executionAttributes($record),
+            );
+
+            $this->updateClassStats($record);
+        });
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function executionAttributes(JobExecutionRecord $record): array
+    {
         $metadata = $record->metadata;
 
-        JobExecution::query()->updateOrCreate(
-            [
-                'uuid' => $metadata->uuid,
-                'attempt' => $metadata->attempt,
+        $shared = [
+            'project' => $record->project,
+            'environment' => $record->environment,
+            'job_class' => $metadata->jobClass,
+            'connection' => $metadata->connection,
+            'queue' => $metadata->queue,
+            'status' => $record->status,
+            'tags' => $record->tags ?? $metadata->tags,
+            'started_at' => $record->startedAt,
+        ];
+
+        return match ($record->status) {
+            JobExecutionStatus::Running => $shared + [
+                'finished_at' => null,
+                'duration_ms' => null,
             ],
-            [
-                'project' => $record->project,
-                'environment' => $record->environment,
-                'job_class' => $metadata->jobClass,
-                'connection' => $metadata->connection,
-                'queue' => $metadata->queue,
-                'status' => $record->status,
-                'tags' => $record->tags ?? $metadata->tags,
-                'started_at' => $record->startedAt,
+            JobExecutionStatus::Blocked => $shared + [
+                'finished_at' => $record->finishedAt,
+                'duration_ms' => $record->durationMs ?? 0,
+            ],
+            JobExecutionStatus::Failed => $shared + [
                 'finished_at' => $record->finishedAt,
                 'duration_ms' => $record->durationMs,
                 'exception_class' => $record->exceptionClass,
@@ -35,9 +63,15 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
                 'exception_trace' => $record->exceptionTrace,
                 'context' => $record->context,
             ],
-        );
-
-        $this->updateClassStats($record);
+            default => $shared + [
+                'finished_at' => $record->finishedAt,
+                'duration_ms' => $record->durationMs,
+                'exception_class' => null,
+                'exception_message' => null,
+                'exception_trace' => null,
+                'context' => $record->context,
+            ],
+        };
     }
 
     private function updateClassStats(JobExecutionRecord $record): void
@@ -65,11 +99,11 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
             ],
         };
 
-        $stat = JobClassStat::query()->updateOrCreate($keys, $attributes);
+        JobClassStat::query()->updateOrCreate($keys, $attributes);
 
         match ($record->status) {
-            JobExecutionStatus::Completed => $stat->increment('success_count'),
-            JobExecutionStatus::Failed => $stat->increment('failure_count'),
+            JobExecutionStatus::Completed => JobClassStat::query()->where($keys)->increment('success_count'),
+            JobExecutionStatus::Failed => JobClassStat::query()->where($keys)->increment('failure_count'),
             default => null,
         };
     }

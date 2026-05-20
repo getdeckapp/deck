@@ -10,6 +10,7 @@ use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Support\ExecutionMetrics;
 use Deck\Deck\Support\JobClassBlock;
 use Deck\Deck\Support\RuntimeRollups;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -117,7 +118,7 @@ class JobClassShow extends Component
         session()->flash('status', 'Job unblocked. New dispatches will be queued normally.');
     }
 
-    public function render()
+    public function render(): View
     {
         $stat = JobClassStat::query()
             ->forInstallation()

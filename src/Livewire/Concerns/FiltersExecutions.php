@@ -6,11 +6,18 @@ use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @property string $search
+ * @property string $status
+ * @property string $queue
+ * @property string $connection
+ * @property string $tag
+ */
 trait FiltersExecutions
 {
     protected function applyExecutionFilters(Builder $query): Builder
     {
-        if (property_exists($this, 'search') && $this->search !== '') {
+        if ($this->search !== '') {
             $search = $this->search;
 
             $query->where(function (Builder $query) use ($search) {
@@ -20,19 +27,19 @@ trait FiltersExecutions
             });
         }
 
-        if (property_exists($this, 'status') && $this->status !== '' && JobExecutionStatus::tryFrom($this->status)) {
+        if ($this->status !== '' && JobExecutionStatus::tryFrom($this->status)) {
             $query->where('status', $this->status);
         }
 
-        if (property_exists($this, 'queue') && $this->queue !== '') {
+        if ($this->queue !== '') {
             $query->where('queue', $this->queue);
         }
 
-        if (property_exists($this, 'connection') && $this->connection !== '') {
+        if ($this->connection !== '') {
             $query->where('connection', $this->connection);
         }
 
-        if (property_exists($this, 'tag') && $this->tag !== '') {
+        if ($this->tag !== '') {
             $query->whereJsonContains('tags', $this->tag);
         }
 

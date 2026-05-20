@@ -1,0 +1,63 @@
+<?php
+
+namespace Laravel\Horizon\Contracts;
+
+interface MetricsRepository
+{
+    public function jobsProcessedPerMinute(): int;
+
+    public function throughputForQueue(string $queue): int;
+}
+
+interface WorkloadRepository
+{
+    /** @return list<array<string, mixed>> */
+    public function get(): array;
+}
+
+interface MasterSupervisorRepository
+{
+    /** @return list<object> */
+    public function all(): array;
+}
+
+interface SupervisorRepository
+{
+    /** @return list<object> */
+    public function all(): array;
+}
+
+interface JobRepository
+{
+    public function findFailed(string $id): ?object;
+}
+
+namespace Laravel\Horizon;
+
+use Illuminate\Http\Request;
+
+class Horizon
+{
+    public static function check(Request $request): bool
+    {
+        return false;
+    }
+}
+
+namespace Laravel\Horizon\Jobs;
+
+class RetryFailedJob
+{
+    public function __construct(public string $id) {}
+}
+
+namespace Laravel\Horizon;
+
+class WaitTimeCalculator
+{
+    /** @return array<string, int|float> */
+    public function calculate(): array
+    {
+        return [];
+    }
+}

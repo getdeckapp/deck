@@ -3,10 +3,13 @@
 namespace Deck\Deck\Support;
 
 use Deck\Deck\Data\JobProgressState;
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 
 class JobProgress
 {
+    use RunsSilently;
+
     public static function cacheKey(string $uuid): string
     {
         return 'deck:progress:'.$uuid;
@@ -16,20 +19,24 @@ class JobProgress
     {
         $percent = max(0, min(100, $percent));
 
-        static::cache()->put(
-            static::cacheKey($uuid),
-            [
-                'percent' => $percent,
-                'message' => $message !== null && $message !== '' ? mb_substr($message, 0, 500) : null,
-                'updated_at' => now()->toIso8601String(),
-            ],
-            now()->addSeconds((int) config('deck.progress_ttl_seconds', 86_400)),
-        );
+        static::runSilentlyVoid(function () use ($uuid, $percent, $message): void {
+            static::cache()->put(
+                static::cacheKey($uuid),
+                [
+                    'percent' => $percent,
+                    'message' => $message !== null && $message !== '' ? mb_substr($message, 0, 500) : null,
+                    'updated_at' => now()->toIso8601String(),
+                ],
+                now()->addSeconds((int) config('deck.progress_ttl_seconds', 86_400)),
+            );
+        });
     }
 
     public static function get(string $uuid): ?JobProgressState
     {
-        $payload = static::cache()->get(static::cacheKey($uuid));
+        $payload = static::runSilently(
+            fn (): mixed => static::cache()->get(static::cacheKey($uuid)),
+        );
 
         if (! is_array($payload)) {
             return null;
@@ -44,7 +51,9 @@ class JobProgress
 
     public static function clear(string $uuid): void
     {
-        static::cache()->forget(static::cacheKey($uuid));
+        static::runSilentlyVoid(
+            fn (): mixed => static::cache()->forget(static::cacheKey($uuid)),
+        );
     }
 
     private static function cache(): CacheRepository

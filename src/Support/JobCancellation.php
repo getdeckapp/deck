@@ -3,11 +3,16 @@
 namespace Deck\Deck\Support;
 
 use Deck\Deck\Exceptions\JobCancelledException;
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
+use Illuminate\Redis\Connections\Connection as RedisConnection;
+use Illuminate\Support\Facades\Redis;
 
 class JobCancellation
 {
+    use RunsSilently;
+
     public static function cacheKey(string $uuid): string
     {
         return 'deck:cancel:'.$uuid;
@@ -15,21 +20,59 @@ class JobCancellation
 
     public static function cancel(string $uuid): void
     {
-        static::cache()->put(
-            static::cacheKey($uuid),
-            true,
-            now()->addSeconds((int) config('deck.cancel_ttl_seconds', 86_400)),
+        static::runSilentlyVoid(function () use ($uuid): void {
+            static::cache()->put(
+                static::cacheKey($uuid),
+                true,
+                now()->addSeconds((int) config('deck.cancel_ttl_seconds', 86_400)),
+            );
+        });
+    }
+
+    /**
+     * Single fast existence check — uses native Redis EXISTS when available,
+     * never touches the database.
+     */
+    public static function isCancelled(string $uuid): bool
+    {
+        return static::runSilently(
+            fn (): bool => static::cache()->has(static::cacheKey($uuid)),
+            false,
         );
     }
 
-    public static function isCancelled(string $uuid): bool
+    /**
+     * @param  list<string>  $uuids
+     */
+    public static function anyCancelled(array $uuids): bool
     {
-        return static::cache()->get(static::cacheKey($uuid)) === true;
+        if ($uuids === []) {
+            return false;
+        }
+
+        return static::runSilently(
+            fn (): bool => static::anyCancelledUnchecked($uuids),
+            false,
+        );
     }
 
     public static function clear(string $uuid): void
     {
-        static::cache()->forget(static::cacheKey($uuid));
+        static::runSilentlyVoid(
+            fn (): mixed => static::cache()->forget(static::cacheKey($uuid)),
+        );
+    }
+
+    /**
+     * Returns whether the job was cancelled and clears the flag in one step,
+     * avoiding a separate exists + delete round trip on the hot path.
+     */
+    public static function consumeIfCancelled(string $uuid): bool
+    {
+        return static::runSilently(
+            fn (): bool => static::consumeIfCancelledUnchecked($uuid),
+            false,
+        );
     }
 
     public static function throwIfCancelled(QueueJobContract $job): void
@@ -43,17 +86,72 @@ class JobCancellation
 
     public static function uuidFromJob(QueueJobContract $job): ?string
     {
-        if (method_exists($job, 'uuid')) {
-            return $job->uuid();
+        $payload = $job->payload();
+        $uuid = $payload['uuid'] ?? null;
+
+        return is_string($uuid) && $uuid !== '' ? $uuid : null;
+    }
+
+    /**
+     * @param  list<string>  $uuids
+     */
+    private static function anyCancelledUnchecked(array $uuids): bool
+    {
+        $keys = array_map(static::cacheKey(...), $uuids);
+
+        if ($redis = static::redisConnection()) {
+            $prefixedKeys = array_map(static::prefixedCacheKey(...), $keys);
+
+            // One EXISTS call for every running UUID instead of N separate reads.
+            return (int) $redis->command('exists', $prefixedKeys) > 0;
         }
 
-        if (! method_exists($job, 'payload')) {
+        $values = static::cache()->many($keys);
+
+        foreach ($values as $value) {
+            if ($value === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function consumeIfCancelledUnchecked(string $uuid): bool
+    {
+        $key = static::cacheKey($uuid);
+
+        if ($redis = static::redisConnection()) {
+            // One DEL replaces separate exists + forget on the cooperative-cancel path.
+            return (int) $redis->command('del', [static::prefixedCacheKey($key)]) > 0;
+        }
+
+        return static::cache()->pull($key) === true;
+    }
+
+    private static function prefixedCacheKey(string $key): string
+    {
+        $prefix = (string) config('cache.prefix', '');
+
+        return $prefix !== '' ? $prefix.$key : $key;
+    }
+
+    private static function redisConnection(): ?RedisConnection
+    {
+        $store = config('deck.cancel_cache_store') ?? config('cache.default');
+
+        if (config('cache.stores.'.$store.'.driver') !== 'redis') {
             return null;
         }
 
-        $payload = $job->payload();
+        $connection = config('cache.stores.'.$store.'.connection')
+            ?? config('database.redis.default', 'default');
 
-        return $payload['uuid'] ?? null;
+        try {
+            return Redis::connection($connection);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private static function cache(): CacheRepository

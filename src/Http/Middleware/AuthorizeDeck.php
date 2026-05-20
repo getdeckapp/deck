@@ -30,7 +30,7 @@ class AuthorizeDeck
             return (bool) $callback($request);
         }
 
-        if (class_exists(Horizon::class) && method_exists(Horizon::class, 'check')) {
+        if (class_exists(Horizon::class)) {
             return Horizon::check($request);
         }
 

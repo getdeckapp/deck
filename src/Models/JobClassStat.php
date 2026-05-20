@@ -8,6 +8,12 @@ use Deck\Deck\Models\Concerns\UsesDeckConnection;
 use Deck\Deck\Support\FormatDuration;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $success_count
+ * @property int $failure_count
+ * @property int|null $last_duration_ms
+ * @property \Illuminate\Support\Carbon|null $last_finished_at
+ */
 class JobClassStat extends Model
 {
     use BelongsToDeckInstallation;

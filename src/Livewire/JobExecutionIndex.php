@@ -8,6 +8,7 @@ use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Support\DeckPolling;
 use Deck\Deck\Support\ExecutionTagCatalog;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -66,7 +67,7 @@ class JobExecutionIndex extends Component
         $this->resetPage();
     }
 
-    public function render()
+    public function render(): View
     {
         $executions = $this->filteredExecutionsQuery()
             ->orderByDesc('started_at')

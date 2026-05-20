@@ -4,6 +4,7 @@ namespace Deck\Deck\Livewire;
 
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -36,7 +37,7 @@ class JobClassIndex extends Component
         $this->resetPage();
     }
 
-    public function render()
+    public function render(): View
     {
         $query = JobClassStat::query()
             ->forInstallation()

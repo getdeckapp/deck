@@ -38,6 +38,7 @@ class QueueInsights
             ->groupBy('queue')
             ->pluck('avg_duration', 'queue');
 
+        /** @var \Illuminate\Support\Collection<int, string> $queues */
         $queues = $running->keys()
             ->merge($completedLastHour->keys())
             ->merge($avgDuration->keys())

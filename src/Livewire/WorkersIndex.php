@@ -9,6 +9,7 @@ use Deck\Deck\Support\HorizonSnapshot;
 use Deck\Deck\Support\QueueAdmin;
 use Deck\Deck\Support\QueueInsights;
 use Deck\Deck\Support\UnprocessedQueueDetector;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -37,7 +38,7 @@ class WorkersIndex extends Component
         session()->flash('status', $result->message);
     }
 
-    public function render()
+    public function render(): View
     {
         $horizon = app(HorizonSnapshot::class);
 

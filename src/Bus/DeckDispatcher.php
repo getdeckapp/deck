@@ -2,6 +2,7 @@
 
 namespace Deck\Deck\Bus;
 
+use Deck\Deck\Support\DeckResilience;
 use Deck\Deck\Support\InterceptBlockedDispatch;
 use Illuminate\Bus\Dispatcher;
 
@@ -13,7 +14,10 @@ class DeckDispatcher extends Dispatcher
      */
     public function dispatchToQueue($command)
     {
-        if (InterceptBlockedDispatch::intercept($command)) {
+        if (DeckResilience::runSilently(
+            fn (): bool => InterceptBlockedDispatch::intercept($command),
+            false,
+        )) {
             return null;
         }
 

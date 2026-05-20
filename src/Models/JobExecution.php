@@ -12,6 +12,22 @@ use Deck\Deck\Support\JobCancellation;
 use Deck\Deck\Support\JobProgress;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string $uuid
+ * @property string $job_class
+ * @property string $connection
+ * @property string $queue
+ * @property JobExecutionStatus $status
+ * @property int $attempt
+ * @property list<string>|null $tags
+ * @property string $project
+ * @property string $environment
+ * @property \Illuminate\Support\Carbon $started_at
+ * @property \Illuminate\Support\Carbon|null $finished_at
+ * @property int|null $duration_ms
+ * @property string|null $exception_class
+ * @property string|null $exception_message
+ */
 class JobExecution extends Model
 {
     use BelongsToDeckInstallation;
@@ -100,11 +116,14 @@ class JobExecution extends Model
 
     public static function hasPendingCancellationsForInstallation(): bool
     {
-        return static::query()
+        /** @var list<string> $uuids */
+        $uuids = static::query()
             ->forInstallation()
             ->where('status', JobExecutionStatus::Running)
             ->pluck('uuid')
-            ->contains(fn (string $uuid): bool => JobCancellation::isCancelled($uuid));
+            ->all();
+
+        return JobCancellation::anyCancelled($uuids);
     }
 
     /**

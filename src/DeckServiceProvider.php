@@ -49,6 +49,7 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasMigration('create_deck_tables')
             ->hasMigration('add_project_and_environment_to_deck_tables')
             ->hasMigration('add_exception_trace_to_deck_job_executions')
+            ->hasMigration('add_created_at_index_to_deck_job_executions')
             ->hasCommand(InstallCommand::class)
             ->hasCommand(PruneCommand::class)
             ->hasCommand(CheckAlertsCommand::class)

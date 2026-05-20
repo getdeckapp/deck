@@ -12,15 +12,10 @@ class JobClassIdentifierRegistry
      */
     public static function forQueueJob(QueueJobContract $job): array
     {
-        $identifiers = [];
-
-        if (method_exists($job, 'resolveQueuedJobClass')) {
-            $identifiers[] = $job->resolveQueuedJobClass();
-        }
-
-        if (method_exists($job, 'resolveName')) {
-            $identifiers[] = $job->resolveName();
-        }
+        $identifiers = [
+            $job->resolveQueuedJobClass(),
+            $job->resolveName(),
+        ];
 
         $expanded = [];
 
@@ -57,11 +52,12 @@ class JobClassIdentifierRegistry
 
     public static function rememberFromQueueJob(QueueJobContract $job): void
     {
-        if (! method_exists($job, 'resolveQueuedJobClass') || ! method_exists($job, 'resolveName')) {
-            return;
-        }
-
-        static::link($job->resolveName(), $job->resolveQueuedJobClass());
+        // Identifier linking is only needed for future dispatches — defer off the hot path.
+        DeferJobLifecycleRecording::run(
+            static function () use ($job): void {
+                static::link($job->resolveName(), $job->resolveQueuedJobClass());
+            },
+        );
     }
 
     private static function linkedIdentifiers(string $identifier): array

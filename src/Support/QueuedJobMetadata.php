@@ -19,11 +19,11 @@ class QueuedJobMetadata
 
     public static function fromCommand(object $command): self
     {
-        $connection = property_exists($command, 'connection') && $command->connection !== null
+        $connection = isset($command->connection) && $command->connection !== null
             ? (string) $command->connection
             : (string) config('queue.default', 'sync');
 
-        $queue = property_exists($command, 'queue') && $command->queue !== null
+        $queue = isset($command->queue) && $command->queue !== null
             ? (string) $command->queue
             : 'default';
 
@@ -39,21 +39,19 @@ class QueuedJobMetadata
 
     public static function fromQueueJob(QueueJobContract $job): self
     {
-        $payload = method_exists($job, 'payload') ? $job->payload() : [];
+        $payload = $job->payload();
 
-        $uuid = method_exists($job, 'uuid')
-            ? $job->uuid()
-            : ($payload['uuid'] ?? (string) Str::uuid());
+        $uuid = $payload['uuid'] ?? null;
+        $uuid = is_string($uuid) && $uuid !== '' ? $uuid : (string) Str::uuid();
 
         $tags = $payload['tags'] ?? null;
+        $queue = $job->getQueue();
 
         return new self(
             uuid: $uuid,
-            jobClass: method_exists($job, 'resolveQueuedJobClass')
-                ? $job->resolveQueuedJobClass()
-                : $job->resolveName(),
+            jobClass: $job->resolveQueuedJobClass(),
             connection: $job->getConnectionName(),
-            queue: $job->getQueue() ?? 'default',
+            queue: $queue !== '' ? $queue : 'default',
             attempt: $job->attempts(),
             tags: is_array($tags) ? array_values(array_map('strval', $tags)) : null,
         );

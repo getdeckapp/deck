@@ -45,7 +45,7 @@ class UnprocessedQueueDetector
                 $horizonStatus,
                 $minPending,
             ))
-            ->filter()
+            ->filter(fn (?UnprocessedQueue $queue): bool => $queue instanceof UnprocessedQueue)
             ->sortByDesc(fn (UnprocessedQueue $queue): int => $queue->pending)
             ->values();
     }
@@ -141,16 +141,10 @@ class UnprocessedQueueDetector
      */
     private function workloadQueueKeys(): array
     {
+        $connection = (string) config('queue.default');
+
         return collect($this->horizon->workload())
-            ->flatMap(function (array $queue): array {
-                if (! empty($queue['key']) && is_string($queue['key'])) {
-                    return [$queue['key']];
-                }
-
-                $connection = (string) config('queue.default');
-
-                return ["{$connection}:{$queue['name']}"];
-            })
+            ->flatMap(fn (array $queue): array => ["{$connection}:{$queue['name']}"])
             ->all();
     }
 
@@ -222,7 +216,7 @@ class UnprocessedQueueDetector
 
     private function readyPendingCount(Queue $queue, string $queueName): int
     {
-        if (is_callable([$queue, 'readyNow'])) {
+        if ($queue instanceof \Illuminate\Queue\RedisQueue) {
             return (int) $queue->readyNow($queueName);
         }
 
