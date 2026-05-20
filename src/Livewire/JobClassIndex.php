@@ -51,15 +51,13 @@ class JobClassIndex extends Component
             $query->where('last_status', $this->status);
         }
 
-        $scope = JobClassStat::query()->forInstallation();
-
         return view('deck::livewire.job-class-index', [
             'stats' => $query->paginate(25),
             'summary' => [
-                'classes' => (clone $scope)->count(),
-                'running' => (clone $scope)->where('last_status', JobExecutionStatus::Running)->count(),
-                'failed' => (clone $scope)->where('last_status', JobExecutionStatus::Failed)->count(),
-                'successes' => (int) (clone $scope)->sum('success_count'),
+                'classes' => JobClassStat::query()->forInstallation()->count(),
+                'running' => JobClassStat::query()->forInstallation()->where('last_status', JobExecutionStatus::Running)->count(),
+                'failed' => JobClassStat::query()->forInstallation()->where('last_status', JobExecutionStatus::Failed)->count(),
+                'successes' => (int) JobClassStat::query()->forInstallation()->sum('success_count'),
             ],
             'statuses' => JobExecutionStatus::cases(),
         ]);

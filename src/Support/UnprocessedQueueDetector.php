@@ -6,6 +6,7 @@ use Deck\Deck\Data\UnprocessedQueue;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class UnprocessedQueueDetector
@@ -207,7 +208,9 @@ class UnprocessedQueueDetector
 
         try {
             $queue = $this->queues->connection($connection);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::warning("Deck: could not connect to queue '{$connection}'", ['error' => $e->getMessage()]);
+
             return 0;
         }
 

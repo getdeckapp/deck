@@ -73,15 +73,15 @@ class JobExecutionIndex extends Component
             ->orderByDesc('started_at')
             ->paginate(50);
 
-        $scope = JobExecution::query()->forInstallation();
-
-        $queues = (clone $scope)
+        $queues = JobExecution::query()
+            ->forInstallation()
             ->select('queue')
             ->distinct()
             ->orderBy('queue')
             ->pluck('queue');
 
-        $connections = (clone $scope)
+        $connections = JobExecution::query()
+            ->forInstallation()
             ->select('connection')
             ->distinct()
             ->orderBy('connection')
