@@ -3,10 +3,13 @@
 namespace Deck\Deck\Support;
 
 use Deck\Deck\Data\JobProgressState;
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 
 class JobProgress
 {
+    use RunsSilently;
+
     public static function cacheKey(string $uuid): string
     {
         return 'deck:progress:'.$uuid;
@@ -16,7 +19,7 @@ class JobProgress
     {
         $percent = max(0, min(100, $percent));
 
-        DeckResilience::runSilentlyVoid(function () use ($uuid, $percent, $message): void {
+        static::runSilentlyVoid(function () use ($uuid, $percent, $message): void {
             static::cache()->put(
                 static::cacheKey($uuid),
                 [
@@ -31,7 +34,7 @@ class JobProgress
 
     public static function get(string $uuid): ?JobProgressState
     {
-        $payload = DeckResilience::runSilently(
+        $payload = static::runSilently(
             fn (): mixed => static::cache()->get(static::cacheKey($uuid)),
         );
 
@@ -48,7 +51,7 @@ class JobProgress
 
     public static function clear(string $uuid): void
     {
-        DeckResilience::runSilentlyVoid(
+        static::runSilentlyVoid(
             fn (): mixed => static::cache()->forget(static::cacheKey($uuid)),
         );
     }

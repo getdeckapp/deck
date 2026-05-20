@@ -2,12 +2,15 @@
 
 namespace Deck\Deck\Support;
 
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Support\Carbon;
 
 class JobClassBlock
 {
+    use RunsSilently;
+
     private const string ManualMarker = 'manual';
 
     public static function cacheKey(string $jobClass): string
@@ -22,7 +25,7 @@ class JobClassBlock
 
     public static function block(string $jobClass, ?Carbon $until = null, ?string $reason = null): void
     {
-        DeckResilience::runSilentlyVoid(function () use ($jobClass, $until, $reason): void {
+        static::runSilentlyVoid(function () use ($jobClass, $until, $reason): void {
             foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
                 static::putBlock($identifier, $until, $reason);
             }
@@ -31,7 +34,7 @@ class JobClassBlock
 
     public static function unblock(string $jobClass): void
     {
-        DeckResilience::runSilentlyVoid(function () use ($jobClass): void {
+        static::runSilentlyVoid(function () use ($jobClass): void {
             foreach (JobClassIdentifierRegistry::expand($jobClass) as $identifier) {
                 static::cache()->forget(static::cacheKey($identifier));
                 static::cache()->forget(static::auditCacheKey($identifier));
@@ -73,7 +76,7 @@ class JobClassBlock
             return false;
         }
 
-        return DeckResilience::runSilently(
+        return static::runSilently(
             fn (): bool => static::isAnyBlockedUnchecked($jobClasses),
             false,
         );
@@ -225,18 +228,16 @@ class JobClassBlock
             return null;
         }
 
-        if (method_exists($user, 'getAttribute')) {
-            $email = $user->getAttribute('email');
+        $email = $user->getAttribute('email');
 
-            if (is_string($email) && $email !== '') {
-                return $email;
-            }
+        if (is_string($email) && $email !== '') {
+            return $email;
+        }
 
-            $name = $user->getAttribute('name');
+        $name = $user->getAttribute('name');
 
-            if (is_string($name) && $name !== '') {
-                return $name;
-            }
+        if (is_string($name) && $name !== '') {
+            return $name;
         }
 
         return null;

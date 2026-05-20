@@ -3,6 +3,7 @@
 namespace Deck\Deck\Support;
 
 use Deck\Deck\Exceptions\JobCancelledException;
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Redis\Connections\Connection as RedisConnection;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Redis;
 
 class JobCancellation
 {
+    use RunsSilently;
+
     public static function cacheKey(string $uuid): string
     {
         return 'deck:cancel:'.$uuid;
@@ -17,7 +20,7 @@ class JobCancellation
 
     public static function cancel(string $uuid): void
     {
-        DeckResilience::runSilentlyVoid(function () use ($uuid): void {
+        static::runSilentlyVoid(function () use ($uuid): void {
             static::cache()->put(
                 static::cacheKey($uuid),
                 true,
@@ -32,7 +35,7 @@ class JobCancellation
      */
     public static function isCancelled(string $uuid): bool
     {
-        return DeckResilience::runSilently(
+        return static::runSilently(
             fn (): bool => static::cache()->has(static::cacheKey($uuid)),
             false,
         );
@@ -47,7 +50,7 @@ class JobCancellation
             return false;
         }
 
-        return DeckResilience::runSilently(
+        return static::runSilently(
             fn (): bool => static::anyCancelledUnchecked($uuids),
             false,
         );
@@ -55,7 +58,7 @@ class JobCancellation
 
     public static function clear(string $uuid): void
     {
-        DeckResilience::runSilentlyVoid(
+        static::runSilentlyVoid(
             fn (): mixed => static::cache()->forget(static::cacheKey($uuid)),
         );
     }
@@ -66,7 +69,7 @@ class JobCancellation
      */
     public static function consumeIfCancelled(string $uuid): bool
     {
-        return DeckResilience::runSilently(
+        return static::runSilently(
             fn (): bool => static::consumeIfCancelledUnchecked($uuid),
             false,
         );
@@ -83,17 +86,10 @@ class JobCancellation
 
     public static function uuidFromJob(QueueJobContract $job): ?string
     {
-        if (method_exists($job, 'uuid')) {
-            return $job->uuid();
-        }
-
-        if (! method_exists($job, 'payload')) {
-            return null;
-        }
-
         $payload = $job->payload();
+        $uuid = $payload['uuid'] ?? null;
 
-        return $payload['uuid'] ?? null;
+        return is_string($uuid) && $uuid !== '' ? $uuid : null;
     }
 
     /**

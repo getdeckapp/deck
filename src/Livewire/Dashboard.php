@@ -13,6 +13,7 @@ use Deck\Deck\Support\ExecutionMetrics;
 use Deck\Deck\Support\HorizonSnapshot;
 use Deck\Deck\Support\QueueBusyness;
 use Deck\Deck\Support\UnprocessedQueueDetector;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -21,7 +22,7 @@ class Dashboard extends Component
 {
     use InteractsWithExecutions;
 
-    public function render()
+    public function render(): View
     {
         $scope = JobClassStat::query()->forInstallation();
         $metrics = ExecutionMetrics::make();
@@ -49,7 +50,7 @@ class Dashboard extends Component
             && $unprocessedQueues->isEmpty()
             && $summary['running'] === 0
             && ! in_array($queueBusyness['level'], [QueueBusynessLevel::Busy, QueueBusynessLevel::Critical], true)
-            && ($horizonSummary === null || ($horizonSummary['status'] ?? null) === 'running');
+            && ($horizonSummary === null || $horizonSummary['status'] === 'running');
 
         return view('deck::livewire.dashboard', [
             'summary' => $summary,

@@ -72,7 +72,7 @@ class ExecutionMetrics
     }
 
     /**
-     * @param  Collection<string, int>  $values
+     * @param  Collection<int|string, int>  $values
      * @return Collection<int, array{label: string, value: int, at: string}>
      */
     private function fillHourlySeries(Carbon $since, Collection $values): Collection

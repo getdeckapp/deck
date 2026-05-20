@@ -5,6 +5,7 @@ namespace Deck\Deck\Livewire;
 use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Support\DeckPolling;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -24,7 +25,7 @@ class JobExecutionShow extends Component
             ->firstOrFail();
     }
 
-    public function render()
+    public function render(): View
     {
         $this->execution->refresh();
 

@@ -3,12 +3,15 @@
 namespace Deck\Deck\Support;
 
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
 
 class BlockedJobExecutionRecorder
 {
+    use RunsSilently;
+
     public static function record(QueuedJobMetadata $metadata): void
     {
         DeferDeckSideEffects::run(fn () => static::recordNow($metadata));
@@ -16,7 +19,7 @@ class BlockedJobExecutionRecorder
 
     public static function recordNow(QueuedJobMetadata $metadata): void
     {
-        DeckResilience::runSilentlyVoid(function () use ($metadata): void {
+        static::runSilentlyVoid(function () use ($metadata): void {
             static::recordNowUnchecked($metadata);
         });
     }

@@ -5,12 +5,10 @@ namespace Deck\Deck\Support;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Artisan;
 use Laravel\Horizon\Contracts\JobRepository;
 use Laravel\Horizon\Jobs\RetryFailedJob;
 use ReflectionClass;
-use ReflectionException;
 
 class JobExecutionRetry
 {
@@ -91,14 +89,7 @@ class JobExecutionRetry
             );
         }
 
-        try {
-            $reflection = new ReflectionClass($jobClass);
-        } catch (ReflectionException) {
-            return new RetryExecutionResult(
-                success: false,
-                message: 'Unable to inspect the job class for retry.',
-            );
-        }
+        $reflection = new ReflectionClass($jobClass);
 
         if (! $reflection->implementsInterface(ShouldQueue::class)) {
             return new RetryExecutionResult(
@@ -128,14 +119,12 @@ class JobExecutionRetry
 
         $pending = dispatch($job);
 
-        if ($pending instanceof PendingDispatch) {
-            if ($execution->connection !== '') {
-                $pending->onConnection($execution->connection);
-            }
+        if ($execution->getAttribute('connection') !== '') {
+            $pending->onConnection($execution->getAttribute('connection'));
+        }
 
-            if ($execution->queue !== '') {
-                $pending->onQueue($execution->queue);
-            }
+        if ($execution->queue !== '') {
+            $pending->onQueue($execution->queue);
         }
 
         return new RetryExecutionResult(

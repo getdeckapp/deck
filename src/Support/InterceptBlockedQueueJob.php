@@ -2,13 +2,16 @@
 
 namespace Deck\Deck\Support;
 
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 
 class InterceptBlockedQueueJob
 {
+    use RunsSilently;
+
     public static function intercept(QueueJobContract $job): bool
     {
-        return DeckResilience::runSilently(
+        return static::runSilently(
             function () use ($job): bool {
                 JobClassIdentifierRegistry::rememberFromQueueJob($job);
 

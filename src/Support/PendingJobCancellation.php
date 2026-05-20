@@ -84,7 +84,7 @@ class PendingJobCancellation
                     continue;
                 }
 
-                $redis->lrem($key, 0, $payload);
+                $redis->lrem($key, $payload, 0);
                 $removed = true;
             }
 
@@ -125,7 +125,10 @@ class PendingJobCancellation
         $method = new ReflectionMethod($queue, 'allQueueNames');
         $method->setAccessible(true);
 
-        return $method->invoke($queue)->all();
+        /** @var \Illuminate\Support\Collection<int, string> $names */
+        $names = $method->invoke($queue);
+
+        return $names->all();
     }
 
     private static function queueRedisKey(RedisQueue $queue, string $name): string

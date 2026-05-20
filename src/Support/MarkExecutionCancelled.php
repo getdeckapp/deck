@@ -3,15 +3,18 @@
 namespace Deck\Deck\Support;
 
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
 
 class MarkExecutionCancelled
 {
+    use RunsSilently;
+
     public static function mark(JobExecution $execution): void
     {
-        DeckResilience::runSilentlyVoid(function () use ($execution): void {
+        static::runSilentlyVoid(function () use ($execution): void {
             static::markUnchecked($execution);
         });
     }

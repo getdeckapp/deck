@@ -2,6 +2,7 @@
 
 namespace Deck\Deck\Support;
 
+use Deck\Deck\Support\Concerns\RunsSilently;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Carbon;
 
@@ -11,6 +12,8 @@ use Illuminate\Support\Carbon;
  */
 class JobExecutionTiming
 {
+    use RunsSilently;
+
     public static function cacheKey(string $uuid, int $attempt): string
     {
         return 'deck:timing:'.$uuid.':'.$attempt;
@@ -18,7 +21,7 @@ class JobExecutionTiming
 
     public static function remember(string $uuid, int $attempt, Carbon $startedAt): void
     {
-        DeckResilience::runSilentlyVoid(function () use ($uuid, $attempt, $startedAt): void {
+        static::runSilentlyVoid(function () use ($uuid, $attempt, $startedAt): void {
             static::cache()->put(
                 static::cacheKey($uuid, $attempt),
                 $startedAt->toIso8601String(),
@@ -29,7 +32,7 @@ class JobExecutionTiming
 
     public static function resolve(string $uuid, int $attempt): ?Carbon
     {
-        $value = DeckResilience::runSilently(
+        $value = static::runSilently(
             fn (): mixed => static::cache()->pull(static::cacheKey($uuid, $attempt)),
         );
 
@@ -46,7 +49,7 @@ class JobExecutionTiming
 
     public static function forget(string $uuid, int $attempt): void
     {
-        DeckResilience::runSilentlyVoid(
+        static::runSilentlyVoid(
             fn (): mixed => static::cache()->forget(static::cacheKey($uuid, $attempt)),
         );
     }
