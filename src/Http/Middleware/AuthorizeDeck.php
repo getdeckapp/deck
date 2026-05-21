@@ -3,6 +3,7 @@
 namespace Deck\Deck\Http\Middleware;
 
 use Closure;
+use Deck\Deck\Support\DeckHorizon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -31,7 +32,7 @@ class AuthorizeDeck
             return (bool) $callback($request);
         }
 
-        if (class_exists(Horizon::class)) {
+        if (DeckHorizon::isInstalled()) {
             return Horizon::check($request);
         }
 
