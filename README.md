@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/images/deck-logo.png" alt="Deck logo" width="128">
+</p>
+
 # Deck
 
 **Job-class observability and safe cancellation for Laravel apps running [Horizon](https://laravel.com/docs/horizon).**
