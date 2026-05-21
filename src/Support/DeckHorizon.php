@@ -3,13 +3,15 @@
 namespace Deck\Deck\Support;
 
 use Laravel\Horizon\Contracts\JobRepository;
+use Laravel\Horizon\Contracts\WorkloadRepository;
 use Laravel\Horizon\Horizon;
 
 class DeckHorizon
 {
     public static function isInstalled(): bool
     {
-        return class_exists(Horizon::class);
+        return class_exists(Horizon::class)
+            && app()->bound(WorkloadRepository::class);
     }
 
     public static function dashboardUrl(): ?string
@@ -29,7 +31,7 @@ class DeckHorizon
             return null;
         }
 
-        if (! interface_exists(JobRepository::class)) {
+        if (! app()->bound(JobRepository::class)) {
             return null;
         }
 

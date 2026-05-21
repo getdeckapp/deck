@@ -2,7 +2,7 @@
 
 use Deck\Deck\Support\DeckHorizon;
 
-it('reports horizon as not installed in the test harness', function () {
+it('reports horizon as not installed when horizon is not bootstrapped', function () {
     expect(DeckHorizon::isInstalled())->toBeFalse();
 });
 
