@@ -21,6 +21,7 @@ class CommandApplicator
             'block_class' => $this->blockClass($command),
             'unblock_class' => $this->unblockClass($command),
             'cancel_all_running_for_class' => $this->cancelAllRunningForClass($command),
+            'retry_execution' => $this->retryExecution($command),
             default => $this->failed($command->id, 'Unknown command type: '.$command->type),
         };
     }
@@ -132,6 +133,23 @@ class CommandApplicator
         $this->deck->cancelAllRunningForClass($jobClass, (bool) ($command->payload['force'] ?? false));
 
         return $this->applied($command->id);
+    }
+
+    private function retryExecution(AgentCommand $command): AgentCommandResult
+    {
+        $uuid = $this->requiredString($command->payload, 'uuid');
+
+        if ($uuid === null) {
+            return $this->failed($command->id, 'Missing uuid in command payload.');
+        }
+
+        $result = $this->deck->retryExecution($uuid, $this->optionalInt($command->payload, 'attempt'));
+
+        if ($result->success) {
+            return $this->applied($command->id);
+        }
+
+        return $this->failed($command->id, $result->message);
     }
 
     private function applied(string $id): AgentCommandResult

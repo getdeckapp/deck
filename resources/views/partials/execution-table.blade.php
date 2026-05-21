@@ -35,9 +35,8 @@
                     onclick="window.location.assign(this.dataset.href)"
                     onkeydown="if (event.key === 'Enter') { event.preventDefault(); window.location.assign(this.dataset.href); }"
                 >
-                    <td class="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-indigo-500 opacity-0 transition group-hover:opacity-100" aria-hidden="true"></td>
                     @if ($showJobClass)
-                        <td class="py-3.5 pr-3 pl-5">
+                        <td class="relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100">
                             <a
                                 href="{{ route('deck.classes.show', ['jobClass' => $execution->job_class]) }}"
                                 class="relative z-10 text-[13.5px] font-semibold text-zinc-900 hover:text-indigo-600"
@@ -48,7 +47,11 @@
                             <div class="mt-0.5 truncate font-mono text-[11px] text-zinc-500">{{ $execution->job_class }}</div>
                         </td>
                     @endif
-                    <td @class(['py-3.5 pr-3', 'px-3' => $showJobClass, 'pl-5' => ! $showJobClass])>
+                    <td @class([
+                        'relative py-3.5 pr-3 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100',
+                        'px-3' => $showJobClass,
+                        'pl-5' => ! $showJobClass,
+                    ])>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <x-deck::badge :status="$execution->status->value">{{ $execution->status->value }}</x-deck::badge>
                             @if ($execution->isCancellationPending())

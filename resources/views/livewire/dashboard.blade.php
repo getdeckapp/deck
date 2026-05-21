@@ -1,7 +1,7 @@
 <x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-            <div class="mb-1.5 flex items-center gap-2">
+            <div class="mb-1.5 flex flex-wrap items-center gap-2">
                 <p class="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-indigo-600">Deck</p>
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
                     <span class="relative inline-flex size-1.5">
@@ -10,6 +10,9 @@
                     </span>
                     Live
                 </span>
+                @if (isset($deckCloudConnection) && $deckCloudConnection->isEnabled())
+                    @include('deck::partials.cloud-connection', ['connection' => $deckCloudConnection, 'variant' => 'badge'])
+                @endif
             </div>
             <h1 class="text-[28px] font-semibold tracking-[-0.022em] text-zinc-900 leading-[1.15]">Overview</h1>
             <p class="mt-1.5 text-[14px] text-zinc-500">Live status, trends, and jobs that need action.</p>

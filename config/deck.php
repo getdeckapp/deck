@@ -43,19 +43,21 @@ return [
     | Deck Cloud (optional, opt-in)
     |--------------------------------------------------------------------------
     |
-    | Disabled by default. No outbound HTTP is made unless enabled is true and
-    | both url and api_key are set. Set DECK_CLOUD_PROMO=false to hide sidebar
-    | links to deckapp.cloud in the dashboard UI.
+    | Set DECK_API_KEY to connect (workers, commands, and events sync on by default).
+    | URL defaults to http://deck.test when APP_ENV=local, otherwise https://deckapp.cloud.
+    | Set DECK_CLOUD_ENABLED=false to disable while keeping the key. Set DECK_CLOUD_PROMO=false
+    | to hide sidebar links to deckapp.cloud in the dashboard UI.
     |
     */
     'cloud' => [
-        'enabled' => env('DECK_CLOUD_ENABLED', false),
+        'enabled' => env('DECK_CLOUD_ENABLED'),
         'url' => env('DECK_CLOUD_URL'),
         'api_key' => env('DECK_API_KEY'),
         'timeout_seconds' => (int) env('DECK_CLOUD_TIMEOUT', 5),
         'promo' => env('DECK_CLOUD_PROMO', true),
         'retry_attempts' => (int) env('DECK_CLOUD_RETRY_ATTEMPTS', 3),
         'log_failures' => (bool) env('DECK_CLOUD_LOG_FAILURES', true),
+        'probe_cache_seconds' => (int) env('DECK_CLOUD_PROBE_CACHE_SECONDS', 60),
         'workers' => [
             'enabled' => (bool) env('DECK_CLOUD_WORKERS_ENABLED', true),
             'interval_seconds' => (int) env('DECK_CLOUD_WORKERS_INTERVAL', 30),

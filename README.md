@@ -362,17 +362,24 @@ Published `config/deck.php`. Common environment variables:
 
 ### Deck Cloud agent (optional)
 
-**Disabled by default.** The package does not open outbound HTTP unless you explicitly enable Cloud and provide credentials.
+**Disabled by default.** Set `DECK_API_KEY` to enable the full agent (worker ingest, remote commands, and event sync). No other Cloud env vars are required.
+
+```env
+DECK_PROJECT=package-dev
+DECK_ENVIRONMENT=local
+DECK_API_KEY=your-agent-token
+```
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `DECK_CLOUD_ENABLED` | `false` | Master switch for Cloud agent |
-| `DECK_CLOUD_URL` | — | Base URL of your Deck Cloud instance |
-| `DECK_API_KEY` | — | Bearer token for agent API |
-| `DECK_CLOUD_WORKERS_ENABLED` | `true` | Push worker snapshots (requires master switch) |
+| `DECK_API_KEY` | — | Agent token; enables Cloud when set |
+| `DECK_CLOUD_URL` | `http://deck.test` (local) / `https://deckapp.cloud` | Override Cloud base URL |
+| `DECK_CLOUD_ENABLED` | auto | Set `false` to disable while keeping the API key |
+| `DECK_CLOUD_WORKERS_ENABLED` | `true` | Push worker snapshots |
 | `DECK_CLOUD_WORKERS_INTERVAL` | `30` | Throttle interval (seconds) for sync |
-| `DECK_CLOUD_COMMANDS_ENABLED` | `true` | Pull remote cancel commands |
-| `DECK_CLOUD_PROMO` | `true` | Show sidebar link to deckapp.cloud in UI (browser only) |
+| `DECK_CLOUD_COMMANDS_ENABLED` | `true` | Pull remote commands |
+| `DECK_CLOUD_EVENTS_ENABLED` | `true` | Push execution events to Cloud |
+| `DECK_CLOUD_PROMO` | `true` | Show sidebar link to deckapp.cloud when Cloud is off |
 
 When enabled, the agent:
 

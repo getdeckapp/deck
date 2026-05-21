@@ -564,7 +564,7 @@ Deck (self-hosted package) remains the **agent**. Deck Cloud is the **multi-tena
 
 ### Agent sync (implemented in package)
 
-Opt-in via `DECK_CLOUD_ENABLED`, `DECK_CLOUD_URL`, and `DECK_API_KEY`. No outbound HTTP when disabled.
+Opt-in via `DECK_API_KEY` (workers, commands, and events on by default). URL defaults to `http://deck.test` when `APP_ENV=local`, else `https://deckapp.cloud`. Set `DECK_CLOUD_ENABLED=false` to disable. No outbound HTTP without an API key.
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|

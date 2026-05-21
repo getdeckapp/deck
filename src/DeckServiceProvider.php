@@ -4,6 +4,7 @@ namespace Deck\Deck;
 
 use Deck\Deck\Bus\DeckDispatcher;
 use Deck\Deck\Commands\CheckAlertsCommand;
+use Deck\Deck\Commands\CloudBackfillCommand;
 use Deck\Deck\Commands\InstallCommand;
 use Deck\Deck\Commands\PollCommandsCommand;
 use Deck\Deck\Commands\PruneCommand;
@@ -58,7 +59,8 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasCommand(PruneCommand::class)
             ->hasCommand(CheckAlertsCommand::class)
             ->hasCommand(PollCommandsCommand::class)
-            ->hasCommand(ReportWorkersCommand::class);
+            ->hasCommand(ReportWorkersCommand::class)
+            ->hasCommand(CloudBackfillCommand::class);
     }
 
     public function packageRegistered(): void

@@ -13,9 +13,9 @@ uses(TestCase::class)->in('Feature', 'Unit');
 
 function enableDeckCloudForTests(): void
 {
-    config()->set('deck.cloud.enabled', true);
-    config()->set('deck.cloud.url', 'https://cloud.deck.test');
     config()->set('deck.cloud.api_key', 'test-api-key');
+    config()->set('deck.cloud.url', 'https://cloud.deck.test');
+    config()->set('deck.cloud.enabled', null);
     config()->set('deck.cloud.workers.interval_seconds', 30);
     config()->set('deck.cloud.workers.enabled', true);
     config()->set('deck.cloud.commands.enabled', true);

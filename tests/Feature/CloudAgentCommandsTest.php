@@ -419,3 +419,40 @@ it('does not poll commands when command sync is disabled', function () {
 
     Http::assertNotSent(fn ($request) => str_contains($request->url(), '/api/v1/agent/commands'));
 });
+
+it('applies retry execution commands', function () {
+    $execution = createDeckExecution([
+        'status' => JobExecutionStatus::Failed,
+        'finished_at' => now(),
+        'duration_ms' => 1000,
+        'exception_class' => RuntimeException::class,
+        'exception_message' => 'boom',
+    ]);
+
+    Http::fake([
+        'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
+            'commands' => [
+                [
+                    'id' => 'cmd_retry_1',
+                    'type' => 'retry_execution',
+                    'project' => 'billing-api',
+                    'environment' => 'production',
+                    'issued_at' => now()->toIso8601String(),
+                    'payload' => [
+                        'uuid' => $execution->uuid,
+                        'attempt' => $execution->attempt,
+                        'connection' => $execution->connection,
+                        'queue' => $execution->queue,
+                    ],
+                ],
+            ],
+        ]),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+    ]);
+
+    app(CommandPoller::class)->poll();
+
+    Http::assertSent(fn ($request) => $request->url() === 'https://cloud.deck.test/api/v1/agent/commands/ack'
+        && $request['results'][0]['id'] === 'cmd_retry_1'
+        && in_array($request['results'][0]['status'], ['applied', 'failed'], true));
+});

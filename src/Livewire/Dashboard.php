@@ -2,6 +2,7 @@
 
 namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Cloud\CloudConnectionProbe;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Enums\QueueBusynessLevel;
 use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
@@ -65,6 +66,7 @@ class Dashboard extends Component
             'shouldPoll' => $summary['running'] > 0 || $horizon->isAvailable(),
             'pollSeconds' => DeckPolling::dashboardSeconds($summary['running']),
             'horizonUrl' => DeckHorizon::dashboardUrl(),
+            'deckCloudConnection' => app(CloudConnectionProbe::class)->status(),
         ]);
     }
 }

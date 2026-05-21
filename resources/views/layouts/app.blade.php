@@ -12,6 +12,7 @@
 @php
     $routeName = request()->route()?->getName() ?? '';
     $horizonUrl = \Deck\Deck\Support\DeckHorizon::dashboardUrl();
+    $deckCloudConnection = $deckCloudConnection ?? app(\Deck\Deck\Cloud\CloudConnectionProbe::class)->status();
 @endphp
 
 <div class="flex min-h-full">
@@ -158,7 +159,9 @@
                 @endif
             </nav>
 
-            @if (config('deck.cloud.promo') && ! config('deck.cloud.enabled'))
+            @if ($deckCloudConnection->isEnabled())
+                @include('deck::partials.cloud-connection', ['connection' => $deckCloudConnection, 'variant' => 'sidebar'])
+            @elseif (config('deck.cloud.promo') && ! \Deck\Deck\Cloud\DeckCloud::isEnabled())
                 <div class="px-3 pb-4">
                     <div class="relative overflow-hidden rounded-xl p-4"
                          style="background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.12) 50%, rgba(99,102,241,0.06) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 0 1px rgba(129,140,248,0.18);">

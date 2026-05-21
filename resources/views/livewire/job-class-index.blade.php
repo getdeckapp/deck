@@ -47,8 +47,7 @@
                 <tbody class="divide-y divide-zinc-100 bg-white">
                     @forelse ($stats as $stat)
                         <tr class="group relative cursor-pointer transition hover:bg-indigo-50/30">
-                            <td class="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-indigo-500 opacity-0 transition group-hover:opacity-100" aria-hidden="true"></td>
-                            <td class="py-3.5 pr-3 pl-5">
+                            <td class="relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100">
                                 <a href="{{ route('deck.classes.show', ['jobClass' => $stat->job_class]) }}" class="text-[13.5px] font-semibold text-zinc-900 hover:text-indigo-600">
                                     {{ class_basename($stat->job_class) }}
                                 </a>

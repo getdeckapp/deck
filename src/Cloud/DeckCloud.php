@@ -16,16 +16,50 @@ class DeckCloud
     public const string CommandsAckPath = '/api/v1/agent/commands/ack';
 
     /**
-     * Deck Cloud is strictly opt-in. When this returns false, the package must not
-     * open outbound HTTP connections to Deck Cloud (or any remote URL).
+     * Deck Cloud is opt-in via {@see config('deck.cloud.api_key')}. When an API key is
+     * set, workers, commands, and events sync are enabled by default. Set
+     * DECK_CLOUD_ENABLED=false to disable while keeping the key in .env.
      */
     public static function isEnabled(): bool
     {
-        if (! config('deck.cloud.enabled', false)) {
+        if (! filled(config('deck.cloud.api_key'))) {
             return false;
         }
 
-        return filled(config('deck.cloud.url')) && filled(config('deck.cloud.api_key'));
+        if (static::explicitlyDisabled()) {
+            return false;
+        }
+
+        return filled(static::resolvedUrl());
+    }
+
+    public static function resolvedUrl(): string
+    {
+        $configured = config('deck.cloud.url');
+
+        if (is_string($configured) && $configured !== '') {
+            return rtrim($configured, '/');
+        }
+
+        return static::defaultUrl();
+    }
+
+    public static function defaultUrl(): string
+    {
+        return config('app.env') === 'local'
+            ? 'http://deck.test'
+            : 'https://deckapp.cloud';
+    }
+
+    private static function explicitlyDisabled(): bool
+    {
+        $enabled = config('deck.cloud.enabled');
+
+        if ($enabled === null || $enabled === '') {
+            return false;
+        }
+
+        return ! filter_var($enabled, FILTER_VALIDATE_BOOLEAN);
     }
 
     public static function workersEnabled(): bool
@@ -45,7 +79,7 @@ class DeckCloud
 
     public static function baseUrl(): string
     {
-        return rtrim((string) config('deck.cloud.url'), '/');
+        return static::resolvedUrl();
     }
 
     public static function syncIntervalSeconds(): int
