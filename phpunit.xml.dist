@@ -16,7 +16,7 @@
     backupStaticProperties="false"
 >
     <testsuites>
-        <testsuite name="TorMorten Test Suite">
+        <testsuite name="Deck Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
