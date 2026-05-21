@@ -37,18 +37,18 @@ DECK_API_KEY=your-agent-token
 
 ## Documentation
 
-Full guides live on **[deckapp.cloud/docs](https://deckapp.cloud/docs)** (mirrored in this repo under [`docs/`](docs/)):
-
 | Guide | |
 |-------|---|
-| [Getting started](https://deckapp.cloud/docs/getting-started) | Install, migrate, Horizon auth, assets |
-| [Horizon & Deck](https://deckapp.cloud/docs/horizon) | What each tool is for |
-| [Usage](https://deckapp.cloud/docs/usage) | Dashboard, cancel, block, retry, alerts |
-| [Production](https://deckapp.cloud/docs/production) | Dedicated DB, retention, Redis, security |
-| [Configuration](https://deckapp.cloud/docs/configuration) | Environment variables and config keys |
-| [Deck Cloud](https://deckapp.cloud/docs/deck-cloud) | Multi-app control plane and agent API |
+| [Getting started](docs/getting-started.md) | Install, migrate, Horizon auth, assets |
+| [Horizon & Deck](docs/horizon.md) | What each tool is for |
+| [Usage](docs/usage.md) | Dashboard, cancel, block, retry, alerts |
+| [Production](docs/production.md) | Dedicated DB, retention, Redis, security |
+| [Configuration](docs/configuration.md) | Environment variables and config keys |
+| [Deck Cloud](docs/deck-cloud.md) | Multi-app control plane and agent API |
 
-**Contributors:** [IMPLEMENTATION.md](IMPLEMENTATION.md) (architecture), [CHANGELOG.md](CHANGELOG.md).
+Also on **[deckapp.cloud/docs](https://deckapp.cloud/docs)** when published.
+
+**Changelog:** [CHANGELOG.md](CHANGELOG.md) · **Security:** [SECURITY.md](SECURITY.md)
 
 ---
 

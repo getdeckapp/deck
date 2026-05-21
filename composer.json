@@ -10,6 +10,10 @@
     ],
     "homepage": "https://github.com/getdeckapp/deck",
     "license": "MIT",
+    "support": {
+        "issues": "https://github.com/getdeckapp/deck/issues",
+        "source": "https://github.com/getdeckapp/deck"
+    },
     "authors": [
         {
             "name": "Tor Morten Jensen",
@@ -79,7 +83,5 @@
                 "Deck": "Deck\\Deck\\Facades\\Deck"
             }
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
