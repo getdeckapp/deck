@@ -4,6 +4,8 @@
 
 > Horizon flies the workers. Deck runs the operation.
 
+**Self-hosted** per app, or connected to **[Deck Cloud](#deck-cloud)** when you run many Laravel services.
+
 Horizon excels at supervising Redis workers, balancing queues, and showing a short-lived window of recent activity. Deck complements it with a **durable control plane**: when each job class last ran, execution history, search and filters, cooperative cancellation, and dispatch blocking for incident response.
 
 Deck does **not** replace Horizon. Keep `php artisan horizon` in production; use Deck when you need job-class history and operational actions Horizon does not provide.
@@ -13,6 +15,7 @@ Deck does **not** replace Horizon. Keep `php artisan horizon` in production; use
 ## Contents
 
 - [Why Deck?](#why-deck)
+- [Deck Cloud](#deck-cloud)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Production best practices](#production-best-practices)
@@ -39,7 +42,60 @@ Deck does **not** replace Horizon. Keep `php artisan horizon` in production; use
 
 Common pain points Deck targets: jobs disappearing from Recent before delayed runs execute, no answer to “when did `ProcessInvoice` last succeed?”, and no safe way to stop or block a job class from a dashboard.
 
-Every recorded row is tagged with `project` and `environment` (Deck Cloud–ready). See [IMPLEMENTATION.md](IMPLEMENTATION.md#deck-cloud-future) for the multi-tenant roadmap.
+Every recorded row is tagged with `project` and `environment` so the same package can report into [Deck Cloud](#deck-cloud) when you are ready. The OSS dashboard works fully on its own without Cloud.
+
+---
+
+## Deck Cloud
+
+**One operations dashboard for every Laravel app you run — without replacing Horizon or moving your queues.**
+
+If you operate more than one codebase, you already know the drill: six Horizon tabs, six `/deck` installs, and still no single place to answer “which job is failing across production right now?” Deck Cloud is the hosted control plane for teams running the Deck package. Horizon and Redis stay on your infrastructure; Cloud aggregates visibility and remote actions.
+
+### What you get
+
+| On each app (self-hosted) | On Deck Cloud (hosted) |
+|---------------------------|-------------------------|
+| `/deck` for local history and incidents | **One URL** for every project and environment |
+| Horizon for workers and throughput | Worker snapshots and queue workload in one view |
+| Cancel/block flags in **your** Redis | **Remote commands** — cancel runs, block classes, drain a job from the UI |
+| Per-app alerts and search | Cross-app stale-job and failure signals (roadmap) |
+
+Deck does not host your workers, your Redis, or your queues. Each app keeps running `php artisan horizon` (or `queue:work`). The Deck package is the **agent**; Cloud is where operators go when they manage many services.
+
+### How it works
+
+```text
+  billing-api (prod) ──┐
+  billing-api (staging)├──► Deck Cloud  ◄── you
+  notifications (prod)─┘         ▲
+                                 │ HTTPS (API key)
+  Each app: deck package ────────┘   workers · commands · events
+  Each app: Horizon / Redis (unchanged)
+```
+
+1. Install `tormjens/deck` in each Laravel app (same as today).
+2. Set a stable `DECK_PROJECT` and `DECK_ENVIRONMENT` per deployable.
+3. Add a **Deck Cloud API key** — the agent turns on automatically (no extra feature flags).
+4. Open Cloud, filter by project and environment, and act on queues from one place.
+
+The dashboard in your app shows a **Cloud connection** indicator when the agent is linked. Remote actions from Cloud map to the same primitives you use locally: cooperative cancel, block class, cancel pending, and more.
+
+### Get started
+
+Cloud is optional. To connect an app:
+
+```env
+DECK_PROJECT=billing-api
+DECK_ENVIRONMENT=production
+DECK_API_KEY=your-agent-token
+```
+
+That is enough for worker ingest, command polling, and execution event sync. URL defaults to `https://deckapp.cloud` (or `http://deck.test` when `APP_ENV=local`). See [Deck Cloud agent (optional)](#deck-cloud-agent-optional) for overrides.
+
+Learn more or request access: **[deckapp.cloud](https://deckapp.cloud?utm_source=deck-oss&utm_medium=readme)**
+
+Architecture and API details: [IMPLEMENTATION.md — Deck Cloud](IMPLEMENTATION.md#deck-cloud).
 
 ---
 
@@ -362,7 +418,7 @@ Published `config/deck.php`. Common environment variables:
 
 ### Deck Cloud agent (optional)
 
-**Disabled by default.** Set `DECK_API_KEY` to enable the full agent (worker ingest, remote commands, and event sync). No other Cloud env vars are required.
+See [Deck Cloud](#deck-cloud) for the product overview. Technically: the agent is **off until `DECK_API_KEY` is set**, then worker ingest, remote commands, and event sync run with no other required env vars.
 
 ```env
 DECK_PROJECT=package-dev
