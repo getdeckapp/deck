@@ -1,6 +1,6 @@
 # Deck — implementation plan
 
-This document is the source of truth for building `tormjens/deck`. It complements [README.md](README.md) with architecture, phases, and file-level tasks.
+This document is the source of truth for building `deck/deck`. It complements [README.md](README.md) with architecture, phases, and file-level tasks.
 
 **Status:** Phase 0 in progress (recording + Cloud-ready identity)  
 **Namespace:** `Deck\Deck`  
@@ -529,12 +529,12 @@ The host app already references the path repo:
 
 ```json
 "repositories": [{ "type": "path", "url": "packages/*" }],
-"require-dev": { "tormjens/deck": "dev-master" }
+"require-dev": { "deck/deck": "dev-master" }
 ```
 
 MVP validation checklist in sandbox:
 
-1. `composer update tormjens/deck`
+1. `composer update deck/deck`
 2. `php artisan deck:install && php artisan migrate`
 3. Configure Redis + Horizon (or `queue:work` for minimal test)
 4. Dispatch sample jobs from `routes/web.php` or a test route
@@ -546,7 +546,7 @@ MVP validation checklist in sandbox:
 
 | Item | Value |
 |------|-------|
-| Package name | `tormjens/deck` |
+| Package name | `deck/deck` |
 | PHP | `^8.4` |
 | Laravel | `^11.0\|^12.0\|^13.0` |
 | Suggested | `laravel/horizon: ^5.0` |
@@ -578,9 +578,11 @@ Opt-in via `DECK_API_KEY` (workers, commands, and events on by default). URL def
 
 **Sync triggers:** Horizon `MasterSupervisorLooped`; throttled `Queue::looping` without Horizon; scheduled `deck:report-workers` (10s / 30s / 1m from `DECK_CLOUD_WORKERS_INTERVAL`).
 
-### Execution ingest (not implemented yet)
+### Execution ingest (implemented)
 
-Deck (self-hosted package) can still record locally only. Future: `HttpJobExecutionRecorder` POSTing `JobExecutionRecord` batches to Cloud.
+When `DECK_CLOUD_EVENTS_ENABLED=true` (default with API key), `CompositeJobExecutionRecorder` writes locally and `HttpJobExecutionRecorder` POSTs batches to `/api/v1/ingest/events`. Live events buffer up to `deck.cloud.events.batch_size` (env `DECK_CLOUD_EVENTS_BATCH_SIZE`, default `25`, max 100) and flush on batch fill or application terminate. Historical rows can be pushed with `deck:cloud-backfill`.
+
+**Code:** `HttpJobExecutionRecorder`, `CloudEventBuffer`, `JobExecutionIngestPayload` in `src/Cloud/`.
 
 ### Problem it solves
 
@@ -641,13 +643,12 @@ Queue event → RecordJobExecution → JobExecutionRecorder::record(JobExecution
 | `JobExecutionRecord` | DTO sent to any recorder |
 | `JobExecutionRecorder` | Contract |
 | `DatabaseJobExecutionRecorder` | Default — local DB |
-| `HttpJobExecutionRecorder` | **Future** — batch POST to Cloud |
-| `CompositeJobExecutionRecorder` | **Future** — DB + Cloud |
+| `HttpJobExecutionRecorder` | Batch POST to Cloud |
+| `CompositeJobExecutionRecorder` | DB + Cloud |
 
 Config today:
 
 ```php
-'recorder' => env('DECK_RECORDER', 'database'),
 'cloud' => [
     'enabled' => env('DECK_CLOUD_ENABLED', false),
     'url' => env('DECK_CLOUD_URL'),

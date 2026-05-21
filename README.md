@@ -74,7 +74,7 @@ Deck does not host your workers, your Redis, or your queues. Each app keeps runn
   Each app: Horizon / Redis (unchanged)
 ```
 
-1. Install `tormjens/deck` in each Laravel app (same as today).
+1. Install `deck/deck` in each Laravel app (same as today).
 2. Set a stable `DECK_PROJECT` and `DECK_ENVIRONMENT` per deployable.
 3. Add a **Deck Cloud API key** — the agent turns on automatically (no extra feature flags).
 4. Open Cloud, filter by project and environment, and act on queues from one place.
@@ -112,7 +112,7 @@ Architecture and API details: [IMPLEMENTATION.md — Deck Cloud](IMPLEMENTATION.
 ## Installation
 
 ```bash
-composer require tormjens/deck
+composer require deck/deck
 php artisan deck:install
 ```
 
@@ -435,6 +435,7 @@ DECK_API_KEY=your-agent-token
 | `DECK_CLOUD_WORKERS_INTERVAL` | `30` | Throttle interval (seconds) for sync |
 | `DECK_CLOUD_COMMANDS_ENABLED` | `true` | Pull remote commands |
 | `DECK_CLOUD_EVENTS_ENABLED` | `true` | Push execution events to Cloud |
+| `DECK_CLOUD_EVENTS_BATCH_SIZE` | `25` | Batch live events per POST (1–100; flush on terminate) |
 | `DECK_CLOUD_PROMO` | `true` | Show sidebar link to deckapp.cloud when Cloud is off |
 
 When enabled, the agent:
@@ -445,7 +446,7 @@ When enabled, the agent:
 
 Sync runs on Horizon `MasterSupervisorLooped`, throttled `Queue::looping` (non-Horizon), and scheduled `deck:report-workers`. Remote commands map to `Deck::requestCancelExecution()`, `forceCancelExecution()`, `cancelPending()`, `blockClass()`, `unblockClass()`, and `cancelAllRunningForClass()`.
 
-Execution history ingest to Cloud via `DECK_RECORDER=http` is not implemented yet — local database recording is unchanged.
+4. **POST** `{DECK_CLOUD_URL}/api/v1/ingest/events` — push execution events (batched; see `DECK_CLOUD_EVENTS_BATCH_SIZE`, max 100). Local database recording always runs via `DatabaseJobExecutionRecorder`; when Cloud events are enabled, `CompositeJobExecutionRecorder` also forwards to Cloud.
 
 Config keys (see file for full list):
 

@@ -1,5 +1,6 @@
 <?php
 
+use Deck\Deck\Cloud\CloudEventBuffer;
 use Deck\Deck\Cloud\DeckCloud;
 use Deck\Deck\Cloud\HttpClient;
 use Deck\Deck\Contracts\JobExecutionRecorder;
@@ -15,10 +16,12 @@ use Illuminate\Support\Facades\Http;
 beforeEach(function () {
     enableDeckCloudForTests();
     config()->set('deck.cloud.events.enabled', true);
+    config()->set('deck.cloud.events.batch_size', 1);
 
     app()->forgetInstance(JobExecutionRecorder::class);
     app()->forgetInstance(CompositeJobExecutionRecorder::class);
     app()->forgetInstance(HttpJobExecutionRecorder::class);
+    app()->forgetInstance(CloudEventBuffer::class);
 });
 
 it('uses the composite recorder when cloud events are enabled', function () {
@@ -125,7 +128,7 @@ it('does not open outbound http for events when cloud is disabled', function () 
 
     expect(DeckCloud::eventsEnabled())->toBeFalse();
 
-    (new HttpJobExecutionRecorder(new HttpClient))->record(new JobExecutionRecord(
+    app(HttpJobExecutionRecorder::class)->record(new JobExecutionRecord(
         metadata: new QueuedJobMetadata(
             uuid: (string) str()->uuid(),
             jobClass: 'App\\Jobs\\Example',
@@ -143,4 +146,39 @@ it('does not open outbound http for events when cloud is disabled', function () 
     ));
 
     Http::assertNothingSent();
+});
+
+it('batches live events before posting to deck cloud', function () {
+    config()->set('deck.cloud.events.batch_size', 3);
+
+    Http::fake([
+        'https://cloud.deck.test/api/v1/ingest/events' => Http::response(['accepted' => 3, 'duplicates' => 0], 202),
+    ]);
+
+    $recorder = app(JobExecutionRecorder::class);
+
+    for ($i = 0; $i < 3; $i++) {
+        $recorder->record(new JobExecutionRecord(
+            metadata: new QueuedJobMetadata(
+                uuid: (string) str()->uuid(),
+                jobClass: 'App\\Jobs\\Example',
+                connection: 'redis',
+                queue: 'default',
+                attempt: 1,
+                tags: null,
+            ),
+            project: deckProject(),
+            environment: deckEnvironment(),
+            status: JobExecutionStatus::Completed,
+            startedAt: Carbon::now()->subSecond(),
+            finishedAt: Carbon::now(),
+            durationMs: 1000,
+        ));
+    }
+
+    Http::assertSentCount(1);
+
+    Http::assertSent(function ($request) {
+        return count($request->data()['events'] ?? []) === 3;
+    });
 });

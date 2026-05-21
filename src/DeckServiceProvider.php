@@ -10,6 +10,7 @@ use Deck\Deck\Commands\PollCommandsCommand;
 use Deck\Deck\Commands\PruneCommand;
 use Deck\Deck\Commands\ReportWorkersCommand;
 use Deck\Deck\Concerns\RegistersCloudAgent;
+use Deck\Deck\Cloud\CloudEventBuffer;
 use Deck\Deck\Cloud\DeckCloud;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Listeners\RecordJobExecution;
@@ -66,6 +67,7 @@ class DeckServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->singleton(DatabaseJobExecutionRecorder::class);
+        $this->app->singleton(CloudEventBuffer::class);
         $this->app->singleton(HttpJobExecutionRecorder::class);
         $this->app->singleton(CompositeJobExecutionRecorder::class);
         $this->app->singleton(JobExecutionRecorder::class, function ($app): JobExecutionRecorder {
