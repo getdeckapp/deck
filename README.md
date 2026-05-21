@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="resources/images/deck-logo.png" alt="Deck logo" width="128">
+  <img src="resources/images/deck-banner.png" alt="Deck — queue control plane for Laravel" width="640">
 </p>
 
 # Deck
