@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Commands;
 
-use Deck\Deck\Support\DeckAlertChecker;
+use Deck\Deck\Presentation\DeckAlertChecker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
 

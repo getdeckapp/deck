@@ -1,7 +1,7 @@
 <?php
 
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\QueueInsights;
+use Deck\Deck\Presentation\QueueInsights;
 
 it('ranks busy queues from deck execution data', function () {
     createDeckExecution([

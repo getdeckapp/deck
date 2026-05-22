@@ -2,12 +2,12 @@
 
 namespace Deck\Deck\Recorders;
 
-use Deck\Deck\Cloud\CloudEventBuffer;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\JobExecutionIngestPayload;
+use Deck\Deck\Cloud\Events\CloudEventBuffer;
+use Deck\Deck\Cloud\Events\JobExecutionIngestPayload;
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Core\DeckResilience;
 use Deck\Deck\Data\JobExecutionRecord;
-use Deck\Deck\Support\DeckResilience;
 
 class HttpJobExecutionRecorder implements JobExecutionRecorder
 {

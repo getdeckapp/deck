@@ -2,18 +2,18 @@
 
 namespace Deck\Deck\Livewire;
 
-use Deck\Deck\Cloud\CloudConnectionProbe;
+use Deck\Deck\Cloud\Connection\CloudConnectionProbe;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Enums\QueueBusynessLevel;
+use Deck\Deck\Horizon\DeckHorizon;
+use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckHorizon;
-use Deck\Deck\Support\DeckPolling;
-use Deck\Deck\Support\ExecutionMetrics;
-use Deck\Deck\Support\HorizonSnapshot;
-use Deck\Deck\Support\QueueBusyness;
-use Deck\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Presentation\DeckPolling;
+use Deck\Deck\Presentation\ExecutionMetrics;
+use Deck\Deck\Presentation\QueueBusyness;
+use Deck\Deck\Presentation\UnprocessedQueueDetector;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

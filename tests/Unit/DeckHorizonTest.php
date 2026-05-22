@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeckHorizon;
+use Deck\Deck\Horizon\DeckHorizon;
 
 it('reports horizon as not installed when horizon is not bootstrapped', function () {
     expect(DeckHorizon::isInstalled())->toBeFalse();

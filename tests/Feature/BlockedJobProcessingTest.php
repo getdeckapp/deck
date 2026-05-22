@@ -1,12 +1,12 @@
 <?php
 
+use Deck\Deck\Blocking\InterceptBlockedQueueJob;
+use Deck\Deck\Blocking\JobClassBlock;
+use Deck\Deck\Blocking\JobClassIdentifierRegistry;
 use Deck\Deck\Bus\DeckDispatcher;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\InterceptBlockedQueueJob;
-use Deck\Deck\Support\JobClassBlock;
-use Deck\Deck\Support\JobClassIdentifierRegistry;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;

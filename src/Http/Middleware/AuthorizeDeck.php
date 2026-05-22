@@ -3,7 +3,7 @@
 namespace Deck\Deck\Http\Middleware;
 
 use Closure;
-use Deck\Deck\Support\DeckHorizon;
+use Deck\Deck\Horizon\DeckHorizon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;

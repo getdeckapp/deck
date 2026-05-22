@@ -1,7 +1,7 @@
 <?php
 
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\RuntimeRollups;
+use Deck\Deck\Presentation\RuntimeRollups;
 
 it('calculates runtime percentiles and failure rate for a job class', function () {
     config()->set('deck.charts.hours', 24);

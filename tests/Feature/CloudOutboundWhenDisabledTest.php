@@ -1,12 +1,12 @@
 <?php
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\CommandApplicator;
-use Deck\Deck\Cloud\CommandPoller;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Commands\CommandApplicator;
+use Deck\Deck\Cloud\Commands\CommandPoller;
+use Deck\Deck\Cloud\Connection\HttpClient;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\HttpClient;
-use Deck\Deck\Cloud\WorkerReporter;
-use Deck\Deck\Cloud\WorkerSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerReporter;
+use Deck\Deck\Cloud\Workers\WorkerSnapshot;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 

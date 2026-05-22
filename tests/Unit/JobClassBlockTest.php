@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\JobClassBlock;
+use Deck\Deck\Blocking\JobClassBlock;
 
 it('blocks and unblocks a job class', function () {
     $class = 'App\\Jobs\\BlockedJob';

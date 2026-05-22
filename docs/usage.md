@@ -19,7 +19,7 @@ Prefix is configurable via `deck.route_prefix`.
 
 ```php
 use Deck\Deck\Middleware\Cancellable;
-use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Cancellation\JobCancellation;
 
 class GenerateReport implements ShouldQueue
 {
@@ -62,7 +62,7 @@ Blocked jobs are intercepted at dispatch (status `blocked`). Available from the 
 ## Job progress
 
 ```php
-use Deck\Deck\Support\JobProgress;
+use Deck\Deck\Recording\JobProgress;
 
 JobProgress::update($this->job->uuid(), 45, 'Imported 450 of 1000 rows');
 ```

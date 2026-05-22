@@ -2,11 +2,11 @@
 
 namespace Deck\Deck\Concerns;
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\CloudAgentRegistry;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Agent\CloudAgentRegistry;
 use Deck\Deck\Cloud\DeckCloud;
+use Deck\Deck\Horizon\DeckHorizon;
 use Deck\Deck\Listeners\SyncCloudAgent;
-use Deck\Deck\Support\DeckHorizon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Event;

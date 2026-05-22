@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Cancellation\JobExecutionRetry;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\JobExecutionRetry;
 use Deck\Deck\Tests\Fixtures\ParameterizedTestJob;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Bus;

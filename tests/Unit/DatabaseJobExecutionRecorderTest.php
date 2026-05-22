@@ -1,12 +1,12 @@
 <?php
 
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
-use Deck\Deck\Support\DeckInstallation;
-use Deck\Deck\Support\QueuedJobMetadata;
+use Deck\Deck\Recording\QueuedJobMetadata;
 use Illuminate\Support\Carbon;
 
 it('does not rethrow when the database is unavailable', function () {

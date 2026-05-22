@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Listeners\RecordJobExecution;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Queue\Events\JobAttempted;
@@ -18,7 +18,9 @@ it('records completed execution when the running row was never written', functio
         'displayName' => SuccessfulTestJob::class,
         'data' => ['commandName' => SuccessfulTestJob::class],
     ]);
+    $queueJob->shouldReceive('getName')->andReturn(SuccessfulTestJob::class);
     $queueJob->shouldReceive('resolveQueuedJobClass')->andReturn(SuccessfulTestJob::class);
+    $queueJob->shouldReceive('resolveName')->andReturn(SuccessfulTestJob::class);
     $queueJob->shouldReceive('getConnectionName')->andReturn('redis');
     $queueJob->shouldReceive('getQueue')->andReturn('default');
     $queueJob->shouldReceive('attempts')->andReturn(1);
@@ -47,7 +49,9 @@ it('records terminal status from job attempted when execution is still running',
         'displayName' => SuccessfulTestJob::class,
         'data' => ['commandName' => SuccessfulTestJob::class],
     ]);
+    $queueJob->shouldReceive('getName')->andReturn(SuccessfulTestJob::class);
     $queueJob->shouldReceive('resolveQueuedJobClass')->andReturn(SuccessfulTestJob::class);
+    $queueJob->shouldReceive('resolveName')->andReturn(SuccessfulTestJob::class);
     $queueJob->shouldReceive('getConnectionName')->andReturn('redis');
     $queueJob->shouldReceive('getQueue')->andReturn('default');
     $queueJob->shouldReceive('attempts')->andReturn(1);

@@ -1,7 +1,7 @@
 <?php
 
-use Deck\Deck\Support\HorizonSnapshot;
-use Deck\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Horizon\HorizonSnapshot;
+use Deck\Deck\Presentation\UnprocessedQueueDetector;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 use Illuminate\Queue\RedisQueue;
 

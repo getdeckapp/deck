@@ -4,7 +4,7 @@ namespace Deck\Deck\Livewire;
 
 use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckPolling;
+use Deck\Deck\Presentation\DeckPolling;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

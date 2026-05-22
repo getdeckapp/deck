@@ -1,7 +1,7 @@
 <?php
 
-use Deck\Deck\Cloud\CloudConnectionProbe;
-use Deck\Deck\Cloud\CloudConnectionState;
+use Deck\Deck\Cloud\Connection\CloudConnectionProbe;
+use Deck\Deck\Cloud\Connection\CloudConnectionState;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {

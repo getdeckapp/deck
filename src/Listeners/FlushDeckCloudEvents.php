@@ -2,8 +2,8 @@
 
 namespace Deck\Deck\Listeners;
 
-use Deck\Deck\Cloud\CloudEventBuffer;
-use Deck\Deck\Support\DeckResilience;
+use Deck\Deck\Cloud\Events\CloudEventBuffer;
+use Deck\Deck\Core\DeckResilience;
 use Illuminate\Queue\Events\JobAttempted;
 
 class FlushDeckCloudEvents

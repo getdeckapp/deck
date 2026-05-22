@@ -5,14 +5,15 @@ namespace Deck\Deck\Models;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\Concerns\BelongsToDeckInstallation;
 use Deck\Deck\Models\Concerns\UsesDeckConnection;
-use Deck\Deck\Support\FormatDuration;
+use Deck\Deck\Presentation\FormatDuration;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $success_count
  * @property int $failure_count
  * @property int|null $last_duration_ms
- * @property \Illuminate\Support\Carbon|null $last_finished_at
+ * @property Carbon|null $last_finished_at
  */
 class JobClassStat extends Model
 {

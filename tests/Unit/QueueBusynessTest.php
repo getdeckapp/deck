@@ -2,8 +2,8 @@
 
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Enums\QueueBusynessLevel;
-use Deck\Deck\Support\HorizonSnapshot;
-use Deck\Deck\Support\QueueBusyness;
+use Deck\Deck\Horizon\HorizonSnapshot;
+use Deck\Deck\Presentation\QueueBusyness;
 
 it('scores busy queues from deck execution history', function () {
     createDeckExecution([

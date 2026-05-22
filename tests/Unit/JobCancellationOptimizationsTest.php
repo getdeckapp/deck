@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Cancellation\JobCancellation;
 
 it('consumes a cancellation flag in one step', function () {
     $uuid = (string) str()->uuid();

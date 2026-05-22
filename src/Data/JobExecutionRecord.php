@@ -3,7 +3,7 @@
 namespace Deck\Deck\Data;
 
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\QueuedJobMetadata;
+use Deck\Deck\Recording\QueuedJobMetadata;
 use Illuminate\Support\Carbon;
 
 readonly class JobExecutionRecord

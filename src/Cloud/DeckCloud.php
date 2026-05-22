@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Cloud;
 
-use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Core\DeckInstallation;
 use Illuminate\Support\Str;
 
 class DeckCloud

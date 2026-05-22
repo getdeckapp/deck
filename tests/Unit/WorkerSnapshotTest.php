@@ -1,7 +1,7 @@
 <?php
 
-use Deck\Deck\Cloud\WorkerSnapshot;
-use Deck\Deck\Cloud\WorkerSnapshotCollector;
+use Deck\Deck\Cloud\Workers\WorkerSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerSnapshotCollector;
 
 it('serializes a worker snapshot for deck cloud ingest', function () {
     config()->set('deck.project', 'Billing API');

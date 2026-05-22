@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Cloud\SyncThrottle;
+use Deck\Deck\Cloud\Agent\SyncThrottle;
 
 it('throttles cloud worker reports per channel and key', function () {
     config()->set('deck.cloud.workers.interval_seconds', 30);

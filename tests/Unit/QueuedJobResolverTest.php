@@ -1,10 +1,10 @@
 <?php
 
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Listeners\RecordJobExecution;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
-use Deck\Deck\Support\QueuedJobMetadata;
-use Deck\Deck\Support\QueuedJobResolver;
+use Deck\Deck\Recording\QueuedJobMetadata;
+use Deck\Deck\Recording\QueuedJobResolver;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Mail\SendQueuedMailable;

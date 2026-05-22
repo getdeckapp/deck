@@ -3,8 +3,8 @@
 namespace Deck\Deck;
 
 use Deck\Deck\Bus\DeckDispatcher;
-use Deck\Deck\Cloud\CloudEventBuffer;
 use Deck\Deck\Cloud\DeckCloud;
+use Deck\Deck\Cloud\Events\CloudEventBuffer;
 use Deck\Deck\Commands\CheckAlertsCommand;
 use Deck\Deck\Commands\CloudBackfillCommand;
 use Deck\Deck\Commands\DoctorCommand;
@@ -14,9 +14,9 @@ use Deck\Deck\Commands\PruneCommand;
 use Deck\Deck\Commands\ReportWorkersCommand;
 use Deck\Deck\Concerns\RegistersCloudAgent;
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Listeners\FlushDeckCloudEvents;
 use Deck\Deck\Listeners\RecordJobExecution;
-use Deck\Deck\Listeners\RecordJobProcessingListener;
 use Deck\Deck\Livewire\Dashboard;
 use Deck\Deck\Livewire\GlobalSearch;
 use Deck\Deck\Livewire\JobClassIndex;
@@ -28,7 +28,6 @@ use Deck\Deck\Queue\DeckCallQueuedHandler;
 use Deck\Deck\Recorders\CompositeJobExecutionRecorder;
 use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
 use Deck\Deck\Recorders\HttpJobExecutionRecorder;
-use Deck\Deck\Support\HorizonSnapshot;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
@@ -133,7 +132,7 @@ class DeckServiceProvider extends PackageServiceProvider
     {
         $recorder = RecordJobExecution::class;
 
-        Queue::before([RecordJobProcessingListener::class, 'handle']);
+        Queue::before([$recorder, 'handleJobProcessing']);
         Queue::after([$recorder, 'handleProcessed']);
         Queue::failing([$recorder, 'handleFailed']);
 

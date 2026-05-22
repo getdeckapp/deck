@@ -1,11 +1,11 @@
 <?php
 
+use Deck\Deck\Cancellation\JobCancellation;
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Livewire\JobExecutionShow;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
-use Deck\Deck\Support\JobCancellation;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Str;
 use Livewire\Livewire;

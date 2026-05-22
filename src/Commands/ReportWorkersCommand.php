@@ -2,8 +2,8 @@
 
 namespace Deck\Deck\Commands;
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\CloudConnectionProbe;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Connection\CloudConnectionProbe;
 use Deck\Deck\Cloud\DeckCloud;
 use Illuminate\Console\Command;
 

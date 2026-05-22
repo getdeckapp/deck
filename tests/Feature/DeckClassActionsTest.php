@@ -1,10 +1,10 @@
 <?php
 
+use Deck\Deck\Blocking\JobClassBlock;
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Facades\Deck as DeckFacade;
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\JobClassBlock;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('cancels all running executions for a class', function () {

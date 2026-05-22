@@ -1,12 +1,14 @@
 <?php
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\CommandApplicator;
-use Deck\Deck\Cloud\CommandPoller;
+use Deck\Deck\Cancellation\JobCancellation;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Agent\SyncThrottle;
+use Deck\Deck\Cloud\Commands\CommandApplicator;
+use Deck\Deck\Cloud\Commands\CommandPoller;
 use Deck\Deck\Cloud\DeckCloud;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
@@ -245,10 +247,10 @@ it('polls commands when worker sync is throttled', function () {
     $poller->shouldReceive('poll')->once();
     app()->instance(CommandPoller::class, $poller);
 
-    $throttle = Mockery::mock(\Deck\Deck\Cloud\SyncThrottle::class);
+    $throttle = Mockery::mock(SyncThrottle::class);
     $throttle->shouldReceive('shouldSync')->with('workers', 'redis:default')->andReturnFalse();
     $throttle->shouldReceive('shouldSync')->with('commands', 'installation')->andReturnTrue();
-    app()->instance(\Deck\Deck\Cloud\SyncThrottle::class, $throttle);
+    app()->instance(SyncThrottle::class, $throttle);
 
     app(AgentSync::class)->syncQueueWorker('redis', 'default');
 });
@@ -265,7 +267,7 @@ it('polls commands after worker reporting on the same sync tick', function () {
 });
 
 it('applies block class commands from cloud', function () {
-    $jobClass = \Deck\Deck\Tests\Fixtures\SuccessfulTestJob::class;
+    $jobClass = SuccessfulTestJob::class;
 
     Http::fake([
         'https://cloud.deck.test/api/v1/agent/commands*' => Http::response([
@@ -295,7 +297,7 @@ it('applies block class commands from cloud', function () {
 });
 
 it('applies timed block class commands from cloud', function () {
-    $jobClass = \Deck\Deck\Tests\Fixtures\SuccessfulTestJob::class;
+    $jobClass = SuccessfulTestJob::class;
     $until = now()->addHour()->toIso8601String();
 
     Http::fake([
@@ -325,7 +327,7 @@ it('applies timed block class commands from cloud', function () {
 });
 
 it('applies unblock class commands from cloud', function () {
-    $jobClass = \Deck\Deck\Tests\Fixtures\SuccessfulTestJob::class;
+    $jobClass = SuccessfulTestJob::class;
 
     app(Deck::class)->blockClass($jobClass, now()->addHour());
 

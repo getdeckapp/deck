@@ -1,12 +1,12 @@
 <?php
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\QueueWorkloadSnapshot;
-use Deck\Deck\Cloud\WorkerReporter;
-use Deck\Deck\Cloud\WorkerSnapshot;
-use Deck\Deck\Cloud\WorkerSnapshotCollector;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Workers\QueueWorkloadSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerReporter;
+use Deck\Deck\Cloud\Workers\WorkerSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerSnapshotCollector;
+use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Listeners\SyncCloudAgent;
-use Deck\Deck\Support\HorizonSnapshot;
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Http;
 

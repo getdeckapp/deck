@@ -1,7 +1,7 @@
 <?php
 
+use Deck\Deck\Blocking\JobClassBlock;
 use Deck\Deck\Livewire\JobClassShow;
-use Deck\Deck\Support\JobClassBlock;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Livewire\Livewire;
 

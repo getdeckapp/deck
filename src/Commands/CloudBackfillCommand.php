@@ -2,9 +2,9 @@
 
 namespace Deck\Deck\Commands;
 
-use Deck\Deck\Cloud\CloudExecutionBackfillPayload;
+use Deck\Deck\Cloud\Connection\HttpClient;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\HttpClient;
+use Deck\Deck\Cloud\Events\CloudExecutionBackfillPayload;
 use Deck\Deck\Models\JobExecution;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;

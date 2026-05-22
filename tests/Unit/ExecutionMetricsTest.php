@@ -1,7 +1,7 @@
 <?php
 
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\ExecutionMetrics;
+use Deck\Deck\Presentation\ExecutionMetrics;
 
 it('builds hourly job volume from executions', function () {
     createDeckExecution([

@@ -1,1 +1,1 @@
-{!! \Deck\Deck\Support\DeckAssets::styles() !!}
+{!! \Deck\Deck\Presentation\DeckAssets::styles() !!}

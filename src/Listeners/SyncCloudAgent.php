@@ -2,8 +2,8 @@
 
 namespace Deck\Deck\Listeners;
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Support\DeckResilience;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Core\DeckResilience;
 use Illuminate\Queue\Events\Looping;
 
 class SyncCloudAgent

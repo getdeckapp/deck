@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Tests\WithHorizon;
 
-use Deck\Deck\Support\DeckHorizon;
+use Deck\Deck\Horizon\DeckHorizon;
 use Deck\Deck\Tests\Support\HorizonInstalledTestCase;
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Http;

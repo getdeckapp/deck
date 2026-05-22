@@ -3,11 +3,11 @@
 namespace Deck\Deck\Recorders;
 
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Core\DeckResilience;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckResilience;
 
 class DatabaseJobExecutionRecorder implements JobExecutionRecorder
 {

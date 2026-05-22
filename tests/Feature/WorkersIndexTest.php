@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Horizon\HorizonSnapshot;
 
 it('renders the workers and queues page', function () {
     $response = $this->get(route('deck.workers.index'));

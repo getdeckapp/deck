@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Models\Concerns;
 
-use Deck\Deck\Support\DeckDatabase;
+use Deck\Deck\Core\DeckDatabase;
 
 trait UsesDeckConnection
 {

@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\FormatDuration;
+use Deck\Deck\Presentation\FormatDuration;
 
 it('formats null as em dash', function () {
     expect(FormatDuration::format(null))->toBe('—');

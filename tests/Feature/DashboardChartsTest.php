@@ -1,7 +1,7 @@
 <?php
 
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\HorizonSnapshot;
+use Deck\Deck\Horizon\HorizonSnapshot;
 
 it('renders job volume and duration charts on the overview', function () {
     createDeckExecution([

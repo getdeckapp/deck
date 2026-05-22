@@ -2,15 +2,16 @@
 
 namespace Deck\Deck\Models;
 
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Data\JobProgressState;
 use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Horizon\DeckHorizon;
 use Deck\Deck\Models\Concerns\BelongsToDeckInstallation;
 use Deck\Deck\Models\Concerns\UsesDeckConnection;
-use Deck\Deck\Support\DeckHorizon;
-use Deck\Deck\Support\FormatDuration;
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\JobProgress;
+use Deck\Deck\Presentation\FormatDuration;
+use Deck\Deck\Recording\JobProgress;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $uuid
@@ -22,8 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property list<string>|null $tags
  * @property string $project
  * @property string $environment
- * @property \Illuminate\Support\Carbon $started_at
- * @property \Illuminate\Support\Carbon|null $finished_at
+ * @property Carbon $started_at
+ * @property Carbon|null $finished_at
  * @property int|null $duration_ms
  * @property string|null $exception_class
  * @property string|null $exception_message

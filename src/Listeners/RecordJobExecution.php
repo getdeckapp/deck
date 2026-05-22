@@ -2,19 +2,20 @@
 
 namespace Deck\Deck\Listeners;
 
+use Deck\Deck\Blocking\InterceptBlockedQueueJob;
+use Deck\Deck\Blocking\JobClassBlock;
+use Deck\Deck\Blocking\JobClassIdentifierRegistry;
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Core\DeckInstallation;
+use Deck\Deck\Core\DeckResilience;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Exceptions\JobCancelledException;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
-use Deck\Deck\Support\DeckResilience;
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\JobClassBlock;
-use Deck\Deck\Support\JobClassIdentifierRegistry;
-use Deck\Deck\Support\JobExecutionTiming;
-use Deck\Deck\Support\JobProgress;
-use Deck\Deck\Support\QueuedJobMetadata;
+use Deck\Deck\Recording\JobExecutionTiming;
+use Deck\Deck\Recording\JobProgress;
+use Deck\Deck\Recording\QueuedJobMetadata;
 use Illuminate\Queue\Events\JobAttempted;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
@@ -26,6 +27,15 @@ class RecordJobExecution
     public function __construct(
         private JobExecutionRecorder $recorder,
     ) {}
+
+    public function handleJobProcessing(JobProcessing $event): void
+    {
+        if (InterceptBlockedQueueJob::intercept($event->job)) {
+            return;
+        }
+
+        $this->handleProcessing($event);
+    }
 
     public function handleProcessing(JobProcessing $event): void
     {

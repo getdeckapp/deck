@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
-use Deck\Deck\Support\DeckInstallation;
 
 it('scopes stats to the current installation', function () {
     createDeckStat(['job_class' => 'App\\Jobs\\ScopedJob']);

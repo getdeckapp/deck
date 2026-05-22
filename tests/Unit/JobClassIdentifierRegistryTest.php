@@ -1,7 +1,7 @@
 <?php
 
-use Deck\Deck\Support\JobClassBlock;
-use Deck\Deck\Support\JobClassIdentifierRegistry;
+use Deck\Deck\Blocking\JobClassBlock;
+use Deck\Deck\Blocking\JobClassIdentifierRegistry;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 
 it('blocks linked display names and fqcn together', function () {

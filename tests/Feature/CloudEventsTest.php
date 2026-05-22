@@ -1,15 +1,14 @@
 <?php
 
-use Deck\Deck\Cloud\CloudEventBuffer;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\HttpClient;
+use Deck\Deck\Cloud\Events\CloudEventBuffer;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Recorders\CompositeJobExecutionRecorder;
 use Deck\Deck\Recorders\HttpJobExecutionRecorder;
-use Deck\Deck\Support\QueuedJobMetadata;
+use Deck\Deck\Recording\QueuedJobMetadata;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
