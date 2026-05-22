@@ -5,6 +5,8 @@ namespace Deck\Deck\Queue;
 use Deck\Deck\Middleware\Blockable;
 use Exception;
 use Illuminate\Contracts\Queue\Job;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
+use Illuminate\Events\CallQueuedListener;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Queue\CallQueuedHandler;
 
@@ -52,5 +54,19 @@ class DeckCallQueuedHandler extends CallQueuedHandler
                     $command, $this->resolveHandler($job, $command)
                 );
             });
+    }
+
+    /**
+     * Defined on Deck so unique-until-processing jobs work when the app's
+     * CallQueuedHandler predates this helper (older Laravel 11 releases).
+     */
+    protected function commandShouldBeUniqueUntilProcessing(mixed $command): bool
+    {
+        if (! interface_exists(ShouldBeUniqueUntilProcessing::class)) {
+            return false;
+        }
+
+        return $command instanceof ShouldBeUniqueUntilProcessing
+            || ($command instanceof CallQueuedListener && $command->shouldBeUniqueUntilProcessing());
     }
 }
