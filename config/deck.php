@@ -158,13 +158,6 @@ return [
     */
     'log_recording_failures' => (bool) env('DECK_LOG_RECORDING_FAILURES', true),
 
-    /*
-    | When true, logs an info line for each queue recording phase (processing,
-    | processed, failed). Use briefly on workers — visible in Nightwatch when
-    | info-level logs are collected. Off by default.
-    */
-    'debug_recording' => (bool) env('DECK_DEBUG_RECORDING', false),
-
     'exception_trace_bytes' => (int) env('DECK_EXCEPTION_TRACE_BYTES', 65_536),
 
     'tables' => [

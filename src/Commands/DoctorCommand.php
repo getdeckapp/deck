@@ -43,7 +43,6 @@ class DoctorCommand extends Command
         $this->line("Environment filter: {$environment}");
         $this->line('Queue default: '.(string) config('queue.default'));
         $this->line('CallQueuedHandler: '.$this->callQueuedHandlerLabel());
-        $this->line('Debug recording: '.(config('deck.debug_recording') ? 'on' : 'off'));
 
         if (! DeckDatabase::schema()->hasTable($executionsTable)) {
             $this->components->error("Table [{$executionsTable}] does not exist on connection [{$connection}].");
@@ -147,9 +146,8 @@ class DoctorCommand extends Command
 
         if ($scopedCount === 0 && $totalCount === 0) {
             $this->newLine();
-            $this->components->warn('No execution rows from Horizon yet. Deck only logs to Nightwatch when recording throws — silence usually means hooks never ran in workers, not a hidden error.');
-            $this->line('After a real redis job: php artisan tinker --execute \'echo Deck\\Deck\\Models\\JobExecution::query()->count();\'');
-            $this->line('Temporary trace: DECK_DEBUG_RECORDING=true then restart Horizon (see deck.debug_recording).');
+            $this->components->warn('No execution rows from Horizon yet. Process a redis job, then recount.');
+            $this->line('  php artisan tinker --execute \'echo Deck\\Deck\\Models\\JobExecution::query()->count();\'');
         }
 
         return self::SUCCESS;
