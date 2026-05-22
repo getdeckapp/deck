@@ -7,13 +7,16 @@ use Deck\Deck\Cloud\CloudEventBuffer;
 use Deck\Deck\Cloud\DeckCloud;
 use Deck\Deck\Commands\CheckAlertsCommand;
 use Deck\Deck\Commands\CloudBackfillCommand;
+use Deck\Deck\Commands\DoctorCommand;
 use Deck\Deck\Commands\InstallCommand;
 use Deck\Deck\Commands\PollCommandsCommand;
 use Deck\Deck\Commands\PruneCommand;
 use Deck\Deck\Commands\ReportWorkersCommand;
 use Deck\Deck\Concerns\RegistersCloudAgent;
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Listeners\FlushDeckCloudEvents;
 use Deck\Deck\Listeners\RecordJobExecution;
+use Deck\Deck\Listeners\RecordJobProcessingListener;
 use Deck\Deck\Livewire\Dashboard;
 use Deck\Deck\Livewire\GlobalSearch;
 use Deck\Deck\Livewire\JobClassIndex;
@@ -25,18 +28,14 @@ use Deck\Deck\Queue\DeckCallQueuedHandler;
 use Deck\Deck\Recorders\CompositeJobExecutionRecorder;
 use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
 use Deck\Deck\Recorders\HttpJobExecutionRecorder;
-use Deck\Deck\Support\DeckResilience;
 use Deck\Deck\Support\HorizonSnapshot;
-use Deck\Deck\Support\InterceptBlockedQueueJob;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 use Illuminate\Queue\CallQueuedHandler;
 use Illuminate\Queue\Events\JobAttempted;
-use Illuminate\Queue\Events\JobFailed;
-use Illuminate\Queue\Events\JobProcessed;
-use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -62,7 +61,8 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasCommand(CheckAlertsCommand::class)
             ->hasCommand(PollCommandsCommand::class)
             ->hasCommand(ReportWorkersCommand::class)
-            ->hasCommand(CloudBackfillCommand::class);
+            ->hasCommand(CloudBackfillCommand::class)
+            ->hasCommand(DoctorCommand::class);
     }
 
     public function packageRegistered(): void
@@ -131,26 +131,16 @@ class DeckServiceProvider extends PackageServiceProvider
 
     private function registerQueueListeners(): void
     {
-        $listener = $this->app->make(RecordJobExecution::class);
+        $recorder = RecordJobExecution::class;
 
-        Event::listen(JobProcessing::class, function (JobProcessing $event) use ($listener): void {
-            if (InterceptBlockedQueueJob::intercept($event->job)) {
-                return;
-            }
+        Queue::before([RecordJobProcessingListener::class, 'handle']);
+        Queue::after([$recorder, 'handleProcessed']);
+        Queue::failing([$recorder, 'handleFailed']);
 
-            $listener->handleProcessing($event);
-        });
-
-        Event::listen(JobProcessed::class, [$listener, 'handleProcessed']);
-        Event::listen(JobFailed::class, [$listener, 'handleFailed']);
-        Event::listen(JobAttempted::class, [$listener, 'handleJobAttempted']);
+        Event::listen(JobAttempted::class, [$recorder, 'handleJobAttempted']);
 
         if (DeckCloud::eventsEnabled()) {
-            Event::listen(JobAttempted::class, function (): void {
-                DeckResilience::runSilentlyVoid(
-                    fn () => $this->app->make(CloudEventBuffer::class)->flush(),
-                );
-            });
+            Event::listen(JobAttempted::class, FlushDeckCloudEvents::class);
         }
     }
 }

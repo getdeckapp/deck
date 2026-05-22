@@ -147,6 +147,17 @@ return [
 
     'store_context' => (bool) env('DECK_STORE_CONTEXT', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Recording diagnostics
+    |--------------------------------------------------------------------------
+    |
+    | When true, failures while writing to deck_job_executions are logged so
+    | silent drops (wrong DB connection, missing migrations, etc.) are visible.
+    |
+    */
+    'log_recording_failures' => (bool) env('DECK_LOG_RECORDING_FAILURES', true),
+
     'exception_trace_bytes' => (int) env('DECK_EXCEPTION_TRACE_BYTES', 65_536),
 
     'tables' => [

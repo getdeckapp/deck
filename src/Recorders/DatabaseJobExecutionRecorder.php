@@ -44,6 +44,7 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
             'status' => $record->status,
             'tags' => $record->tags ?? $metadata->tags,
             'started_at' => $record->startedAt,
+            'created_at' => $record->startedAt,
         ];
 
         return match ($record->status) {

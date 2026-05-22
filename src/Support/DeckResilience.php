@@ -2,6 +2,9 @@
 
 namespace Deck\Deck\Support;
 
+use Illuminate\Support\Facades\Log;
+use Throwable;
+
 /**
  * Deck observability must never take down application jobs when Redis or the
  * database is unavailable — failures are swallowed here by design.
@@ -19,7 +22,9 @@ class DeckResilience
     {
         try {
             return $callback();
-        } catch (\Throwable) {
+        } catch (Throwable $exception) {
+            static::logFailure($exception);
+
             return $default;
         }
     }
@@ -27,5 +32,17 @@ class DeckResilience
     public static function runSilentlyVoid(callable $callback): void
     {
         static::runSilently($callback);
+    }
+
+    private static function logFailure(Throwable $exception): void
+    {
+        if (! config('deck.log_recording_failures', true)) {
+            return;
+        }
+
+        Log::warning('Deck recording failed.', [
+            'message' => $exception->getMessage(),
+            'exception' => $exception::class,
+        ]);
     }
 }
