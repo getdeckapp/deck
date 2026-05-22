@@ -49,7 +49,7 @@ class QueuedJobMetadata
 
         return new self(
             uuid: $uuid,
-            jobClass: $job->resolveQueuedJobClass(),
+            jobClass: QueuedJobResolver::resolveClass($job),
             connection: $job->getConnectionName(),
             queue: $queue !== '' ? $queue : 'default',
             attempt: $job->attempts(),

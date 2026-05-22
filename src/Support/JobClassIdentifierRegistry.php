@@ -13,8 +13,8 @@ class JobClassIdentifierRegistry
     public static function forQueueJob(QueueJobContract $job): array
     {
         $identifiers = [
-            $job->resolveQueuedJobClass(),
-            $job->resolveName(),
+            QueuedJobResolver::resolveClass($job),
+            QueuedJobResolver::resolveDisplayName($job),
         ];
 
         $expanded = [];
@@ -55,7 +55,10 @@ class JobClassIdentifierRegistry
         // Identifier linking is only needed for future dispatches — defer off the hot path.
         DeferJobLifecycleRecording::run(
             static function () use ($job): void {
-                static::link($job->resolveName(), $job->resolveQueuedJobClass());
+                static::link(
+                    QueuedJobResolver::resolveDisplayName($job),
+                    QueuedJobResolver::resolveClass($job),
+                );
             },
         );
     }

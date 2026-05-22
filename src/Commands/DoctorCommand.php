@@ -10,6 +10,7 @@ use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Queue\DeckCallQueuedHandler;
 use Deck\Deck\Support\DeckDatabase;
 use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Support\DoctorProbeQueueJob;
 use Deck\Deck\Support\QueuedJobMetadata;
 use Illuminate\Console\Command;
 use Illuminate\Queue\CallQueuedHandler;
@@ -42,6 +43,7 @@ class DoctorCommand extends Command
         $this->line("Environment filter: {$environment}");
         $this->line('Queue default: '.(string) config('queue.default'));
         $this->line('CallQueuedHandler: '.$this->callQueuedHandlerLabel());
+        $this->line('Debug recording: '.(config('deck.debug_recording') ? 'on' : 'off'));
 
         if (! DeckDatabase::schema()->hasTable($executionsTable)) {
             $this->components->error("Table [{$executionsTable}] does not exist on connection [{$connection}].");
@@ -118,6 +120,10 @@ class DoctorCommand extends Command
             return self::FAILURE;
         }
 
+        if ($processedListeners > 0) {
+            $this->simulateQueueRecording($project, $environment);
+        }
+
         $scopedCount = JobExecution::query()->forInstallation()->count();
         $totalCount = JobExecution::query()->count();
 
@@ -141,12 +147,53 @@ class DoctorCommand extends Command
 
         if ($scopedCount === 0 && $totalCount === 0) {
             $this->newLine();
-            $this->components->warn('No execution rows yet. After Horizon processes a redis job, recount with:');
-            $this->line('  php artisan tinker --execute \'echo Deck\\Deck\\Models\\JobExecution::query()->count();\'');
-            $this->line('  grep "Deck recording failed" storage/logs/laravel.log | tail');
+            $this->components->warn('No execution rows from Horizon yet. Deck only logs to Nightwatch when recording throws — silence usually means hooks never ran in workers, not a hidden error.');
+            $this->line('After a real redis job: php artisan tinker --execute \'echo Deck\\Deck\\Models\\JobExecution::query()->count();\'');
+            $this->line('Temporary trace: DECK_DEBUG_RECORDING=true then restart Horizon (see deck.debug_recording).');
         }
 
         return self::SUCCESS;
+    }
+
+    private function simulateQueueRecording(string $project, string $environment): void
+    {
+        $uuid = (string) Str::uuid();
+        $jobClass = DoctorProbeQueueJob::class;
+        $queueJob = new DoctorProbeQueueJob($uuid, $jobClass);
+
+        try {
+            Event::dispatch(new JobProcessing('doctor', $queueJob));
+
+            $running = JobExecution::query()
+                ->where('uuid', $uuid)
+                ->where('project', $project)
+                ->where('environment', $environment)
+                ->where('status', JobExecutionStatus::Running)
+                ->exists();
+
+            Event::dispatch(new JobProcessed('doctor', $queueJob));
+
+            $completed = JobExecution::query()
+                ->where('uuid', $uuid)
+                ->where('project', $project)
+                ->where('environment', $environment)
+                ->where('status', JobExecutionStatus::Completed)
+                ->exists();
+
+            JobExecution::query()->where('uuid', $uuid)->delete();
+
+            if ($running && $completed) {
+                $this->components->info('Queue event listeners recorded a full processing → completed cycle.');
+
+                return;
+            }
+
+            $this->components->warn('Queue listeners did not persist the probe job (running='.($running ? 'yes' : 'no').', completed='.($completed ? 'yes' : 'no').').');
+        } catch (\Throwable $exception) {
+            JobExecution::query()->where('uuid', $uuid)->delete();
+
+            $this->components->error('Queue listener probe failed: '.$exception->getMessage());
+        }
     }
 
     private function packageVersion(): string

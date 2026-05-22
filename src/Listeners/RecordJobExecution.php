@@ -8,6 +8,7 @@ use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Exceptions\JobCancelledException;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Support\DeckRecordingDebug;
 use Deck\Deck\Support\DeckResilience;
 use Deck\Deck\Support\JobCancellation;
 use Deck\Deck\Support\JobClassBlock;
@@ -31,6 +32,7 @@ class RecordJobExecution
     {
         DeckResilience::runSilentlyVoid(function () use ($event): void {
             $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+            DeckRecordingDebug::trace('processing', $metadata);
 
             if (JobClassBlock::isBlockedForJob($event->job)) {
                 return;
@@ -104,6 +106,7 @@ class RecordJobExecution
     {
         DeckResilience::runSilentlyVoid(function () use ($event): void {
             $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+            DeckRecordingDebug::trace('processed', $metadata);
             $finishedAt = Carbon::now();
 
             $status = JobExecution::query()
@@ -142,6 +145,7 @@ class RecordJobExecution
     {
         DeckResilience::runSilentlyVoid(function () use ($event): void {
             $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+            DeckRecordingDebug::trace('failed', $metadata);
             $finishedAt = Carbon::now();
             $exception = $event->exception;
 
