@@ -2,14 +2,20 @@
 
 namespace Deck\Deck\Commands;
 
+use Composer\InstalledVersions;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Queue\DeckCallQueuedHandler;
 use Deck\Deck\Support\DeckDatabase;
 use Deck\Deck\Support\DeckInstallation;
 use Deck\Deck\Support\QueuedJobMetadata;
 use Illuminate\Console\Command;
+use Illuminate\Queue\CallQueuedHandler;
+use Illuminate\Queue\Events\JobAttempted;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
@@ -29,10 +35,13 @@ class DoctorCommand extends Command
         $environment = DeckInstallation::environment();
 
         $this->components->info('Deck doctor');
+        $this->line('Package version: '.$this->packageVersion());
         $this->line("Database connection: {$connection}");
         $this->line("Executions table: {$executionsTable}");
         $this->line("Project filter: {$project}");
         $this->line("Environment filter: {$environment}");
+        $this->line('Queue default: '.(string) config('queue.default'));
+        $this->line('CallQueuedHandler: '.$this->callQueuedHandlerLabel());
 
         if (! DeckDatabase::schema()->hasTable($executionsTable)) {
             $this->components->error("Table [{$executionsTable}] does not exist on connection [{$connection}].");
@@ -45,11 +54,26 @@ class DoctorCommand extends Command
 
         $this->components->info('Table exists.');
 
-        $beforeListeners = count(Event::getListeners(JobProcessing::class));
-        $this->line("JobProcessing listeners: {$beforeListeners}");
+        $processingListeners = count(Event::getListeners(JobProcessing::class));
+        $processedListeners = count(Event::getListeners(JobProcessed::class));
+        $failedListeners = count(Event::getListeners(JobFailed::class));
+        $attemptedListeners = count(Event::getListeners(JobAttempted::class));
 
-        if ($beforeListeners === 0) {
+        $this->line("JobProcessing listeners: {$processingListeners}");
+        $this->line("JobProcessed listeners: {$processedListeners}");
+        $this->line("JobFailed listeners: {$failedListeners}");
+        $this->line("JobAttempted listeners: {$attemptedListeners}");
+
+        if ($processingListeners === 0) {
             $this->components->warn('No JobProcessing listeners are registered. Is DeckServiceProvider loaded?');
+        }
+
+        if ($processedListeners === 0) {
+            $this->components->error('No JobProcessed listeners — completed jobs will not be recorded. Deploy a current deck/deck build and restart Horizon.');
+        }
+
+        if ($attemptedListeners === 0) {
+            $this->components->warn('No JobAttempted listeners — terminal status fallback is disabled.');
         }
 
         $uuid = (string) Str::uuid();
@@ -111,10 +135,36 @@ class DoctorCommand extends Command
                 ->each(fn ($row) => $this->line("  - {$row->project} / {$row->environment}"));
         }
 
-        if ($beforeListeners === 0) {
+        if ($processingListeners === 0 || $processedListeners === 0) {
             return self::FAILURE;
         }
 
+        if ($scopedCount === 0 && $totalCount === 0) {
+            $this->newLine();
+            $this->components->warn('No execution rows yet. After Horizon processes a redis job, recount with:');
+            $this->line('  php artisan tinker --execute \'echo Deck\\Deck\\Models\\JobExecution::query()->count();\'');
+            $this->line('  grep "Deck recording failed" storage/logs/laravel.log | tail');
+        }
+
         return self::SUCCESS;
+    }
+
+    private function packageVersion(): string
+    {
+        if (! class_exists(InstalledVersions::class) || ! InstalledVersions::isInstalled('deck/deck')) {
+            return 'unknown';
+        }
+
+        return InstalledVersions::getPrettyVersion('deck/deck')
+            ?? InstalledVersions::getVersion('deck/deck');
+    }
+
+    private function callQueuedHandlerLabel(): string
+    {
+        $handler = app(CallQueuedHandler::class);
+
+        return $handler instanceof DeckCallQueuedHandler
+            ? DeckCallQueuedHandler::class
+            : $handler::class;
     }
 }
