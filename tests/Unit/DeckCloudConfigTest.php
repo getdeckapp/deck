@@ -31,7 +31,7 @@ it('auto-enables cloud when enabled config is null', function () {
 it('defaults cloud url to deckapp.cloud outside local', function () {
     config()->set('app.env', 'production');
 
-    expect(DeckCloud::defaultUrl())->toBe('https://deckapp.cloud');
+    expect(DeckCloud::defaultUrl())->toBe('https://app.deckapp.cloud');
 });
 
 it('can be explicitly disabled while keeping an api key', function () {
