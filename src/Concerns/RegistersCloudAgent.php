@@ -32,9 +32,11 @@ trait RegistersCloudAgent
                 'Laravel\Horizon\Events\MasterSupervisorLooped',
                 [$listener, 'onHorizonLoop'],
             );
+
+            return;
         }
 
-        // Also sync when using queue:work / queue:listen (common when Horizon is installed but not running).
+        // Sync for queue:work / queue:listen when Horizon is not installed.
         Queue::looping(fn (Looping $event) => $listener->onQueueLoop($event));
     }
 

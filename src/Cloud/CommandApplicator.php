@@ -3,8 +3,8 @@
 namespace Deck\Deck\Cloud;
 
 use Deck\Deck\Deck;
-use Illuminate\Support\Carbon;
 use Deck\Deck\Support\JobCancellation;
+use Illuminate\Support\Carbon;
 
 class CommandApplicator
 {
@@ -221,7 +221,9 @@ class CommandApplicator
         }
 
         try {
-            return Carbon::parse($payload['until']);
+            $until = Carbon::parse($payload['until']);
+
+            return $until instanceof Carbon ? $until : Carbon::instance($until);
         } catch (\Throwable) {
             return null;
         }

@@ -3,6 +3,7 @@
 namespace Deck\Deck\Listeners;
 
 use Deck\Deck\Cloud\AgentSync;
+use Deck\Deck\Support\DeckResilience;
 use Illuminate\Queue\Events\Looping;
 
 class SyncCloudAgent
@@ -13,14 +14,16 @@ class SyncCloudAgent
 
     public function onHorizonLoop(object $event): void
     {
-        $this->sync->syncHorizon();
+        DeckResilience::runSilentlyVoid(fn (): mixed => $this->sync->syncHorizon());
     }
 
     public function onQueueLoop(Looping $event): void
     {
-        $this->sync->syncQueueWorker(
-            (string) $event->connectionName,
-            (string) $event->queue,
+        DeckResilience::runSilentlyVoid(
+            fn (): mixed => $this->sync->syncQueueWorker(
+                (string) $event->connectionName,
+                (string) $event->queue,
+            ),
         );
     }
 }

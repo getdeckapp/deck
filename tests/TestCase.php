@@ -44,5 +44,7 @@ class TestCase extends Orchestra
         config()->set('deck.project', 'test');
         config()->set('deck.environment', 'testing');
         config()->set('deck.unprocessed_queues.enabled', false);
+        config()->set('deck.cloud.api_key', 'test-api-key');
+        config()->set('deck.cloud.url', 'https://cloud.deck.test');
     }
 }

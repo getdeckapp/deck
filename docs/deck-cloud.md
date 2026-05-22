@@ -64,7 +64,7 @@ When enabled with an API key:
 3. **POST** `/api/v1/agent/commands/ack` — acknowledge results.
 4. **POST** `/api/v1/ingest/events` — batched execution events (max 100 per request).
 
-Sync runs on Horizon `MasterSupervisorLooped`, throttled `Queue::looping`, and `deck:report-workers`.
+Sync runs on Horizon `MasterSupervisorLooped` (when Horizon is installed), throttled `Queue::looping` (only when Horizon is **not** installed), and scheduled `deck:report-workers` / `deck:poll-commands`. If you use `queue:work` while the Horizon package is installed but Horizon is not running, rely on the scheduled commands or run `deck:report-workers` manually.
 
 Remote commands map to `requestCancelExecution`, `forceCancelExecution`, `cancelPending`, `blockClass`, `unblockClass`, and `cancelAllRunningForClass`.
 Learn more: **[deckapp.cloud](https://deckapp.cloud?utm_source=deck-oss&utm_medium=docs)**
