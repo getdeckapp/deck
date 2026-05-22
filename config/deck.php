@@ -32,13 +32,13 @@ return [
     | Deck Cloud (optional, opt-in)
     |--------------------------------------------------------------------------
     |
-    | Disabled by default. No outbound HTTP is made unless enabled is true and
-    | both url and api_key are set. Set DECK_CLOUD_PROMO=false to hide sidebar
-    | links to deckapp.cloud in the dashboard UI.
+    | Opt-in via DECK_API_KEY. Set DECK_CLOUD_ENABLED=false to disable the agent
+    | while keeping the key. Set DECK_CLOUD_PROMO=false to hide sidebar links
+    | to deckapp.cloud when Cloud is off.
     |
     */
     'cloud' => [
-        'enabled' => env('DECK_CLOUD_ENABLED', false),
+        'enabled' => env('DECK_CLOUD_ENABLED'),
         'url' => env('DECK_CLOUD_URL'),
         'api_key' => env('DECK_API_KEY'),
         'timeout_seconds' => (int) env('DECK_CLOUD_TIMEOUT', 5),

@@ -25,7 +25,7 @@ class CloudBackfillCommand extends Command
     public function handle(HttpClient $http): int
     {
         if (! DeckCloud::isEnabled()) {
-            $this->components->warn('Deck Cloud is disabled (set DECK_CLOUD_ENABLED, DECK_CLOUD_URL, and DECK_API_KEY).');
+            $this->components->warn('Deck Cloud is disabled (set DECK_API_KEY, or remove DECK_CLOUD_ENABLED=false).');
 
             return self::SUCCESS;
         }
