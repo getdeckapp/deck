@@ -9,13 +9,13 @@ use Deck\Deck\Exceptions\JobCancelledException;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Support\DeckInstallation;
 use Deck\Deck\Support\DeckResilience;
-use Deck\Deck\Support\DeferJobLifecycleRecording;
 use Deck\Deck\Support\JobCancellation;
 use Deck\Deck\Support\JobClassBlock;
 use Deck\Deck\Support\JobClassIdentifierRegistry;
 use Deck\Deck\Support\JobExecutionTiming;
 use Deck\Deck\Support\JobProgress;
 use Deck\Deck\Support\QueuedJobMetadata;
+use Illuminate\Queue\Events\JobAttempted;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -54,12 +54,50 @@ class RecordJobExecution
 
     public function handleProcessed(JobProcessed $event): void
     {
-        DeferJobLifecycleRecording::run(fn () => $this->recordProcessed($event));
+        $this->recordProcessed($event);
     }
 
     public function handleFailed(JobFailed $event): void
     {
-        DeferJobLifecycleRecording::run(fn () => $this->recordFailed($event));
+        $this->recordFailed($event);
+    }
+
+    /**
+     * Ensures terminal status is persisted when earlier listeners did not run
+     * (defer bugs, swallowed errors, or jobs that skipped the running row).
+     */
+    public function handleJobAttempted(JobAttempted $event): void
+    {
+        if (in_array($event->connectionName, ['sync', 'deferred'], true)) {
+            return;
+        }
+
+        DeckResilience::runSilentlyVoid(function () use ($event): void {
+            $metadata = QueuedJobMetadata::fromQueueJob($event->job);
+
+            $status = JobExecution::query()
+                ->where('uuid', $metadata->uuid)
+                ->where('attempt', $metadata->attempt)
+                ->value('status');
+
+            if ($status !== null && $status !== JobExecutionStatus::Running) {
+                return;
+            }
+
+            if ($status === null) {
+                $this->handleProcessing(new JobProcessing($event->connectionName, $event->job));
+            }
+
+            if ($event->successful()) {
+                $this->recordProcessed(new JobProcessed($event->connectionName, $event->job));
+
+                return;
+            }
+
+            if ($event->exception !== null) {
+                $this->recordFailed(new JobFailed($event->connectionName, $event->job, $event->exception));
+            }
+        });
     }
 
     private function recordProcessed(JobProcessed $event): void
@@ -74,12 +112,6 @@ class RecordJobExecution
                 ->value('status');
 
             if ($status === JobExecutionStatus::Blocked) {
-                JobExecutionTiming::forget($metadata->uuid, $metadata->attempt);
-
-                return;
-            }
-
-            if ($status === null && $event->job->isDeletedOrReleased()) {
                 JobExecutionTiming::forget($metadata->uuid, $metadata->attempt);
 
                 return;

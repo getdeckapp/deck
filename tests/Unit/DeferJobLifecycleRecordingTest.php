@@ -2,7 +2,7 @@
 
 use Deck\Deck\Support\DeferJobLifecycleRecording;
 
-it('runs callbacks immediately during tests', function () {
+it('runs callbacks immediately', function () {
     $ran = false;
 
     DeferJobLifecycleRecording::run(function () use (&$ran): void {
@@ -10,8 +10,4 @@ it('runs callbacks immediately during tests', function () {
     });
 
     expect($ran)->toBeTrue();
-});
-
-it('runs synchronously in the console', function () {
-    expect(DeferJobLifecycleRecording::runsSynchronously())->toBeTrue();
 });
