@@ -14,7 +14,7 @@ class JobClassIdentifierRegistry
     {
         $identifiers = [
             QueuedJobResolver::resolveClass($job),
-            QueuedJobResolver::resolveDisplayName($job),
+            QueuedJobResolver::resolveHandlerClass($job),
         ];
 
         $expanded = [];
@@ -56,8 +56,8 @@ class JobClassIdentifierRegistry
         DeferJobLifecycleRecording::run(
             static function () use ($job): void {
                 static::link(
-                    QueuedJobResolver::resolveDisplayName($job),
                     QueuedJobResolver::resolveClass($job),
+                    QueuedJobResolver::resolveHandlerClass($job),
                 );
             },
         );

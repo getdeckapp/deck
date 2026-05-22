@@ -7,7 +7,28 @@ use Deck\Deck\Support\QueuedJobMetadata;
 use Deck\Deck\Support\QueuedJobResolver;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
+use Illuminate\Mail\SendQueuedMailable;
 use Illuminate\Queue\Events\JobProcessed;
+
+it('prefers mailable display name over SendQueuedMailable handler', function () {
+    $mailableClass = 'App\\Mail\\Campaign';
+    $name = 'Illuminate\\Queue\\CallQueuedHandler@call';
+    $payload = [
+        'uuid' => (string) str()->uuid(),
+        'displayName' => $mailableClass,
+        'job' => $name,
+        'data' => ['commandName' => SendQueuedMailable::class],
+    ];
+
+    $queueJob = Mockery::mock(QueueJobContract::class);
+    $queueJob->shouldReceive('payload')->andReturn($payload);
+    $queueJob->shouldReceive('getName')->andReturn($name);
+    $queueJob->shouldReceive('resolveQueuedJobClass')->andReturn(SendQueuedMailable::class);
+    $queueJob->shouldReceive('resolveName')->andReturn($mailableClass);
+
+    expect(QueuedJobResolver::resolveClass($queueJob))->toBe($mailableClass)
+        ->and(QueuedJobResolver::resolveHandlerClass($queueJob))->toBe(SendQueuedMailable::class);
+});
 
 it('resolves job class from serialized command payload', function () {
     $name = 'Illuminate\\Queue\\CallQueuedHandler@call';

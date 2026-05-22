@@ -11,7 +11,25 @@ use Illuminate\Queue\Jobs\JobName;
  */
 class QueuedJobResolver
 {
+    /**
+     * User-facing job class for Deck (e.g. App\Mail\Campaign, not SendQueuedMailable).
+     */
     public static function resolveClass(QueueJobContract $job): string
+    {
+        $handler = static::resolveHandlerClass($job);
+        $display = static::resolveDisplayName($job);
+
+        if ($display !== $handler) {
+            return $display;
+        }
+
+        return $handler;
+    }
+
+    /**
+     * Underlying queued command / handler class (SendQueuedMailable, CallQueuedHandler, etc.).
+     */
+    public static function resolveHandlerClass(QueueJobContract $job): string
     {
         $resolved = static::tryResolveQueuedJobClass($job);
 
