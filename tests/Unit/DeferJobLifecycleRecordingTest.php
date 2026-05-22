@@ -11,3 +11,7 @@ it('runs callbacks immediately during tests', function () {
 
     expect($ran)->toBeTrue();
 });
+
+it('runs synchronously in the console', function () {
+    expect(DeferJobLifecycleRecording::runsSynchronously())->toBeTrue();
+});
