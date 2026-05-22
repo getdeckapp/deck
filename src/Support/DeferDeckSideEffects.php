@@ -2,6 +2,8 @@
 
 namespace Deck\Deck\Support;
 
+use function Illuminate\Support\defer;
+
 class DeferDeckSideEffects
 {
     public static function run(callable $callback): void
