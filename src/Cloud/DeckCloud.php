@@ -48,7 +48,7 @@ class DeckCloud
     {
         return config('app.env') === 'local'
             ? 'http://deck.test'
-            : 'https://deckapp.cloud';
+            : 'https://app.deckapp.cloud';
     }
 
     private static function explicitlyDisabled(): bool
