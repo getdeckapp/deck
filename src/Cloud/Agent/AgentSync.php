@@ -4,7 +4,9 @@ namespace Deck\Deck\Cloud\Agent;
 
 use Deck\Deck\Cloud\Commands\CommandPoller;
 use Deck\Deck\Cloud\DeckCloud;
+use Deck\Deck\Cloud\Workers\QueueWorkloadSnapshot;
 use Deck\Deck\Cloud\Workers\WorkerReporter;
+use Deck\Deck\Cloud\Workers\WorkerSnapshot;
 use Deck\Deck\Cloud\Workers\WorkerSnapshotCollector;
 
 /**
@@ -26,6 +28,19 @@ class AgentSync
 
     public function report(bool $force = false): bool
     {
+        return $this->reportCollected(
+            $this->collectWorkerSnapshots(),
+            $this->workers->collectWorkloadFromHorizon(),
+            force: $force,
+        );
+    }
+
+    /**
+     * @param  list<WorkerSnapshot>  $workers
+     * @param  list<QueueWorkloadSnapshot>  $queues
+     */
+    public function reportCollected(array $workers, array $queues = [], bool $force = false): bool
+    {
         if ($force) {
             $this->throttle->reset();
         }
@@ -33,10 +48,7 @@ class AgentSync
         $accepted = false;
 
         if ($this->throttle->shouldSync('workers', 'host')) {
-            $accepted = $this->workerReporter->send(
-                $this->collectWorkerSnapshots(),
-                $this->workers->collectWorkloadFromHorizon(),
-            );
+            $accepted = $this->workerReporter->send($workers, $queues);
         }
 
         $this->pollCommands();

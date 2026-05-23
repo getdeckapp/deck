@@ -51,7 +51,7 @@ class ReportWorkersCommand extends Command
             $this->components->warn('Horizon returned no supervisors; reported a fallback snapshot for the default queue connection instead.');
         }
 
-        $accepted = app(AgentSync::class)->report(force: true);
+        $accepted = app(AgentSync::class)->reportCollected($workers, $queues, force: true);
 
         app(CloudConnectionProbe::class)->forget();
 
