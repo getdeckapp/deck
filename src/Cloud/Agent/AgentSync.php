@@ -24,11 +24,31 @@ class AgentSync
         return DeckCloud::isEnabled() && (DeckCloud::workersEnabled() || DeckCloud::commandsEnabled());
     }
 
-    public function report(): void
+    public function report(bool $force = false): bool
+    {
+        if ($force) {
+            $this->throttle->reset();
+        }
+
+        $accepted = false;
+
+        if ($this->throttle->shouldSync('workers', 'host')) {
+            $accepted = $this->workerReporter->send(
+                $this->collectWorkerSnapshots(),
+                $this->workers->collectWorkloadFromHorizon(),
+            );
+        }
+
+        $this->pollCommands();
+
+        return $accepted;
+    }
+
+    public function syncHorizon(): void
     {
         if ($this->throttle->shouldSync('workers', 'host')) {
             $this->workerReporter->send(
-                $this->workers->collectFromHorizon(),
+                $this->collectWorkerSnapshots(),
                 $this->workers->collectWorkloadFromHorizon(),
             );
         }
@@ -36,16 +56,18 @@ class AgentSync
         $this->pollCommands();
     }
 
-    public function syncHorizon(): void
+    /**
+     * @return list<\Deck\Deck\Cloud\Workers\WorkerSnapshot>
+     */
+    private function collectWorkerSnapshots(): array
     {
-        if ($this->throttle->shouldSync('workers', 'host')) {
-            $this->workerReporter->send(
-                $this->workers->collectFromHorizon(),
-                $this->workers->collectWorkloadFromHorizon(),
-            );
+        $fromHorizon = $this->workers->collectFromHorizon();
+
+        if ($fromHorizon !== []) {
+            return $fromHorizon;
         }
 
-        $this->pollCommands();
+        return $this->workers->collectFallbackQueueWorkers();
     }
 
     public function syncQueueWorker(string $connection, string $queue): void

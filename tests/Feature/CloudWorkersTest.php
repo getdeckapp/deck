@@ -198,6 +198,37 @@ it('reports all horizon supervisors from the horizon loop listener', function ()
     });
 });
 
+it('falls back to the default queue worker when horizon returns no supervisors', function () {
+    Http::fake([
+        'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 1], 202),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => []]),
+    ]);
+
+    config()->set('queue.default', 'redis');
+    config()->set('queue.connections.redis.queue', 'default');
+
+    $horizon = Mockery::mock(HorizonSnapshot::class);
+    $horizon->shouldReceive('isAvailable')->andReturn(true);
+    $horizon->shouldReceive('workload')->andReturn([]);
+
+    $this->app->instance(HorizonSnapshot::class, $horizon);
+
+    $collector = Mockery::mock(WorkerSnapshotCollector::class);
+    $collector->shouldReceive('collectFromHorizon')->once()->andReturn([]);
+    $collector->shouldReceive('collectFallbackQueueWorkers')->once()->andReturn([
+        new WorkerSnapshot('default', 'redis:default', 'redis', 'default', 'running', 1),
+    ]);
+    $collector->shouldReceive('collectWorkloadFromHorizon')->once()->andReturn([]);
+
+    $this->app->instance(WorkerSnapshotCollector::class, $collector);
+    $this->app->forgetInstance(AgentSync::class);
+
+    expect(app(AgentSync::class)->report(force: true))->toBeTrue();
+
+    Http::assertSent(fn ($request) => ($request->data()['workers'][0]['supervisor'] ?? null) === 'default');
+});
+
 it('maps paused horizon supervisors in collector snapshots', function () {
     $collector = app(WorkerSnapshotCollector::class);
 
