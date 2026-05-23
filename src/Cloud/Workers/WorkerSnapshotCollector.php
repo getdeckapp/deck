@@ -20,7 +20,7 @@ class WorkerSnapshotCollector
      */
     public function collectFromHorizon(): array
     {
-        if (! DeckHorizon::isInstalled() || ! class_exists(SupervisorRepository::class)) {
+        if (! DeckHorizon::isInstalled() || ! interface_exists(SupervisorRepository::class)) {
             return [];
         }
 
@@ -137,7 +137,7 @@ class WorkerSnapshotCollector
      */
     public function collectWorkloadFromHorizon(): array
     {
-        if (! DeckHorizon::isInstalled() || ! class_exists(WorkloadRepository::class)) {
+        if (! DeckHorizon::isInstalled() || ! interface_exists(WorkloadRepository::class)) {
             return [];
         }
 
@@ -163,7 +163,7 @@ class WorkerSnapshotCollector
      */
     public function fromSupervisors(array $supervisors): array
     {
-        $metrics = class_exists(MetricsRepository::class)
+        $metrics = interface_exists(MetricsRepository::class) && app()->bound(MetricsRepository::class)
             ? app(MetricsRepository::class)
             : null;
 
