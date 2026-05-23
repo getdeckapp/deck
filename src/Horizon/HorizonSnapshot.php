@@ -36,7 +36,7 @@ class HorizonSnapshot
 
     public function isAvailable(): bool
     {
-        return $this->installed;
+        return DeckHorizon::isInstalled();
     }
 
     /**
@@ -44,11 +44,13 @@ class HorizonSnapshot
      */
     public function workload(): array
     {
-        if (! $this->workload) {
+        if (! DeckHorizon::isInstalled()) {
             return [];
         }
 
-        return collect($this->workload->get())
+        $workload = $this->workload ?? app(WorkloadRepository::class);
+
+        return collect($workload->get())
             ->map(fn (array $queue): array => [
                 'name' => (string) $queue['name'],
                 'length' => (int) ($queue['length'] ?? 0),

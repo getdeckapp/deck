@@ -7,6 +7,7 @@ use Deck\Deck\Horizon\DeckHorizon;
 use Deck\Deck\Horizon\HorizonSnapshot;
 use Laravel\Horizon\Contracts\MetricsRepository;
 use Laravel\Horizon\Contracts\SupervisorRepository;
+use Laravel\Horizon\Contracts\WorkloadRepository;
 
 class WorkerSnapshotCollector
 {
@@ -19,7 +20,7 @@ class WorkerSnapshotCollector
      */
     public function collectFromHorizon(): array
     {
-        if (! $this->horizon->isAvailable() || ! class_exists(SupervisorRepository::class)) {
+        if (! DeckHorizon::isInstalled() || ! class_exists(SupervisorRepository::class)) {
             return [];
         }
 
@@ -71,11 +72,11 @@ class WorkerSnapshotCollector
      */
     public function collectWorkloadFromHorizon(): array
     {
-        if (! $this->horizon->isAvailable()) {
+        if (! DeckHorizon::isInstalled() || ! class_exists(WorkloadRepository::class)) {
             return [];
         }
 
-        return collect($this->horizon->workload())
+        return collect(app(WorkloadRepository::class)->get())
             ->map(function (array $queue): QueueWorkloadSnapshot {
                 [$connection, $name] = $this->parseQueueKey((string) $queue['name']);
 
