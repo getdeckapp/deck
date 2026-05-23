@@ -24,7 +24,72 @@ class WorkerSnapshotCollector
             return [];
         }
 
-        return $this->fromSupervisors(app(SupervisorRepository::class)->all());
+        $repository = app(SupervisorRepository::class);
+        $snapshots = $this->fromSupervisors($repository->all());
+
+        if ($snapshots !== []) {
+            return $snapshots;
+        }
+
+        return $this->fromSupervisorNames($repository->names());
+    }
+
+    /**
+     * Horizon lists supervisor names in Redis before hashes are readable, or after
+     * hashes expire. Emit minimal running snapshots so Deck Cloud still gets heartbeats.
+     *
+     * @param  list<string>  $names
+     * @return list<WorkerSnapshot>
+     */
+    public function fromSupervisorNames(array $names): array
+    {
+        if ($names === []) {
+            return [];
+        }
+
+        $repository = app(SupervisorRepository::class);
+        $snapshots = [];
+
+        foreach ($names as $name) {
+            if (! is_string($name) || $name === '') {
+                continue;
+            }
+
+            $supervisor = $repository->find($name);
+
+            if ($supervisor !== null) {
+                $snapshots = array_merge($snapshots, $this->fromSupervisors([$supervisor]));
+
+                continue;
+            }
+
+            $connection = (string) config('queue.default', 'redis');
+
+            $snapshots[] = $this->makeSnapshot(
+                supervisor: $name,
+                connection: $connection !== '' ? $connection : 'redis',
+                queue: $this->defaultQueueName(),
+                horizonStatus: 'running',
+                processes: 1,
+                hostname: $this->hostname(),
+                paused: false,
+                meta: $this->metaForConnection($connection),
+            );
+        }
+
+        return $snapshots;
+    }
+
+    private function defaultQueueName(): string
+    {
+        $connection = (string) config('queue.default', 'redis');
+        $queue = config("queue.connections.{$connection}.queue", 'default');
+
+        if (is_array($queue)) {
+            $queue = $queue[0] ?? 'default';
+        }
+
+        return (string) $queue !== '' ? (string) $queue : 'default';
     }
 
     /**
@@ -248,10 +313,14 @@ class WorkerSnapshotCollector
         $meta = [];
 
         if (DeckHorizon::isInstalled()) {
-            $version = InstalledVersions::getPrettyVersion('laravel/horizon');
+            try {
+                $version = InstalledVersions::getPrettyVersion('laravel/horizon');
 
-            if (is_string($version) && $version !== '') {
-                $meta['horizon_version'] = $version;
+                if (is_string($version) && $version !== '') {
+                    $meta['horizon_version'] = $version;
+                }
+            } catch (\OutOfBoundsException) {
+                // Horizon is bound in the container but not listed in this app's composer.lock.
             }
         }
 

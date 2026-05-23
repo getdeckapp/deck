@@ -50,6 +50,25 @@ it('serializes a worker snapshot for deck cloud ingest', function () {
     ]);
 });
 
+it('builds minimal snapshots from supervisor names when horizon hashes are missing', function () {
+    config()->set('queue.default', 'redis');
+    config()->set('queue.connections.redis.queue', 'default');
+
+    $repository = Mockery::mock(\Laravel\Horizon\Contracts\SupervisorRepository::class);
+    $repository->shouldReceive('find')->with('forge-1:supervisor-1')->andReturn(null);
+
+    $this->app->instance(\Laravel\Horizon\Contracts\SupervisorRepository::class, $repository);
+
+    $snapshots = app(WorkerSnapshotCollector::class)->fromSupervisorNames([
+        'forge-1:supervisor-1',
+    ]);
+
+    expect($snapshots)->toHaveCount(1)
+        ->and($snapshots[0]->supervisor)->toBe('forge-1:supervisor-1')
+        ->and($snapshots[0]->status)->toBe('running')
+        ->and($snapshots[0]->processes)->toBe(1);
+});
+
 it('maps zero processes to stopped status in collector output', function () {
     $collector = app(WorkerSnapshotCollector::class);
 
