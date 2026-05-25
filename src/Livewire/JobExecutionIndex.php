@@ -36,6 +36,12 @@ class JobExecutionIndex extends Component
     #[Url]
     public string $tag = '';
 
+    #[Url]
+    public string $dispatch_group = '';
+
+    #[Url]
+    public string $batch_id = '';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -57,6 +63,16 @@ class JobExecutionIndex extends Component
     }
 
     public function updatedTag(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDispatchGroup(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedBatchId(): void
     {
         $this->resetPage();
     }

@@ -213,4 +213,31 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dispatch groups
+    |--------------------------------------------------------------------------
+    */
+    'dispatch_groups' => [
+        'enabled' => (bool) env('DECK_DISPATCH_GROUPS_ENABLED', true),
+        'request_middleware' => (bool) env('DECK_DISPATCH_GROUPS_REQUEST_MIDDLEWARE', true),
+        'lineage' => (bool) env('DECK_DISPATCH_GROUPS_LINEAGE', true),
+        'artisan' => (bool) env('DECK_DISPATCH_GROUPS_ARTISAN', false),
+        'request_id_header' => env('DECK_DISPATCH_GROUPS_REQUEST_ID_HEADER', 'X-Request-Id'),
+        'request_id_attribute' => env('DECK_DISPATCH_GROUPS_REQUEST_ID_ATTRIBUTE', 'request_id'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job lifecycle (queue wait, origin, parent job)
+    |--------------------------------------------------------------------------
+    */
+    'lifecycle' => [
+        'enabled' => (bool) env('DECK_LIFECYCLE_ENABLED', true),
+        'origin_http' => (bool) env('DECK_LIFECYCLE_ORIGIN_HTTP', true),
+        'origin_artisan' => (bool) env('DECK_LIFECYCLE_ORIGIN_ARTISAN', true),
+        'parent_job' => (bool) env('DECK_LIFECYCLE_PARENT_JOB', true),
+        'wait_analytics' => (bool) env('DECK_LIFECYCLE_WAIT_ANALYTICS', true),
+    ],
+
 ];

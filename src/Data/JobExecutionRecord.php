@@ -19,10 +19,12 @@ readonly class JobExecutionRecord
         public Carbon $startedAt,
         public ?Carbon $finishedAt = null,
         public ?int $durationMs = null,
+        public ?int $waitMs = null,
         public ?string $exceptionClass = null,
         public ?string $exceptionMessage = null,
         public ?string $exceptionTrace = null,
         public ?array $tags = null,
         public ?array $context = null,
+        public ?ObservabilitySnapshot $observability = null,
     ) {}
 }

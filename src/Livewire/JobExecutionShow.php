@@ -5,6 +5,7 @@ namespace Deck\Deck\Livewire;
 use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
 use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Presentation\DeckPolling;
+use Deck\Deck\Presentation\ExecutionObservability;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -33,8 +34,15 @@ class JobExecutionShow extends Component
             || $this->execution->isCancellationPending()
             || $this->execution->progress() !== null;
 
+        $groupExecutions = $this->execution->dispatch_group_id
+            ? ExecutionObservability::relatedGroupQuery($this->execution)->get()
+            : collect();
+
         return view('deck::livewire.job-execution-show', [
             'execution' => $this->execution,
+            'groupExecutions' => $groupExecutions,
+            'parentExecution' => ExecutionObservability::parentExecution($this->execution),
+            'childExecutions' => ExecutionObservability::childExecutionsQuery($this->execution)->get(),
             'shouldPoll' => $shouldPoll,
             'pollSeconds' => DeckPolling::executionsSeconds(),
         ]);

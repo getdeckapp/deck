@@ -14,6 +14,7 @@ class JobExecutionIngestPayload
     public static function fromRecord(JobExecutionRecord $record): array
     {
         $metadata = $record->metadata;
+        $observability = $record->observability ?? $metadata->observability;
 
         $payload = [
             'project' => DeckCloud::slug($record->project),
@@ -25,6 +26,7 @@ class JobExecutionIngestPayload
             'status' => $record->status->value,
             'attempt' => $metadata->attempt,
             'started_at' => $record->startedAt->utc()->toIso8601String(),
+            ...CloudObservabilityIngestFields::fromSnapshot($observability, $record->waitMs),
         ];
 
         if ($metadata->tags !== null && $metadata->tags !== []) {

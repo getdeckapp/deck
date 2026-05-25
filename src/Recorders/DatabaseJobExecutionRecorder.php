@@ -5,6 +5,7 @@ namespace Deck\Deck\Recorders;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Core\DeckResilience;
 use Deck\Deck\Data\JobExecutionRecord;
+use Deck\Deck\Data\ObservabilitySnapshot;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
@@ -34,6 +35,7 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
     private function executionAttributes(JobExecutionRecord $record): array
     {
         $metadata = $record->metadata;
+        $observability = $record->observability ?? $metadata->observability;
 
         $shared = [
             'project' => $record->project,
@@ -45,6 +47,7 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
             'tags' => $record->tags ?? $metadata->tags,
             'started_at' => $record->startedAt,
             'created_at' => $record->startedAt,
+            ...$this->observabilityAttributes($observability, $record->waitMs),
         ];
 
         return match ($record->status) {
@@ -73,6 +76,27 @@ class DatabaseJobExecutionRecorder implements JobExecutionRecorder
                 'context' => $record->context,
             ],
         };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function observabilityAttributes(?ObservabilitySnapshot $observability, ?int $waitMs): array
+    {
+        if ($observability === null && $waitMs === null) {
+            return [];
+        }
+
+        return array_filter([
+            'dispatched_at' => $observability?->dispatchedAt,
+            'wait_ms' => $waitMs,
+            'dispatch_group_id' => $observability?->dispatchGroupId,
+            'dispatch_group_source' => $observability?->dispatchGroupSource?->value,
+            'batch_id' => $observability?->batchId,
+            'parent_job_uuid' => $observability?->parentJobUuid,
+            'parent_job_class' => $observability?->parentJobClass,
+            'dispatch_origin' => $observability?->dispatchOrigin,
+        ], fn (mixed $value): bool => $value !== null);
     }
 
     private function updateClassStats(JobExecutionRecord $record): void

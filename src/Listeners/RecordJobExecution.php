@@ -57,6 +57,7 @@ class RecordJobExecution
                 environment: DeckInstallation::environment(),
                 status: JobExecutionStatus::Running,
                 startedAt: $startedAt,
+                waitMs: $this->resolveWaitMs($metadata, $startedAt),
                 tags: $metadata->tags,
             ));
         });
@@ -141,6 +142,7 @@ class RecordJobExecution
                 startedAt: $startedAt,
                 finishedAt: $finishedAt,
                 durationMs: (int) $startedAt->diffInMilliseconds($finishedAt),
+                waitMs: $this->waitMsFromDatabase($metadata->uuid, $metadata->attempt),
                 tags: $metadata->tags,
             ));
 
@@ -173,6 +175,7 @@ class RecordJobExecution
                 startedAt: $startedAt,
                 finishedAt: $finishedAt,
                 durationMs: (int) $startedAt->diffInMilliseconds($finishedAt),
+                waitMs: $this->waitMsFromDatabase($metadata->uuid, $metadata->attempt),
                 tags: $metadata->tags,
                 exceptionClass: $isCancelled ? null : $exception::class,
                 exceptionMessage: $isCancelled ? null : $this->truncateExceptionMessage($exception->getMessage()),
@@ -203,5 +206,26 @@ class RecordJobExecution
         $limit = max(1_024, (int) config('deck.exception_trace_bytes', 65_536));
 
         return mb_substr($exception->getTraceAsString(), 0, $limit);
+    }
+
+    private function resolveWaitMs(QueuedJobMetadata $metadata, Carbon $startedAt): ?int
+    {
+        $dispatchedAt = $metadata->observability?->dispatchedAt;
+
+        if ($dispatchedAt === null) {
+            return null;
+        }
+
+        return max(0, (int) $dispatchedAt->diffInMilliseconds($startedAt));
+    }
+
+    private function waitMsFromDatabase(string $uuid, int $attempt): ?int
+    {
+        $waitMs = JobExecution::query()
+            ->where('uuid', $uuid)
+            ->where('attempt', $attempt)
+            ->value('wait_ms');
+
+        return is_numeric($waitMs) ? (int) $waitMs : null;
     }
 }

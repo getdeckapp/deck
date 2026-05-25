@@ -21,6 +21,10 @@ class TestCase extends Orchestra
         $migration = include __DIR__.'/../database/migrations/create_deck_tables.php.stub';
 
         $migration->up();
+
+        $observabilityMigration = include __DIR__.'/../database/migrations/add_observability_v2_to_deck_job_executions.php.stub';
+
+        $observabilityMigration->up();
     }
 
     protected function defineEnvironment($app): void

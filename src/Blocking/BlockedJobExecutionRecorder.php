@@ -49,6 +49,7 @@ class BlockedJobExecutionRecorder
             startedAt: $now,
             finishedAt: $now,
             durationMs: 0,
+            waitMs: 0,
             tags: $metadata->tags,
         ));
     }

@@ -71,11 +71,32 @@
     </div>
 
     <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <x-deck::stat-card label="Duration" :value="$execution->formattedDuration()" />
+        <x-deck::stat-card label="Queue wait" :value="$execution->formattedWait()" />
+        <x-deck::stat-card label="Run time" :value="$execution->formattedDuration()" />
         <x-deck::stat-card label="Queue" :value="$execution->queue" />
         <x-deck::stat-card label="Connection" :value="$execution->connection" />
         <x-deck::stat-card label="Attempt" :value="(string) $execution->attempt" />
+        <x-deck::stat-card label="Dispatched" :value="$execution->dispatched_at?->format('M j, H:i:s') ?? '—'" />
+        <x-deck::stat-card label="Started" :value="$execution->started_at->format('M j, H:i:s')" />
+        <x-deck::stat-card label="Finished" :value="$execution->finished_at?->format('M j, H:i:s') ?? '—'" />
     </dl>
+
+    @include('deck::partials.execution-observability', [
+        'execution' => $execution,
+        'parentExecution' => $parentExecution,
+    ])
+
+    @include('deck::partials.execution-related-table', [
+        'executions' => $groupExecutions,
+        'title' => 'Same dispatch group',
+        'description' => 'Other executions stamped with this group.',
+    ])
+
+    @include('deck::partials.execution-related-table', [
+        'executions' => $childExecutions,
+        'title' => 'Dispatched jobs',
+        'description' => 'Jobs queued while this execution was running.',
+    ])
 
     <section class="overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
         <div class="border-b border-zinc-100 px-5 py-4">

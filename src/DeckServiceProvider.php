@@ -14,7 +14,9 @@ use Deck\Deck\Commands\PruneCommand;
 use Deck\Deck\Commands\ReportWorkersCommand;
 use Deck\Deck\Concerns\RegistersCloudAgent;
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Dispatch\DeckObservability;
 use Deck\Deck\Horizon\HorizonSnapshot;
+use Deck\Deck\Http\Middleware\AssignDispatchGroup;
 use Deck\Deck\Listeners\FlushDeckCloudEvents;
 use Deck\Deck\Listeners\RecordJobExecution;
 use Deck\Deck\Livewire\Dashboard;
@@ -55,6 +57,7 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasMigration('add_project_and_environment_to_deck_tables')
             ->hasMigration('add_exception_trace_to_deck_job_executions')
             ->hasMigration('add_created_at_index_to_deck_job_executions')
+            ->hasMigration('add_observability_v2_to_deck_job_executions')
             ->hasCommand(InstallCommand::class)
             ->hasCommand(PruneCommand::class)
             ->hasCommand(CheckAlertsCommand::class)
@@ -87,6 +90,8 @@ class DeckServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->registerDeckDispatcher();
+        $this->registerQueuePayloadStamping();
+        $this->registerDispatchGroupMiddleware();
         $this->registerQueueListeners();
         $this->bootCloudAgent();
         $this->scheduleCloudAgent();
@@ -100,6 +105,37 @@ class DeckServiceProvider extends PackageServiceProvider
             Livewire::component('deck.job-execution-show', JobExecutionShow::class);
             Livewire::component('deck.workers-index', WorkersIndex::class);
         }
+    }
+
+    private function registerQueuePayloadStamping(): void
+    {
+        if (! DeckObservability::enabled()) {
+            return;
+        }
+
+        Queue::createPayloadUsing(function (string $connection, ?string $queue, array $payload): array {
+            return DeckObservability::stampQueuePayload($payload);
+        });
+    }
+
+    private function registerDispatchGroupMiddleware(): void
+    {
+        if (! (bool) config('deck.dispatch_groups.enabled', true)) {
+            return;
+        }
+
+        if (! (bool) config('deck.dispatch_groups.request_middleware', true)) {
+            return;
+        }
+
+        $this->app->booted(function (): void {
+            if ($this->app->runningInConsole()) {
+                return;
+            }
+
+            $router = $this->app['router'];
+            $router->pushMiddlewareToGroup('web', AssignDispatchGroup::class);
+        });
     }
 
     private function registerDeckDispatcher(): void

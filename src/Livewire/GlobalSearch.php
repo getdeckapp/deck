@@ -35,10 +35,13 @@ class GlobalSearch extends Component
 
         $executions = JobExecution::query()
             ->forInstallation()
-            ->where(fn ($q) => $q
-                ->where('uuid', 'like', '%'.$this->query.'%')
-                ->orWhere('job_class', 'like', '%'.$this->query.'%')
-            )
+            ->where(function ($query): void {
+                $query->where('uuid', 'like', '%'.$this->query.'%')
+                    ->orWhere('job_class', 'like', '%'.$this->query.'%')
+                    ->orWhere('dispatch_group_id', 'like', '%'.$this->query.'%')
+                    ->orWhere('parent_job_uuid', 'like', '%'.$this->query.'%')
+                    ->orWhere('parent_job_class', 'like', '%'.$this->query.'%');
+            })
             ->orderByDesc('started_at')
             ->limit(8)
             ->get();

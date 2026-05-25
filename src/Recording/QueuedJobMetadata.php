@@ -2,6 +2,8 @@
 
 namespace Deck\Deck\Recording;
 
+use Deck\Deck\Data\ObservabilitySnapshot;
+use Deck\Deck\Dispatch\DeckObservability;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Support\Str;
 
@@ -15,6 +17,7 @@ class QueuedJobMetadata
         public readonly int $attempt,
         /** @var list<string>|null */
         public readonly ?array $tags,
+        public readonly ?ObservabilitySnapshot $observability = null,
     ) {}
 
     public static function fromCommand(object $command): self
@@ -34,6 +37,9 @@ class QueuedJobMetadata
             queue: $queue,
             attempt: 1,
             tags: static::tagsFromCommand($command),
+            observability: DeckObservability::enabled()
+                ? DeckObservability::snapshotForDispatch()
+                : null,
         );
     }
 
@@ -47,6 +53,9 @@ class QueuedJobMetadata
         $tags = $payload['tags'] ?? null;
         $queue = $job->getQueue();
 
+        $deck = is_array($payload['deck'] ?? null) ? $payload['deck'] : [];
+        $batchId = is_string($payload['batchId'] ?? null) ? $payload['batchId'] : null;
+
         return new self(
             uuid: $uuid,
             jobClass: QueuedJobResolver::resolveClass($job),
@@ -54,6 +63,9 @@ class QueuedJobMetadata
             queue: $queue !== '' ? $queue : 'default',
             attempt: $job->attempts(),
             tags: is_array($tags) ? array_values(array_map('strval', $tags)) : null,
+            observability: $deck !== [] || $batchId !== null
+                ? DeckObservability::snapshotFromDeckPayload($deck, $batchId)
+                : null,
         );
     }
 

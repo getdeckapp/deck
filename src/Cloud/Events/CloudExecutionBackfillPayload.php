@@ -23,6 +23,7 @@ class CloudExecutionBackfillPayload
             'status' => $execution->status->value,
             'attempt' => $execution->attempt,
             'started_at' => $execution->started_at->utc()->toIso8601String(),
+            ...CloudObservabilityIngestFields::fromExecution($execution),
         ];
 
         if ($execution->tags !== null && $execution->tags !== []) {
