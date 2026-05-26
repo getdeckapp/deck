@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - CHANGELOG.md
 
 permissions:
   contents: write
@@ -17,7 +15,7 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -25,53 +23,79 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read version and release notes from CHANGELOG
-        id: changelog
+      - name: Resolve next release
+        id: release
         run: |
-          VERSION=$(grep -m1 -E '^## [0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | sed -E 's/^## ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          if [ "${{ github.event.head_commit.message }}" = "Update CHANGELOG" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping release for changelog maintenance commit."
+            exit 0
+          fi
 
-          if [ -z "$VERSION" ]; then
-            echo "No version heading found in CHANGELOG.md"
-            exit 1
+          git fetch --tags --force
+
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+
+          if [ -n "$LATEST_TAG" ]; then
+            TAG_COMMIT=$(git rev-parse "${LATEST_TAG}^{commit}")
+
+            if [ "$(git rev-parse HEAD)" = "$TAG_COMMIT" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "HEAD is already released as ${LATEST_TAG}."
+              exit 0
+            fi
+
+            LATEST_VERSION="${LATEST_TAG#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
+            PATCH=$((PATCH + 1))
+            VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          else
+            VERSION="1.0.0"
+            LATEST_TAG=""
           fi
 
           TAG="v${VERSION}"
           NOTES_FILE="${RUNNER_TEMP}/release-notes.md"
 
-          awk -v version="$VERSION" '
-            $0 ~ "^## " version { capture = 1; next }
-            capture && /^## [0-9]/ { exit }
-            capture { print }
-          ' CHANGELOG.md > "$NOTES_FILE"
+          {
+            echo "## Changes"
+            echo
+            if [ -n "$LATEST_TAG" ]; then
+              git log "${LATEST_TAG}..HEAD" --pretty=format:'- %s (%h)' --no-merges
+            else
+              echo "- Initial release"
+            fi
+          } > "$NOTES_FILE"
 
           if [ ! -s "$NOTES_FILE" ]; then
-            echo "No release notes found for version ${VERSION}"
-            exit 1
+            echo "Automated release." > "$NOTES_FILE"
           fi
 
+          echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "notes_file=${NOTES_FILE}" >> "$GITHUB_OUTPUT"
 
-      - name: Skip if release already exists
-        id: exists
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Build release assets
+        if: steps.release.outputs.skip != 'true'
+        uses: ./.github/actions/build-assets
+
+      - name: Package release assets
+        if: steps.release.outputs.skip != 'true'
         run: |
-          if gh release view "${{ steps.changelog.outputs.tag }}" --repo "${{ github.repository }}" > /dev/null 2>&1; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "Release ${{ steps.changelog.outputs.tag }} already exists."
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
+          test -f resources/dist/deck.css
+          cp resources/dist/deck.css "${RUNNER_TEMP}/deck-${{ steps.release.outputs.version }}.css"
 
       - name: Create GitHub release
-        if: steps.exists.outputs.skip != 'true'
+        if: steps.release.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          name: ${{ steps.changelog.outputs.tag }}
-          body_path: ${{ steps.changelog.outputs.notes_file }}
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: ${{ steps.release.outputs.version }}
+          body_path: ${{ steps.release.outputs.notes_file }}
           draft: false
           prerelease: false
           generate_release_notes: false
+          files: |
+            resources/dist/deck.css
+            ${{ runner.temp }}/deck-${{ steps.release.outputs.version }}.css

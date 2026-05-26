@@ -8,6 +8,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
+      - '.github/actions/build-assets/**'
       - '.github/workflows/build-assets.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
+      - '.github/actions/build-assets/**'
       - '.github/workflows/build-assets.yml'
 
 jobs:
@@ -24,13 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-      - run: npm run build
+      - name: Build assets
+        uses: ./.github/actions/build-assets
 
       - name: Verify committed assets are up to date
         run: git diff --exit-code resources/dist/
