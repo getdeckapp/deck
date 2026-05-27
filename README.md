@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="resources/images/deck-banner.png" alt="Deck — queue control plane for Laravel" width="640">
-</p>
+
 
 # Deck
 
@@ -9,6 +7,10 @@
 > Horizon flies the workers. Deck runs the operation.
 
 Deck is a **durable control plane** on top of Horizon: per job-class history, searchable executions, cooperative cancel, dispatch blocking, and optional **[Deck Cloud](https://deckapp.cloud)** when you run many services. It does not replace `php artisan horizon`.
+
+
+
+
 
 ---
 
@@ -37,14 +39,16 @@ DECK_API_KEY=your-agent-token
 
 ## Documentation
 
-| Guide | |
-|-------|---|
-| [Getting started](docs/getting-started.md) | Install, migrate, Horizon auth, assets |
-| [Horizon & Deck](docs/horizon.md) | What each tool is for |
-| [Usage](docs/usage.md) | Dashboard, cancel, block, retry, alerts |
-| [Production](docs/production.md) | Dedicated DB, retention, Redis, security |
-| [Configuration](docs/configuration.md) | Environment variables and config keys |
-| [Deck Cloud](docs/deck-cloud.md) | Multi-app control plane and agent API |
+
+| Guide                                      |                                          |
+| ------------------------------------------ | ---------------------------------------- |
+| [Getting started](docs/getting-started.md) | Install, migrate, Horizon auth, assets   |
+| [Horizon & Deck](docs/horizon.md)          | What each tool is for                    |
+| [Usage](docs/usage.md)                     | Dashboard, cancel, block, retry, alerts  |
+| [Production](docs/production.md)           | Dedicated DB, retention, Redis, security |
+| [Configuration](docs/configuration.md)     | Environment variables and config keys    |
+| [Deck Cloud](docs/deck-cloud.md)           | Multi-app control plane and agent API    |
+
 
 Also on **[deckapp.cloud/docs](https://deckapp.cloud/docs)** when published.
 
@@ -54,13 +58,15 @@ Also on **[deckapp.cloud/docs](https://deckapp.cloud/docs)** when published.
 
 ## Why Deck?
 
-| Horizon gives you | Deck adds |
-|-------------------|-----------|
-| Worker supervision and auto-balancing | Per job-class **last run** and status |
-| Recent jobs in Redis (short retention) | **Durable execution log** in your database |
-| Failed job retry UI | **Search and filter** by class, queue, connection, tag |
-| Throughput and wait-time metrics | **Cooperative cancel** and **block job classes** |
-| — | **Stale-job** and **unprocessed-queue** alerts |
+
+| Horizon gives you                      | Deck adds                                              |
+| -------------------------------------- | ------------------------------------------------------ |
+| Worker supervision and auto-balancing  | Per job-class **last run** and status                  |
+| Recent jobs in Redis (short retention) | **Durable execution log** in your database             |
+| Failed job retry UI                    | **Search and filter** by class, queue, connection, tag |
+| Throughput and wait-time metrics       | **Cooperative cancel** and **block job classes**       |
+| —                                      | **Stale-job** and **unprocessed-queue** alerts         |
+
 
 Every row is scoped by `project` and `environment` for multi-app teams and Deck Cloud.
 
