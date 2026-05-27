@@ -34,34 +34,39 @@ jobs:
 
           git fetch --tags --force
 
-          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+          LATEST_VERSION=$(
+            git tag -l \
+            | grep -E '^(v)?[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sed 's/^v//' \
+            | sort -t. -k1,1n -k2,2n -k3,3n \
+            | tail -n1
+          )
 
-          if [ -n "$LATEST_TAG" ]; then
-            TAG_COMMIT=$(git rev-parse "${LATEST_TAG}^{commit}")
+          if [ -n "$LATEST_VERSION" ]; then
+            PREVIOUS_TAG=$(git tag -l | grep -E "^(v)?${LATEST_VERSION}$" | head -n1)
+            TAG_COMMIT=$(git rev-parse "${PREVIOUS_TAG}^{commit}")
 
             if [ "$(git rev-parse HEAD)" = "$TAG_COMMIT" ]; then
               echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "HEAD is already released as ${LATEST_TAG}."
+              echo "HEAD is already released as ${PREVIOUS_TAG}."
               exit 0
             fi
 
-            LATEST_VERSION="${LATEST_TAG#v}"
             IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
             PATCH=$((PATCH + 1))
             VERSION="${MAJOR}.${MINOR}.${PATCH}"
           else
             VERSION="1.0.0"
-            LATEST_TAG=""
+            PREVIOUS_TAG=""
           fi
 
-          TAG="v${VERSION}"
           NOTES_FILE="${RUNNER_TEMP}/release-notes.md"
 
           {
             echo "## Changes"
             echo
-            if [ -n "$LATEST_TAG" ]; then
-              git log "${LATEST_TAG}..HEAD" --pretty=format:'- %s (%h)' --no-merges
+            if [ -n "$PREVIOUS_TAG" ]; then
+              git log "${PREVIOUS_TAG}..HEAD" --pretty=format:'- %s (%h)' --no-merges
             else
               echo "- Initial release"
             fi
@@ -73,7 +78,6 @@ jobs:
 
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "notes_file=${NOTES_FILE}" >> "$GITHUB_OUTPUT"
 
       - name: Build release assets
@@ -90,7 +94,7 @@ jobs:
         if: steps.release.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.release.outputs.tag }}
+          tag_name: ${{ steps.release.outputs.version }}
           name: ${{ steps.release.outputs.version }}
           body_path: ${{ steps.release.outputs.notes_file }}
           draft: false
