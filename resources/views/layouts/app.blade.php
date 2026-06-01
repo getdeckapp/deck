@@ -19,16 +19,16 @@
     {{-- v2 Dark sidebar --}}
     <aside class="relative hidden w-[280px] shrink-0 flex-col lg:flex">
         {{-- Deep zinc gradient base --}}
-        <div class="absolute inset-0 bg-gradient-to-b from-zinc-950 via-[#0c0a18] to-zinc-950" aria-hidden="true"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-zinc-900 via-[#111827] to-zinc-900" aria-hidden="true"></div>
         {{-- Indigo aurora at top --}}
         <div
             class="absolute inset-x-0 top-0 h-[280px]"
-            style="background: radial-gradient(60% 80% at 30% 0%, rgba(99,102,241,0.28) 0%, rgba(99,102,241,0.06) 40%, transparent 75%);"
+            style="background: radial-gradient(60% 80% at 30% 0%, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0.03) 40%, transparent 75%);"
             aria-hidden="true"
         ></div>
         {{-- Dot grid texture --}}
         <div
-            class="absolute inset-0 opacity-[0.18]"
+            class="absolute inset-0 opacity-[0.09]"
             style="background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px); background-size: 20px 20px; background-position: -10px -10px; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 100%); mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 100%);"
             aria-hidden="true"
         ></div>

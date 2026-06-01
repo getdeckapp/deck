@@ -38,10 +38,26 @@
 
     <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <x-deck::stat-card label="Job classes" :value="$summary['classes']" />
-        <x-deck::stat-card label="Total executions" :value="number_format($summary['executions'])" />
+        <x-deck::stat-card
+            label="Total executions"
+            :value="number_format($summary['executions'])"
+            :sparkline="$volumeSparkline"
+        />
         <x-deck::stat-card label="Running now" :value="$summary['running']" />
-        <x-deck::stat-card label="Failed (last run)" :value="$summary['failed']" />
-        <x-deck::stat-card label="Completed runs" :value="number_format($summary['successes'])" class="col-span-2 sm:col-span-1" />
+        <x-deck::stat-card
+            label="Failed jobs"
+            :value="$summary['failed']"
+            variant="danger"
+            :sparkline="$failedSparkline"
+            :delta="$failedDelta"
+            :deltaPositive="$failedDeltaPositive"
+        />
+        <x-deck::stat-card
+            label="Completed today"
+            :value="number_format($completedToday)"
+            :hint="'All time: '.number_format($summary['successes'])"
+            class="col-span-2 sm:col-span-1"
+        />
     </dl>
 
     <div class="grid gap-6 xl:grid-cols-2">
@@ -51,6 +67,7 @@
             :data="$jobVolumeChart"
             empty="No executions in this period."
             format="jobs"
+            type="bar"
         />
         <x-deck::chart-panel
             title="Average duration"
@@ -58,6 +75,7 @@
             :data="$durationChart"
             empty="No completed runs in this period."
             format="duration"
+            colorScheme="amber"
         />
     </div>
 
@@ -84,8 +102,18 @@
 
     <section class="space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-sm font-semibold text-zinc-900">Recent failures</h2>
-            <a href="{{ route('deck.activity.index', ['status' => 'failed']) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            <h2 class="flex items-center gap-2 text-sm font-semibold {{ $recentFailures->isNotEmpty() ? 'text-rose-700' : 'text-zinc-900' }}">
+                @if ($recentFailures->isNotEmpty())
+                    <svg class="size-4 shrink-0 text-rose-500" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                @endif
+                Recent failures
+                @if ($recentFailures->isNotEmpty())
+                    <span class="rounded-full bg-rose-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-rose-700">{{ $recentFailureCount }}</span>
+                @endif
+            </h2>
+            <a href="{{ route('deck.activity.index', ['status' => 'failed']) }}" class="text-sm font-medium {{ $recentFailures->isNotEmpty() ? 'text-rose-600 hover:text-rose-500' : 'text-indigo-600 hover:text-indigo-500' }}">
                 View all failures →
             </a>
         </div>

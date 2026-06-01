@@ -24,10 +24,13 @@
                 @php
                     $detailUrl = route('deck.activity.show', $execution->activityRouteParameters());
                 @endphp
+                @php $isFailed = $execution->status->value === 'failed'; @endphp
                 <tr
                     @class([
-                        'group relative cursor-pointer transition hover:bg-indigo-50/30',
-                        'bg-amber-50/40' => $execution->isLongRunning(),
+                        'group relative cursor-pointer transition',
+                        'hover:bg-rose-50/40' => $isFailed,
+                        'hover:bg-indigo-50/30' => ! $isFailed,
+                        'bg-amber-50/40' => $execution->isLongRunning() && ! $isFailed,
                     ])
                     role="link"
                     tabindex="0"
@@ -36,7 +39,11 @@
                     onkeydown="if (event.key === 'Enter') { event.preventDefault(); window.location.assign(this.dataset.href); }"
                 >
                     @if ($showJobClass)
-                        <td class="relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100">
+                        <td @class([
+                            'relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px]',
+                            'before:bg-rose-500 before:opacity-100' => $isFailed,
+                            'before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100' => ! $isFailed,
+                        ])>
                             <a
                                 href="{{ route('deck.classes.show', ['jobClass' => $execution->job_class]) }}"
                                 class="relative z-10 text-[13.5px] font-semibold text-zinc-900 hover:text-indigo-600"
@@ -48,7 +55,9 @@
                         </td>
                     @endif
                     <td @class([
-                        'relative py-3.5 pr-3 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100',
+                        'relative py-3.5 pr-3 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px]',
+                        'before:bg-rose-500 before:opacity-100' => $isFailed && ! $showJobClass,
+                        'before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100' => ! $isFailed || $showJobClass,
                         'px-3' => $showJobClass,
                         'pl-5' => ! $showJobClass,
                     ])>

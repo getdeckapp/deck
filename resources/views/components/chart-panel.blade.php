@@ -4,6 +4,8 @@
     'data' => [],
     'empty' => 'No data for this period.',
     'format' => 'number',
+    'type' => 'line',
+    'colorScheme' => 'indigo',
 ])
 
 @php
@@ -24,6 +26,19 @@
 
     $hasData = collect($data)->sum('value') > 0;
     $chart = $hasData ? LineChartGeometry::build($data, $axisFormatter, $tooltipFormatter) : null;
+
+    $isBar = $type === 'bar';
+    $amberVars = "
+        --deck-chart-line: var(--color-amber-500);
+        --deck-chart-crosshair: var(--color-amber-300);
+        --deck-chart-area-top: color-mix(in srgb, var(--color-amber-500) 28%, transparent);
+        --deck-chart-area-bottom: color-mix(in srgb, var(--color-amber-500) 2%, transparent);
+    ";
+    $colorStyle = $colorScheme === 'amber' ? $amberVars : '';
+
+    $barWidth = ($hasData && $chart !== null && count($chart['points']) > 0)
+        ? max(2, (\Deck\Deck\Support\LineChartGeometry::WIDTH - \Deck\Deck\Support\LineChartGeometry::PAD_LEFT - \Deck\Deck\Support\LineChartGeometry::PAD_RIGHT) / count($chart['points']) * 0.62)
+        : 8;
 @endphp
 
 <div {{ $attributes->merge(['class' => 'overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] [&_.deck-line-chart]:overflow-visible']) }}>
@@ -45,6 +60,7 @@
             })"
             x-ref="container"
             class="deck-line-chart relative px-3 py-5 sm:px-5"
+            @if($colorStyle) style="{{ $colorStyle }}" @endif
         >
             <div class="rounded-xl ring-1 ring-inset ring-zinc-200/70 p-2">
                 <svg
@@ -83,20 +99,42 @@
                         >{{ $tick['label'] }}</text>
                     @endforeach
 
-                    <path
-                        d="{{ $chart['areaPath'] }}"
-                        fill="url(#deck-chart-fill-{{ $chartId }})"
-                    />
-
-                    <path
-                        d="{{ $chart['linePath'] }}"
-                        fill="none"
-                        stroke="var(--deck-chart-line)"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        vector-effect="non-scaling-stroke"
-                    />
+                    @if ($isBar)
+                        @foreach ($chart['points'] as $point)
+                            @if ($point['value'] > 0)
+                                <rect
+                                    x="{{ round($point['x'] - $barWidth / 2, 1) }}"
+                                    y="{{ $point['y'] }}"
+                                    width="{{ round($barWidth, 1) }}"
+                                    height="{{ round($chart['baseline'] - $point['y'], 1) }}"
+                                    fill="url(#deck-chart-fill-{{ $chartId }})"
+                                    rx="2"
+                                />
+                                <rect
+                                    x="{{ round($point['x'] - $barWidth / 2, 1) }}"
+                                    y="{{ $point['y'] }}"
+                                    width="{{ round($barWidth, 1) }}"
+                                    height="2"
+                                    fill="var(--deck-chart-line)"
+                                    rx="1"
+                                />
+                            @endif
+                        @endforeach
+                    @else
+                        <path
+                            d="{{ $chart['areaPath'] }}"
+                            fill="url(#deck-chart-fill-{{ $chartId }})"
+                        />
+                        <path
+                            d="{{ $chart['linePath'] }}"
+                            fill="none"
+                            stroke="var(--deck-chart-line)"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    @endif
 
                     @foreach ($chart['xTicks'] as $tick)
                         <text
@@ -120,14 +158,16 @@
                                 stroke-dasharray="4 3"
                                 vector-effect="non-scaling-stroke"
                             />
-                            <circle
-                                :cx="active.x"
-                                :cy="active.y"
-                                r="4.5"
-                                fill="var(--deck-chart-line)"
-                                stroke="var(--deck-chart-point-ring)"
-                                stroke-width="2"
-                            />
+                            @if (! $isBar)
+                                <circle
+                                    :cx="active.x"
+                                    :cy="active.y"
+                                    r="4.5"
+                                    fill="var(--deck-chart-line)"
+                                    stroke="var(--deck-chart-point-ring)"
+                                    stroke-width="2"
+                                />
+                            @endif
                         </g>
                     </template>
                 </svg>

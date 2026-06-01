@@ -56,6 +56,34 @@
         QueueBusynessLevel::Busy => 'from-orange-600 to-orange-400',
         QueueBusynessLevel::Critical => 'from-rose-600 to-rose-400',
     };
+
+    $queueRowBg = fn (QueueBusynessLevel $queueLevel): string => match ($queueLevel) {
+        QueueBusynessLevel::Idle, QueueBusynessLevel::Light => '',
+        QueueBusynessLevel::Moderate => 'rounded-lg bg-amber-50/50 px-2 -mx-2',
+        QueueBusynessLevel::Busy => 'rounded-lg bg-orange-50/60 px-2 -mx-2',
+        QueueBusynessLevel::Critical => 'rounded-lg bg-rose-50/70 px-2 -mx-2',
+    };
+
+    $queueNameClass = fn (QueueBusynessLevel $queueLevel): string => match ($queueLevel) {
+        QueueBusynessLevel::Idle, QueueBusynessLevel::Light => 'text-sm font-medium text-zinc-900',
+        QueueBusynessLevel::Moderate => 'text-sm font-semibold text-amber-900',
+        QueueBusynessLevel::Busy => 'text-sm font-semibold text-orange-900',
+        QueueBusynessLevel::Critical => 'text-sm font-bold text-rose-900',
+    };
+
+    $queueDetailClass = fn (QueueBusynessLevel $queueLevel): string => match ($queueLevel) {
+        QueueBusynessLevel::Idle, QueueBusynessLevel::Light => 'text-xs text-zinc-500',
+        QueueBusynessLevel::Moderate => 'text-xs font-medium text-amber-700',
+        QueueBusynessLevel::Busy => 'text-xs font-semibold text-orange-700',
+        QueueBusynessLevel::Critical => 'text-xs font-semibold text-rose-700',
+    };
+
+    $queueBarHeight = fn (QueueBusynessLevel $queueLevel): string => match ($queueLevel) {
+        QueueBusynessLevel::Idle, QueueBusynessLevel::Light => 'h-1.5',
+        QueueBusynessLevel::Moderate => 'h-2',
+        QueueBusynessLevel::Busy => 'h-2.5',
+        QueueBusynessLevel::Critical => 'h-3',
+    };
 @endphp
 
 <section class="overflow-hidden rounded-2xl border border-zinc-200/60 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
@@ -159,12 +187,19 @@
                 <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Busiest queues</h3>
                 <div class="space-y-3">
                     @foreach ($topQueues as $queue)
-                        <div>
+                        <div class="{{ $queueRowBg($queue['level']) }}">
                             <div class="mb-1.5 flex items-center justify-between gap-3">
-                                <span class="text-sm font-medium text-zinc-900">{{ $queue['name'] }}</span>
-                                <span class="shrink-0 text-xs text-zinc-500">{{ $queue['detail'] }}</span>
+                                <span class="flex items-center gap-1.5 {{ $queueNameClass($queue['level']) }}">
+                                    @if (in_array($queue['level'], [\Deck\Deck\Enums\QueueBusynessLevel::Busy, \Deck\Deck\Enums\QueueBusynessLevel::Critical]))
+                                        <svg class="size-3.5 shrink-0 {{ $queue['level'] === \Deck\Deck\Enums\QueueBusynessLevel::Critical ? 'text-rose-500' : 'text-orange-500' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                        </svg>
+                                    @endif
+                                    {{ $queue['name'] }}
+                                </span>
+                                <span class="shrink-0 {{ $queueDetailClass($queue['level']) }}">{{ $queue['detail'] }}</span>
                             </div>
-                            <div class="relative h-2 overflow-hidden rounded-full bg-zinc-100">
+                            <div class="relative {{ $queueBarHeight($queue['level']) }} overflow-hidden rounded-full bg-zinc-100">
                                 <div
                                     class="h-full rounded-full bg-gradient-to-r {{ $queueBarClass($queue['level']) }}"
                                     style="width: {{ max(6, $queue['score']) }}%"

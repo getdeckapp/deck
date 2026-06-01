@@ -46,6 +46,44 @@ class Dashboard extends Component
             'executions' => JobExecution::query()->forInstallation()->count(),
         ];
 
+        $failedToday = JobExecution::query()
+            ->forInstallation()
+            ->where('status', JobExecutionStatus::Failed)
+            ->where('started_at', '>=', now()->startOfDay())
+            ->count();
+
+        $failedYesterday = JobExecution::query()
+            ->forInstallation()
+            ->where('status', JobExecutionStatus::Failed)
+            ->whereBetween('started_at', [now()->subDay()->startOfDay(), now()->startOfDay()])
+            ->count();
+
+        $completedToday = JobExecution::query()
+            ->forInstallation()
+            ->where('status', JobExecutionStatus::Completed)
+            ->where('started_at', '>=', now()->startOfDay())
+            ->count();
+
+        $failedDelta = null;
+        $failedDeltaPositive = null;
+        if ($failedToday > 0 || $failedYesterday > 0) {
+            $diff = abs($failedToday - $failedYesterday);
+            if ($failedToday > $failedYesterday) {
+                $failedDelta = '↑'.$diff.' from yesterday';
+                $failedDeltaPositive = true;
+            } elseif ($failedToday < $failedYesterday) {
+                $failedDelta = '↓'.$diff.' from yesterday';
+                $failedDeltaPositive = false;
+            } else {
+                $failedDelta = 'Same as yesterday';
+                $failedDeltaPositive = null;
+            }
+        }
+
+        $jobVolumeChart = $metrics->hourlyJobVolume()->all();
+        $failedSparkline = $metrics->hourlyFailedVolume()->pluck('value')->slice(-14)->values()->all();
+        $volumeSparkline = collect($jobVolumeChart)->pluck('value')->slice(-14)->values()->all();
+
         $allClear = $recentFailures->isEmpty()
             && $unprocessedQueues->isEmpty()
             && $summary['running'] === 0
@@ -54,7 +92,13 @@ class Dashboard extends Component
 
         return view('deck::livewire.dashboard', [
             'summary' => $summary,
-            'jobVolumeChart' => $metrics->hourlyJobVolume()->all(),
+            'failedToday' => $failedToday,
+            'failedDelta' => $failedDelta,
+            'failedDeltaPositive' => $failedDeltaPositive,
+            'completedToday' => $completedToday,
+            'failedSparkline' => $failedSparkline,
+            'volumeSparkline' => $volumeSparkline,
+            'jobVolumeChart' => $jobVolumeChart,
             'durationChart' => $metrics->hourlyAverageDuration()->all(),
             'queueBusyness' => $queueBusyness,
             'unprocessedQueues' => $unprocessedQueues,
