@@ -37,7 +37,7 @@
     $colorStyle = $colorScheme === 'amber' ? $amberVars : '';
 
     $barWidth = ($hasData && $chart !== null && count($chart['points']) > 0)
-        ? max(2, (\Deck\Deck\Support\LineChartGeometry::WIDTH - \Deck\Deck\Support\LineChartGeometry::PAD_LEFT - \Deck\Deck\Support\LineChartGeometry::PAD_RIGHT) / count($chart['points']) * 0.62)
+        ? max(2, (\Deck\Deck\Presentation\LineChartGeometry::WIDTH - \Deck\Deck\Presentation\LineChartGeometry::PAD_LEFT - \Deck\Deck\Presentation\LineChartGeometry::PAD_RIGHT) / count($chart['points']) * 0.62)
         : 8;
 @endphp
 
