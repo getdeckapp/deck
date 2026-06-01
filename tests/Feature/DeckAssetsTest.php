@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeckAssets;
+use Deck\Deck\Presentation\DeckAssets;
 
 it('serves precompiled css from the package', function () {
     $path = DeckAssets::packageDistPath('deck.css');

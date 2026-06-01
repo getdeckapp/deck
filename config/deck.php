@@ -32,13 +32,13 @@ return [
     | Deck Cloud (optional, opt-in)
     |--------------------------------------------------------------------------
     |
-    | Disabled by default. No outbound HTTP is made unless enabled is true and
-    | both url and api_key are set. Set DECK_CLOUD_PROMO=false to hide sidebar
-    | links to deckapp.cloud in the dashboard UI.
+    | Opt-in via DECK_API_KEY. Set DECK_CLOUD_ENABLED=false to disable the agent
+    | while keeping the key. Set DECK_CLOUD_PROMO=false to hide sidebar links
+    | to deckapp.cloud when Cloud is off.
     |
     */
     'cloud' => [
-        'enabled' => env('DECK_CLOUD_ENABLED', false),
+        'enabled' => env('DECK_CLOUD_ENABLED'),
         'url' => env('DECK_CLOUD_URL'),
         'api_key' => env('DECK_API_KEY'),
         'timeout_seconds' => (int) env('DECK_CLOUD_TIMEOUT', 5),
@@ -147,6 +147,17 @@ return [
 
     'store_context' => (bool) env('DECK_STORE_CONTEXT', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Recording diagnostics
+    |--------------------------------------------------------------------------
+    |
+    | When true, failures while writing to deck_job_executions are logged so
+    | silent drops (wrong DB connection, missing migrations, etc.) are visible.
+    |
+    */
+    'log_recording_failures' => (bool) env('DECK_LOG_RECORDING_FAILURES', true),
+
     'exception_trace_bytes' => (int) env('DECK_EXCEPTION_TRACE_BYTES', 65_536),
 
     'tables' => [
@@ -200,6 +211,33 @@ return [
         'additional_queues' => [
             // 'redis:notifications',
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dispatch groups
+    |--------------------------------------------------------------------------
+    */
+    'dispatch_groups' => [
+        'enabled' => (bool) env('DECK_DISPATCH_GROUPS_ENABLED', true),
+        'request_middleware' => (bool) env('DECK_DISPATCH_GROUPS_REQUEST_MIDDLEWARE', true),
+        'lineage' => (bool) env('DECK_DISPATCH_GROUPS_LINEAGE', true),
+        'artisan' => (bool) env('DECK_DISPATCH_GROUPS_ARTISAN', false),
+        'request_id_header' => env('DECK_DISPATCH_GROUPS_REQUEST_ID_HEADER', 'X-Request-Id'),
+        'request_id_attribute' => env('DECK_DISPATCH_GROUPS_REQUEST_ID_ATTRIBUTE', 'request_id'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job lifecycle (queue wait, origin, parent job)
+    |--------------------------------------------------------------------------
+    */
+    'lifecycle' => [
+        'enabled' => (bool) env('DECK_LIFECYCLE_ENABLED', true),
+        'origin_http' => (bool) env('DECK_LIFECYCLE_ORIGIN_HTTP', true),
+        'origin_artisan' => (bool) env('DECK_LIFECYCLE_ORIGIN_ARTISAN', true),
+        'parent_job' => (bool) env('DECK_LIFECYCLE_PARENT_JOB', true),
+        'wait_analytics' => (bool) env('DECK_LIFECYCLE_WAIT_ANALYTICS', true),
     ],
 
 ];

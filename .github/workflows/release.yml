@@ -1,0 +1,105 @@
+name: release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve next release
+        id: release
+        run: |
+          if [ "${{ github.event.head_commit.message }}" = "Update CHANGELOG" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping release for changelog maintenance commit."
+            exit 0
+          fi
+
+          git fetch --tags --force
+
+          LATEST_VERSION=$(
+            git tag -l \
+            | grep -E '^(v)?[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sed 's/^v//' \
+            | sort -t. -k1,1n -k2,2n -k3,3n \
+            | tail -n1
+          )
+
+          if [ -n "$LATEST_VERSION" ]; then
+            PREVIOUS_TAG=$(git tag -l | grep -E "^(v)?${LATEST_VERSION}$" | head -n1)
+            TAG_COMMIT=$(git rev-parse "${PREVIOUS_TAG}^{commit}")
+
+            if [ "$(git rev-parse HEAD)" = "$TAG_COMMIT" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "HEAD is already released as ${PREVIOUS_TAG}."
+              exit 0
+            fi
+
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
+            PATCH=$((PATCH + 1))
+            VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          else
+            VERSION="1.0.0"
+            PREVIOUS_TAG=""
+          fi
+
+          NOTES_FILE="${RUNNER_TEMP}/release-notes.md"
+
+          {
+            echo "## Changes"
+            echo
+            if [ -n "$PREVIOUS_TAG" ]; then
+              git log "${PREVIOUS_TAG}..HEAD" --pretty=format:'- %s (%h)' --no-merges
+            else
+              echo "- Initial release"
+            fi
+          } > "$NOTES_FILE"
+
+          if [ ! -s "$NOTES_FILE" ]; then
+            echo "Automated release." > "$NOTES_FILE"
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "notes_file=${NOTES_FILE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release assets
+        if: steps.release.outputs.skip != 'true'
+        uses: ./.github/actions/build-assets
+
+      - name: Package release assets
+        if: steps.release.outputs.skip != 'true'
+        run: |
+          test -f resources/dist/deck.css
+          cp resources/dist/deck.css "${RUNNER_TEMP}/deck-${{ steps.release.outputs.version }}.css"
+
+      - name: Create GitHub release
+        if: steps.release.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.release.outputs.version }}
+          name: ${{ steps.release.outputs.version }}
+          body_path: ${{ steps.release.outputs.notes_file }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          files: |
+            resources/dist/deck.css
+            ${{ runner.temp }}/deck-${{ steps.release.outputs.version }}.css

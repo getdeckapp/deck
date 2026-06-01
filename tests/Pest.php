@@ -1,11 +1,11 @@
 <?php
 
-use Deck\Deck\Cloud\CloudAgentRegistry;
-use Deck\Deck\Cloud\SyncThrottle;
+use Deck\Deck\Cloud\Agent\CloudAgentRegistry;
+use Deck\Deck\Cloud\Agent\SyncThrottle;
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
 use Deck\Deck\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
 

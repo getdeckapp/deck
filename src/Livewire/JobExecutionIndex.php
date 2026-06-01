@@ -6,8 +6,8 @@ use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Livewire\Concerns\FiltersExecutions;
 use Deck\Deck\Livewire\Concerns\InteractsWithExecutions;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckPolling;
-use Deck\Deck\Support\ExecutionTagCatalog;
+use Deck\Deck\Presentation\DeckPolling;
+use Deck\Deck\Presentation\ExecutionTagCatalog;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -36,6 +36,12 @@ class JobExecutionIndex extends Component
     #[Url]
     public string $tag = '';
 
+    #[Url]
+    public string $dispatch_group = '';
+
+    #[Url]
+    public string $batch_id = '';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -57,6 +63,16 @@ class JobExecutionIndex extends Component
     }
 
     public function updatedTag(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDispatchGroup(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedBatchId(): void
     {
         $this->resetPage();
     }

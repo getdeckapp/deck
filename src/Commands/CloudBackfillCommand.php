@@ -2,9 +2,9 @@
 
 namespace Deck\Deck\Commands;
 
-use Deck\Deck\Cloud\CloudExecutionBackfillPayload;
+use Deck\Deck\Cloud\Connection\HttpClient;
 use Deck\Deck\Cloud\DeckCloud;
-use Deck\Deck\Cloud\HttpClient;
+use Deck\Deck\Cloud\Events\CloudExecutionBackfillPayload;
 use Deck\Deck\Models\JobExecution;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -25,7 +25,7 @@ class CloudBackfillCommand extends Command
     public function handle(HttpClient $http): int
     {
         if (! DeckCloud::isEnabled()) {
-            $this->components->warn('Deck Cloud is disabled (set DECK_CLOUD_ENABLED, DECK_CLOUD_URL, and DECK_API_KEY).');
+            $this->components->warn('Deck Cloud is disabled (set DECK_API_KEY, or remove DECK_CLOUD_ENABLED=false).');
 
             return self::SUCCESS;
         }

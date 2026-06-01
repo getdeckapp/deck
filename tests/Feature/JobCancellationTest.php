@@ -1,13 +1,13 @@
 <?php
 
+use Deck\Deck\Cancellation\JobCancellation;
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Exceptions\JobCancelledException;
 use Deck\Deck\Facades\Deck as DeckFacade;
 use Deck\Deck\Livewire\Dashboard;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
-use Deck\Deck\Support\JobCancellation;
 use Deck\Deck\Tests\Fixtures\CancellableOnlyTestJob;
 use Deck\Deck\Tests\Fixtures\SlowCancellableTestJob;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;

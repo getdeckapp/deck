@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Middleware;
 
-use Deck\Deck\Support\InterceptBlockedQueueJob;
+use Deck\Deck\Blocking\InterceptBlockedQueueJob;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Queue\InteractsWithQueue;
 

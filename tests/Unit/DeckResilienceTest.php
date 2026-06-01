@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeckResilience;
+use Deck\Deck\Core\DeckResilience;
 
 it('returns the default when a callback throws', function () {
     $result = DeckResilience::runSilently(

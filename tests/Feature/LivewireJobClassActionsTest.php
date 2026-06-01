@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Blocking\JobClassBlock;
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Livewire\JobClassShow;
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\JobClassBlock;
 use Livewire\Livewire;
 
 it('cancels all running executions for a class via livewire', function () {

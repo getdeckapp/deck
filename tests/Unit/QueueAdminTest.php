@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\QueueAdmin;
+use Deck\Deck\Presentation\QueueAdmin;
 use Illuminate\Queue\RedisQueue;
 use Illuminate\Support\Facades\Queue;
 

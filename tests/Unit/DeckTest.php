@@ -1,8 +1,8 @@
 <?php
 
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Deck;
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\JobCancellation;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Facades\Bus;
 

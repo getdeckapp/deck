@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeckDatabase;
+use Deck\Deck\Core\DeckDatabase;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 

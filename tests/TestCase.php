@@ -21,6 +21,10 @@ class TestCase extends Orchestra
         $migration = include __DIR__.'/../database/migrations/create_deck_tables.php.stub';
 
         $migration->up();
+
+        $observabilityMigration = include __DIR__.'/../database/migrations/add_observability_v2_to_deck_job_executions.php.stub';
+
+        $observabilityMigration->up();
     }
 
     protected function defineEnvironment($app): void
@@ -44,5 +48,7 @@ class TestCase extends Orchestra
         config()->set('deck.project', 'test');
         config()->set('deck.environment', 'testing');
         config()->set('deck.unprocessed_queues.enabled', false);
+        config()->set('deck.cloud.api_key', 'test-api-key');
+        config()->set('deck.cloud.url', 'https://cloud.deck.test');
     }
 }

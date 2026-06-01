@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Commands;
 
-use Deck\Deck\Support\DeckAssets;
+use Deck\Deck\Presentation\DeckAssets;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Laravel\Horizon\Horizon;

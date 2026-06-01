@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeckPolling;
+use Deck\Deck\Presentation\DeckPolling;
 
 it('polls the dashboard faster while jobs are running', function () {
     config()->set('deck.poll.dashboard_seconds', 8);

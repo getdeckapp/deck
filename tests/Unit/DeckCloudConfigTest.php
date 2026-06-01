@@ -21,10 +21,17 @@ it('enables cloud when only an api key is configured', function () {
         ->and(DeckCloud::commandsEnabled())->toBeTrue();
 });
 
+it('auto-enables cloud when enabled config is null', function () {
+    config()->set('deck.cloud.api_key', 'agent-token');
+    config()->set('deck.cloud.enabled', null);
+
+    expect(DeckCloud::isEnabled())->toBeTrue();
+});
+
 it('defaults cloud url to deckapp.cloud outside local', function () {
     config()->set('app.env', 'production');
 
-    expect(DeckCloud::defaultUrl())->toBe('https://deckapp.cloud');
+    expect(DeckCloud::defaultUrl())->toBe('https://app.deckapp.cloud');
 });
 
 it('can be explicitly disabled while keeping an api key', function () {

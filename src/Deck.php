@@ -2,20 +2,20 @@
 
 namespace Deck\Deck;
 
+use Deck\Deck\Blocking\JobClassBlock;
+use Deck\Deck\Cancellation\JobCancellation;
+use Deck\Deck\Cancellation\JobExecutionRetry;
+use Deck\Deck\Cancellation\MarkExecutionCancelled;
+use Deck\Deck\Cancellation\PendingJobCancellation;
+use Deck\Deck\Core\DeferDeckSideEffects;
 use Deck\Deck\Data\ClearQueueResult;
+use Deck\Deck\Data\JobClassBlockAudit;
+use Deck\Deck\Data\PendingCancelResult;
+use Deck\Deck\Data\RetryExecutionResult;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeferDeckSideEffects;
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\JobClassBlock;
-use Deck\Deck\Support\JobClassBlockAudit;
-use Deck\Deck\Support\JobExecutionRetry;
-use Deck\Deck\Support\JobProgress;
-use Deck\Deck\Support\MarkExecutionCancelled;
-use Deck\Deck\Support\PendingCancelResult;
-use Deck\Deck\Support\PendingJobCancellation;
-use Deck\Deck\Support\QueueAdmin;
-use Deck\Deck\Support\RetryExecutionResult;
+use Deck\Deck\Presentation\QueueAdmin;
+use Deck\Deck\Recording\JobProgress;
 use Illuminate\Support\Carbon;
 
 class Deck

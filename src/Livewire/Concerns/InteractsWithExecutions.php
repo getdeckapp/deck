@@ -4,7 +4,7 @@ namespace Deck\Deck\Livewire\Concerns;
 
 use Deck\Deck\Deck;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckPolling;
+use Deck\Deck\Presentation\DeckPolling;
 
 trait InteractsWithExecutions
 {

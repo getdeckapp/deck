@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeckAssets;
+use Deck\Deck\Presentation\DeckAssets;
 
 it('returns a stylesheet link tag from styles', function () {
     $html = DeckAssets::styles();

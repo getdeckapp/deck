@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\LineChartGeometry;
+use Deck\Deck\Presentation\LineChartGeometry;
 
 it('builds line and area paths from data points', function () {
     $chart = LineChartGeometry::build([

@@ -3,7 +3,7 @@
 namespace Deck\Deck\Data;
 
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\QueuedJobMetadata;
+use Deck\Deck\Recording\QueuedJobMetadata;
 use Illuminate\Support\Carbon;
 
 readonly class JobExecutionRecord
@@ -19,10 +19,12 @@ readonly class JobExecutionRecord
         public Carbon $startedAt,
         public ?Carbon $finishedAt = null,
         public ?int $durationMs = null,
+        public ?int $waitMs = null,
         public ?string $exceptionClass = null,
         public ?string $exceptionMessage = null,
         public ?string $exceptionTrace = null,
         public ?array $tags = null,
         public ?array $context = null,
+        public ?ObservabilitySnapshot $observability = null,
     ) {}
 }

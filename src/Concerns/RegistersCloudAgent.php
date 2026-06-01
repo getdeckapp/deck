@@ -2,11 +2,11 @@
 
 namespace Deck\Deck\Concerns;
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\CloudAgentRegistry;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Agent\CloudAgentRegistry;
 use Deck\Deck\Cloud\DeckCloud;
+use Deck\Deck\Horizon\DeckHorizon;
 use Deck\Deck\Listeners\SyncCloudAgent;
-use Deck\Deck\Support\DeckHorizon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Event;
@@ -32,9 +32,11 @@ trait RegistersCloudAgent
                 'Laravel\Horizon\Events\MasterSupervisorLooped',
                 [$listener, 'onHorizonLoop'],
             );
+
+            return;
         }
 
-        // Also sync when using queue:work / queue:listen (common when Horizon is installed but not running).
+        // Sync for queue:work / queue:listen when Horizon is not installed.
         Queue::looping(fn (Looping $event) => $listener->onQueueLoop($event));
     }
 

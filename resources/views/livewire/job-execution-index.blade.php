@@ -59,8 +59,28 @@
                     id="deck-activity-search"
                     type="search"
                     wire:model.live.debounce.300ms="search"
-                    placeholder="Job or UUID…"
+                    placeholder="Job, UUID, group, exception…"
                     class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                >
+            </div>
+            <div class="sm:w-48">
+                <label for="deck-dispatch-group" class="mb-1 block text-xs font-medium text-zinc-500">Dispatch group</label>
+                <input
+                    id="deck-dispatch-group"
+                    type="text"
+                    wire:model.live.debounce.300ms="dispatch_group"
+                    placeholder="Group ID"
+                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                >
+            </div>
+            <div class="sm:w-48">
+                <label for="deck-batch-id" class="mb-1 block text-xs font-medium text-zinc-500">Batch ID</label>
+                <input
+                    id="deck-batch-id"
+                    type="text"
+                    wire:model.live.debounce.300ms="batch_id"
+                    placeholder="Batch UUID"
+                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 font-mono text-xs text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
                 >
             </div>
         </div>

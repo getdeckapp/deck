@@ -4,7 +4,7 @@
 ])
 
 @php
-    use Deck\Deck\Cloud\CloudConnectionState;
+    use Deck\Deck\Cloud\Connection\CloudConnectionState;
 
     $dotClass = match ($connection->state) {
         CloudConnectionState::Connected => 'bg-emerald-400',

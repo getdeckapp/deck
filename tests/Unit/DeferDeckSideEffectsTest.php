@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\DeferDeckSideEffects;
+use Deck\Deck\Core\DeferDeckSideEffects;
 
 it('does not defer side effects in tests or the console', function () {
     config()->set('deck.defer_side_effects', true);

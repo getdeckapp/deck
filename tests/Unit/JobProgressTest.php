@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\JobProgress;
+use Deck\Deck\Recording\JobProgress;
 
 it('stores and retrieves job progress', function () {
     $uuid = (string) str()->uuid();

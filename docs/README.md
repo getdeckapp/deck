@@ -14,6 +14,16 @@ User-facing guides for the `deck/deck` package. These files are the **source** f
 | Deck Cloud | [deck-cloud.md](deck-cloud.md) | [/docs/deck-cloud](https://deckapp.cloud/docs/deck-cloud) |
 | Horizon & Deck | [horizon.md](horizon.md) | [/docs/horizon](https://deckapp.cloud/docs/horizon) |
 
+## Design specs (implementation drafts)
+
+| Spec | File |
+|------|------|
+| **Observability v2 + Cloud ingest** | [observability-v2-cloud-sync.md](observability-v2-cloud-sync.md) |
+| Dispatch groups | [dispatch-groups.md](dispatch-groups.md) |
+| Job lifecycle | [job-lifecycle.md](job-lifecycle.md) |
+
+Deck Cloud mirror: `docs/ingest-v2-spec.md` in the [Deck Cloud repo](https://github.com/getdeckapp/deck-cloud).
+
 When adding pages to the marketing site, mirror paths under `/docs/` so README and in-app links stay stable.
 
 ## Changelog & security

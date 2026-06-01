@@ -1,7 +1,7 @@
 <?php
 
-use Deck\Deck\Cloud\WorkerSnapshot;
-use Deck\Deck\Cloud\WorkerSnapshotCollector;
+use Deck\Deck\Cloud\Workers\WorkerSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerSnapshotCollector;
 
 it('serializes a worker snapshot for deck cloud ingest', function () {
     config()->set('deck.project', 'Billing API');
@@ -48,6 +48,25 @@ it('serializes a worker snapshot for deck cloud ingest', function () {
             'driver' => 'redis',
         ],
     ]);
+});
+
+it('builds minimal snapshots from supervisor names when horizon hashes are missing', function () {
+    config()->set('queue.default', 'redis');
+    config()->set('queue.connections.redis.queue', 'default');
+
+    $repository = Mockery::mock(\Laravel\Horizon\Contracts\SupervisorRepository::class);
+    $repository->shouldReceive('find')->with('forge-1:supervisor-1')->andReturn(null);
+
+    $this->app->instance(\Laravel\Horizon\Contracts\SupervisorRepository::class, $repository);
+
+    $snapshots = app(WorkerSnapshotCollector::class)->fromSupervisorNames([
+        'forge-1:supervisor-1',
+    ]);
+
+    expect($snapshots)->toHaveCount(1)
+        ->and($snapshots[0]->supervisor)->toBe('forge-1:supervisor-1')
+        ->and($snapshots[0]->status)->toBe('running')
+        ->and($snapshots[0]->processes)->toBe(1);
 });
 
 it('maps zero processes to stopped status in collector output', function () {

@@ -1,0 +1,22 @@
+name: Build Deck assets
+description: Install Node dependencies and build precompiled CSS into resources/dist/
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22
+        cache: npm
+        cache-dependency-path: package-lock.json
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Build assets
+      shell: bash
+      env:
+        DECK_ASSETS_SYNC: ''
+      run: npm run build

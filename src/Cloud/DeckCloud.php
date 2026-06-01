@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Cloud;
 
-use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Core\DeckInstallation;
 use Illuminate\Support\Str;
 
 class DeckCloud
@@ -48,7 +48,7 @@ class DeckCloud
     {
         return config('app.env') === 'local'
             ? 'http://deck.test'
-            : 'https://deckapp.cloud';
+            : 'https://app.deckapp.cloud';
     }
 
     private static function explicitlyDisabled(): bool

@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Livewire\JobExecutionIndex;
 use Deck\Deck\Livewire\JobExecutionShow;
-use Deck\Deck\Support\JobCancellation;
 use Livewire\Livewire;
 
 it('requests cancellation for a running execution via livewire', function () {

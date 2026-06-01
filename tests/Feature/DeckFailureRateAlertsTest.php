@@ -2,7 +2,7 @@
 
 use Deck\Deck\Commands\CheckAlertsCommand;
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Support\DeckAlertChecker;
+use Deck\Deck\Presentation\DeckAlertChecker;
 
 it('detects job classes above the configured failure-rate threshold', function () {
     config()->set('deck.alerts.enabled', true);

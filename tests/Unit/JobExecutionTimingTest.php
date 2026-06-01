@@ -1,6 +1,6 @@
 <?php
 
-use Deck\Deck\Support\JobExecutionTiming;
+use Deck\Deck\Recording\JobExecutionTiming;
 use Illuminate\Support\Carbon;
 
 it('remembers and resolves execution start times from cache', function () {

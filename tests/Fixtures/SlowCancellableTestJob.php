@@ -2,8 +2,8 @@
 
 namespace Deck\Deck\Tests\Fixtures;
 
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Middleware\Cancellable;
-use Deck\Deck\Support\JobCancellation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

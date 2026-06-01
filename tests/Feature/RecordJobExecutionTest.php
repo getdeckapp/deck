@@ -1,9 +1,9 @@
 <?php
 
+use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Support\DeckInstallation;
 use Deck\Deck\Tests\Fixtures\FailingTestJob;
 use Deck\Deck\Tests\Fixtures\SuccessfulTestJob;
 use Illuminate\Support\Str;

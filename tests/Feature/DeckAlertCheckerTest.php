@@ -1,8 +1,8 @@
 <?php
 
 use Deck\Deck\Data\UnprocessedQueue;
-use Deck\Deck\Support\DeckAlertChecker;
-use Deck\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Presentation\DeckAlertChecker;
+use Deck\Deck\Presentation\UnprocessedQueueDetector;
 
 it('detects stale job classes from config rules', function () {
     config()->set('deck.alerts.enabled', true);

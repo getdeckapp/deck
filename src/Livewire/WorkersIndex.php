@@ -2,13 +2,13 @@
 
 namespace Deck\Deck\Livewire;
 
+use Deck\Deck\Horizon\DeckHorizon;
+use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Livewire\Concerns\InteractsWithActionConfirmation;
-use Deck\Deck\Support\DeckHorizon;
-use Deck\Deck\Support\DeckPolling;
-use Deck\Deck\Support\HorizonSnapshot;
-use Deck\Deck\Support\QueueAdmin;
-use Deck\Deck\Support\QueueInsights;
-use Deck\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Presentation\DeckPolling;
+use Deck\Deck\Presentation\QueueAdmin;
+use Deck\Deck\Presentation\QueueInsights;
+use Deck\Deck\Presentation\UnprocessedQueueDetector;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

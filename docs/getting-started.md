@@ -22,6 +22,8 @@ php artisan migrate
 
 Open `/deck` (prefix: `deck.route_prefix`).
 
+**Deck does not run queue workers.** Keep `php artisan horizon` or `php artisan queue:work` running — installing Deck only adds observability and controls on top of your existing queue.
+
 ### Dedicated database
 
 For busy apps, use a separate connection — see [Production → Dedicated database](production.md#dedicated-database-recommended).

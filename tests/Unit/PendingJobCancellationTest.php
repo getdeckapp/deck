@@ -1,7 +1,7 @@
 <?php
 
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\PendingJobCancellation;
+use Deck\Deck\Cancellation\JobCancellation;
+use Deck\Deck\Cancellation\PendingJobCancellation;
 
 it('sets the cancellation flag for pending cancel', function () {
     $uuid = (string) str()->uuid();

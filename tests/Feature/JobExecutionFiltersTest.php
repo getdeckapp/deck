@@ -26,6 +26,24 @@ it('filters activity by connection and tag', function () {
         ->assertDontSee('OtherJob');
 });
 
+it('filters activity by dispatch group id', function () {
+    createDeckExecution([
+        'job_class' => 'App\\Jobs\\GroupedJob',
+        'dispatch_group_id' => 'req-match',
+        'wait_ms' => 1500,
+    ]);
+
+    createDeckExecution([
+        'job_class' => 'App\\Jobs\\OtherGroupedJob',
+        'dispatch_group_id' => 'req-other',
+    ]);
+
+    $this->get(route('deck.activity.index', ['dispatch_group' => 'req-match']))
+        ->assertOk()
+        ->assertSee('GroupedJob')
+        ->assertDontSee('OtherGroupedJob');
+});
+
 it('filters activity by blocked status', function () {
     createDeckExecution([
         'job_class' => 'App\\Jobs\\BlockedJob',

@@ -15,6 +15,7 @@
                     </th>
                     <th scope="col" class="px-3 py-3 text-left font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-zinc-500">Queue</th>
                     <th scope="col" class="px-3 py-3 text-left font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-zinc-500">Started</th>
+                    <th scope="col" class="px-3 py-3 text-right font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-zinc-500">Wait</th>
                     <th scope="col" class="px-3 py-3 text-right font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-zinc-500">Duration</th>
                     <th scope="col" class="relative py-3 pr-5 pl-3"></th>
                 </tr>
@@ -95,6 +96,9 @@
                         <p class="mt-0.5 font-mono text-[11px] text-zinc-500 tabular-nums">{{ $execution->started_at->format('M j, H:i:s') }}</p>
                     </td>
                     <td class="px-3 py-3.5 whitespace-nowrap text-right">
+                        <p class="font-mono text-[13px] tabular-nums text-zinc-500">{{ $execution->formattedWait() }}</p>
+                    </td>
+                    <td class="px-3 py-3.5 whitespace-nowrap text-right">
                         <p class="font-mono text-[13px] font-semibold tabular-nums text-zinc-900">{{ $execution->formattedDuration() }}</p>
                     </td>
                     <td class="py-3.5 pr-5 pl-3 whitespace-nowrap text-right">
@@ -124,7 +128,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ $showJobClass ? 6 : 5 }}" class="py-14 text-center text-[13px] text-zinc-500">{{ $emptyMessage }}</td>
+                    <td colspan="{{ $showJobClass ? 7 : 6 }}" class="py-14 text-center text-[13px] text-zinc-500">{{ $emptyMessage }}</td>
                 </tr>
             @endforelse
             </tbody>

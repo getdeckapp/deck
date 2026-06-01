@@ -2,8 +2,8 @@
 
 namespace Deck\Deck\Bus;
 
-use Deck\Deck\Support\DeckResilience;
-use Deck\Deck\Support\InterceptBlockedDispatch;
+use Deck\Deck\Blocking\InterceptBlockedDispatch;
+use Deck\Deck\Core\DeckResilience;
 use Illuminate\Bus\Dispatcher;
 
 class DeckDispatcher extends Dispatcher

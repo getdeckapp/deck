@@ -1,8 +1,8 @@
 <?php
 
 use Deck\Deck\Data\UnprocessedQueue;
-use Deck\Deck\Support\HorizonSnapshot;
-use Deck\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Horizon\HorizonSnapshot;
+use Deck\Deck\Presentation\UnprocessedQueueDetector;
 
 it('shows unprocessed queues warning on the dashboard', function () {
     $queue = new UnprocessedQueue(

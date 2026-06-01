@@ -2,15 +2,17 @@
 
 namespace Deck\Deck\Models;
 
+use Deck\Deck\Cancellation\JobCancellation;
 use Deck\Deck\Data\JobProgressState;
+use Deck\Deck\Enums\DispatchGroupSource;
 use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Horizon\DeckHorizon;
 use Deck\Deck\Models\Concerns\BelongsToDeckInstallation;
 use Deck\Deck\Models\Concerns\UsesDeckConnection;
-use Deck\Deck\Support\DeckHorizon;
-use Deck\Deck\Support\FormatDuration;
-use Deck\Deck\Support\JobCancellation;
-use Deck\Deck\Support\JobProgress;
+use Deck\Deck\Presentation\FormatDuration;
+use Deck\Deck\Recording\JobProgress;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $uuid
@@ -22,11 +24,19 @@ use Illuminate\Database\Eloquent\Model;
  * @property list<string>|null $tags
  * @property string $project
  * @property string $environment
- * @property \Illuminate\Support\Carbon $started_at
- * @property \Illuminate\Support\Carbon|null $finished_at
+ * @property Carbon $started_at
+ * @property Carbon|null $finished_at
  * @property int|null $duration_ms
  * @property string|null $exception_class
  * @property string|null $exception_message
+ * @property Carbon|null $dispatched_at
+ * @property int|null $wait_ms
+ * @property string|null $dispatch_group_id
+ * @property DispatchGroupSource|null $dispatch_group_source
+ * @property string|null $batch_id
+ * @property string|null $parent_job_uuid
+ * @property string|null $parent_job_class
+ * @property array<string, scalar|null>|null $dispatch_origin
  */
 class JobExecution extends Model
 {
@@ -41,12 +51,16 @@ class JobExecution extends Model
     {
         return [
             'status' => JobExecutionStatus::class,
+            'dispatch_group_source' => DispatchGroupSource::class,
             'tags' => 'array',
             'context' => 'array',
+            'dispatch_origin' => 'array',
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
+            'dispatched_at' => 'datetime',
             'attempt' => 'integer',
             'duration_ms' => 'integer',
+            'wait_ms' => 'integer',
         ];
     }
 
@@ -58,6 +72,11 @@ class JobExecution extends Model
     public function formattedDuration(): string
     {
         return FormatDuration::format($this->duration_ms);
+    }
+
+    public function formattedWait(): string
+    {
+        return FormatDuration::format($this->wait_ms);
     }
 
     public function isLongRunning(): bool

@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Middleware;
 
-use Deck\Deck\Support\JobCancellation;
+use Deck\Deck\Cancellation\JobCancellation;
 use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Queue\InteractsWithQueue;
 

@@ -2,7 +2,7 @@
 
 namespace Deck\Deck\Models\Concerns;
 
-use Deck\Deck\Support\DeckInstallation;
+use Deck\Deck\Core\DeckInstallation;
 use Illuminate\Database\Eloquent\Builder;
 
 trait BelongsToDeckInstallation

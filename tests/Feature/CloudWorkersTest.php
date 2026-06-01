@@ -1,14 +1,17 @@
 <?php
 
-use Deck\Deck\Cloud\AgentSync;
-use Deck\Deck\Cloud\QueueWorkloadSnapshot;
-use Deck\Deck\Cloud\WorkerReporter;
-use Deck\Deck\Cloud\WorkerSnapshot;
-use Deck\Deck\Cloud\WorkerSnapshotCollector;
+use Deck\Deck\Cloud\Agent\AgentSync;
+use Deck\Deck\Cloud\Workers\QueueWorkloadSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerReporter;
+use Deck\Deck\Cloud\Workers\WorkerSnapshot;
+use Deck\Deck\Cloud\Workers\WorkerSnapshotCollector;
+use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Listeners\SyncCloudAgent;
-use Deck\Deck\Support\HorizonSnapshot;
 use Illuminate\Queue\Events\Looping;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
+use Laravel\Horizon\Contracts\SupervisorRepository;
+use Laravel\Horizon\Contracts\WorkloadRepository;
 
 beforeEach(function () {
     enableDeckCloudForTests();
@@ -198,6 +201,37 @@ it('reports all horizon supervisors from the horizon loop listener', function ()
     });
 });
 
+it('falls back to the default queue worker when horizon returns no supervisors', function () {
+    Http::fake([
+        'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 1], 202),
+        'https://cloud.deck.test/api/v1/agent/commands/ack' => Http::response([], 200),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => []]),
+    ]);
+
+    config()->set('queue.default', 'redis');
+    config()->set('queue.connections.redis.queue', 'default');
+
+    $horizon = Mockery::mock(HorizonSnapshot::class);
+    $horizon->shouldReceive('isAvailable')->andReturn(true);
+    $horizon->shouldReceive('workload')->andReturn([]);
+
+    $this->app->instance(HorizonSnapshot::class, $horizon);
+
+    $collector = Mockery::mock(WorkerSnapshotCollector::class);
+    $collector->shouldReceive('collectFromHorizon')->once()->andReturn([]);
+    $collector->shouldReceive('collectFallbackQueueWorkers')->once()->andReturn([
+        new WorkerSnapshot('default', 'redis:default', 'redis', 'default', 'running', 1),
+    ]);
+    $collector->shouldReceive('collectWorkloadFromHorizon')->once()->andReturn([]);
+
+    $this->app->instance(WorkerSnapshotCollector::class, $collector);
+    $this->app->forgetInstance(AgentSync::class);
+
+    expect(app(AgentSync::class)->report(force: true))->toBeTrue();
+
+    Http::assertSent(fn ($request) => ($request->data()['workers'][0]['supervisor'] ?? null) === 'default');
+});
+
 it('maps paused horizon supervisors in collector snapshots', function () {
     $collector = app(WorkerSnapshotCollector::class);
 
@@ -214,4 +248,60 @@ it('maps paused horizon supervisors in collector snapshots', function () {
     expect($snapshots[0]->status)->toBe('paused')
         ->and($snapshots[0]->paused)->toBeTrue()
         ->and($snapshots[0]->balance)->toBe('simple');
+});
+
+it('collects from supervisor names when horizon supervisor hashes are missing', function () {
+    // Simulates the Redis race: zset has names but supervisor:{name} hashes have expired.
+    config()->set('queue.default', 'redis');
+    config()->set('queue.connections.redis.queue', 'default');
+
+    $this->app->instance(HorizonSnapshot::class, new HorizonSnapshot(installed: true));
+
+    $repo = Mockery::mock(SupervisorRepository::class);
+    $repo->shouldReceive('all')->once()->andReturn([]);
+    $repo->shouldReceive('names')->once()->andReturn(['forge-1:supervisor-1', 'forge-1:supervisor-2']);
+    $repo->shouldReceive('find')->twice()->andReturn(null);
+    $this->app->instance(SupervisorRepository::class, $repo);
+
+    $snapshots = app(WorkerSnapshotCollector::class)->collectFromHorizon();
+
+    expect($snapshots)->toHaveCount(2)
+        ->and($snapshots[0]->supervisor)->toBe('forge-1:supervisor-1')
+        ->and($snapshots[0]->status)->toBe('running')
+        ->and($snapshots[0]->processes)->toBe(1)
+        ->and($snapshots[1]->supervisor)->toBe('forge-1:supervisor-2');
+});
+
+it('deck:report-workers reports accurate count and skips fallback warn when supervisor names are available', function () {
+    Http::fake([
+        'https://cloud.deck.test/api/v1/ingest/workers' => Http::response(['accepted' => 1], 202),
+        'https://cloud.deck.test/api/v1/agent/commands?*' => Http::response(['commands' => []]),
+    ]);
+
+    config()->set('queue.default', 'redis');
+    config()->set('queue.connections.redis.queue', 'default');
+
+    $this->app->instance(HorizonSnapshot::class, new HorizonSnapshot(installed: true));
+
+    $repo = Mockery::mock(SupervisorRepository::class);
+    $repo->shouldReceive('all')->andReturn([]);
+    $repo->shouldReceive('names')->andReturn(['forge-1:supervisor-1']);
+    $repo->shouldReceive('find')->with('forge-1:supervisor-1')->andReturn(null);
+    $this->app->instance(SupervisorRepository::class, $repo);
+
+    $workload = Mockery::mock(WorkloadRepository::class);
+    $workload->shouldReceive('get')->andReturn([]);
+    $this->app->instance(WorkloadRepository::class, $workload);
+
+    $exitCode = Artisan::call('deck:report-workers');
+    $output = Artisan::output();
+
+    expect($exitCode)->toBe(0)
+        ->and($output)->not->toContain('no supervisors')
+        ->and($output)->toContain('Worker snapshots accepted');
+
+    Http::assertSent(fn ($request) => $request->method() === 'POST'
+        && str_contains($request->url(), '/api/v1/ingest/workers')
+        && ($request->data()['workers'][0]['supervisor'] ?? null) === 'forge-1:supervisor-1'
+    );
 });

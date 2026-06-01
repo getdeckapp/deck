@@ -8,7 +8,7 @@ use Deck\Deck\Livewire\JobClassShow;
 use Deck\Deck\Livewire\JobExecutionIndex;
 use Deck\Deck\Livewire\JobExecutionShow;
 use Deck\Deck\Livewire\WorkersIndex;
-use Deck\Deck\Support\DeckAssets;
+use Deck\Deck\Presentation\DeckAssets;
 use Illuminate\Support\Facades\Route;
 
 $prefix = trim(config('deck.route_prefix', 'deck'), '/');

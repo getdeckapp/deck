@@ -2,8 +2,8 @@
 
 use Deck\Deck\Commands\CheckAlertsCommand;
 use Deck\Deck\Data\UnprocessedQueue;
-use Deck\Deck\Support\DeckAlertChecker;
-use Deck\Deck\Support\UnprocessedQueueDetector;
+use Deck\Deck\Presentation\DeckAlertChecker;
+use Deck\Deck\Presentation\UnprocessedQueueDetector;
 
 it('reports stale jobs when alerts are enabled without notification config', function () {
     config()->set('deck.alerts.enabled', true);
