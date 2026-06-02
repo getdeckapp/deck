@@ -23,7 +23,7 @@
         {{-- Indigo aurora at top --}}
         <div
             class="absolute inset-x-0 top-0 h-[280px]"
-            style="background: radial-gradient(60% 80% at 30% 0%, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0.03) 40%, transparent 75%);"
+            style="background: radial-gradient(60% 80% at 30% 0%, rgba(245, 158, 11,0.14) 0%, rgba(245, 158, 11,0.03) 40%, transparent 75%);"
             aria-hidden="true"
         ></div>
         {{-- Dot grid texture --}}
@@ -40,7 +40,7 @@
         <div class="relative flex flex-1 flex-col">
             <div class="px-5 pt-6 pb-5">
                 <a href="{{ route('deck.index') }}"
-                   class="block rounded-xl focus:outline-2 focus:outline-offset-2 focus:outline-indigo-400">
+                   class="block rounded-xl focus:outline-2 focus:outline-offset-2 focus:outline-amber-400">
                     <x-deck::logo variant="dark" />
                 </a>
             </div>
@@ -72,8 +72,8 @@
                         {{ \Deck\Deck\Core\DeckInstallation::project() }}
                     </span>
                     <span
-                        class="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/[0.12] px-2 py-0.5 font-mono text-indigo-200 ring-1 ring-indigo-400/20">
-                        <span class="size-1.5 rounded-full bg-indigo-400" aria-hidden="true"></span>
+                        class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/[0.12] px-2 py-0.5 font-mono text-amber-200 ring-1 ring-amber-400/20">
+                        <span class="size-1.5 rounded-full bg-amber-400" aria-hidden="true"></span>
                         {{ \Deck\Deck\Core\DeckInstallation::environment() }}
                     </span>
                 </div>
@@ -164,7 +164,7 @@
             @elseif (config('deck.cloud.promo') && ! \Deck\Deck\Cloud\DeckCloud::isEnabled())
                 <div class="px-3 pb-4">
                     <div class="relative overflow-hidden rounded-xl p-4"
-                         style="background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.12) 50%, rgba(99,102,241,0.06) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 0 1px rgba(129,140,248,0.18);">
+                         style="background: linear-gradient(135deg, rgba(245, 158, 11,0.18) 0%, rgba(139,92,246,0.12) 50%, rgba(245, 158, 11,0.06) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 0 1px rgba(129,140,248,0.18);">
                         <div class="pointer-events-none absolute right-2 top-2 opacity-[0.07]" aria-hidden="true">
                             <svg width="56" height="56" viewBox="0 0 40 40" fill="none">
                                 <rect x="6" y="11" width="22" height="22" rx="4" fill="white" opacity="0.35" />
@@ -172,7 +172,7 @@
                                 <rect x="12" y="7" width="22" height="22" rx="4" fill="white" />
                             </svg>
                         </div>
-                        <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-300">Deck
+                        <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300">Deck
                             Cloud</p>
                         <p class="mt-1.5 text-[12.5px] font-medium leading-snug text-zinc-200">Multi-app visibility,
                             hosted &amp; zero infrastructure.</p>
@@ -180,7 +180,7 @@
                             href="https://deckapp.cloud?utm_source=deck-oss&utm_medium=sidebar"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="mt-3 inline-flex items-center gap-1 font-mono text-[11.5px] font-semibold text-indigo-300 transition hover:text-indigo-100"
+                            class="mt-3 inline-flex items-center gap-1 font-mono text-[11.5px] font-semibold text-amber-300 transition hover:text-amber-100"
                         >
                             Learn more
                             <svg class="size-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -207,7 +207,7 @@
         <header class="sticky top-0 z-30 border-b border-zinc-200/70 bg-white/85 backdrop-blur-md lg:hidden">
             <div class="flex items-center justify-between gap-3 px-4 py-2.5">
                 <a href="{{ route('deck.index') }}"
-                   class="rounded-lg focus:outline-2 focus:outline-offset-2 focus:outline-indigo-600">
+                   class="rounded-lg focus:outline-2 focus:outline-offset-2 focus:outline-amber-600">
                     <x-deck::logo size="sm" :show-label="false" />
                 </a>
                 <nav class="flex items-center gap-0.5 text-[13px] font-medium overflow-x-auto">

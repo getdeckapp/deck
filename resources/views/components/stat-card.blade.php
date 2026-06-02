@@ -12,7 +12,7 @@
     $isDanger = $variant === 'danger';
     $topBar = $isDanger
         ? 'from-transparent via-rose-400/50 to-transparent'
-        : 'from-transparent via-indigo-400/40 to-transparent';
+        : 'from-transparent via-amber-400/40 to-transparent';
     $valueClass = $isDanger ? 'text-rose-600' : 'text-zinc-900';
     $deltaClass = match(true) {
         $deltaPositive === true  => 'text-rose-600',
@@ -52,8 +52,8 @@
                 }
                 $polyline = implode(' ', $pts);
                 $area = $polyline . " {$sw},{$sh} 0,{$sh}";
-                $lineColor  = $isDanger ? '#f43f5e' : '#6366f1';
-                $fillColor  = $isDanger ? 'rgba(244,63,94,0.10)' : 'rgba(99,102,241,0.10)';
+                $lineColor  = $isDanger ? '#f43f5e' : '#f59e0b';
+                $fillColor  = $isDanger ? 'rgba(244,63,94,0.10)' : 'rgba(245, 158, 11,0.10)';
             @endphp
             <dd class="mt-2 shrink-0 self-start" aria-hidden="true">
                 <svg width="{{ $sw }}" height="{{ $sh }}" viewBox="0 0 {{ $sw }} {{ $sh }}" preserveAspectRatio="none">

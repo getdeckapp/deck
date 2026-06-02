@@ -2,7 +2,7 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <div class="mb-1.5 flex flex-wrap items-center gap-2">
-                <p class="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-indigo-600">Deck</p>
+                <p class="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-amber-600">Deck</p>
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.10em] text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
                     <span class="relative inline-flex size-1.5">
                         <span class="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-70" aria-hidden="true"></span>
@@ -19,7 +19,7 @@
         </div>
         <a
             href="{{ route('deck.activity.index') }}"
-            class="text-[13px] font-medium text-indigo-600 hover:text-indigo-500"
+            class="text-[13px] font-medium text-amber-600 hover:text-amber-500"
         >
             Full activity feed →
         </a>
@@ -75,7 +75,6 @@
             :data="$durationChart"
             empty="No completed runs in this period."
             format="duration"
-            colorScheme="amber"
         />
     </div>
 
@@ -87,7 +86,7 @@
             <section class="flex flex-col justify-center overflow-hidden rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/80 px-6 py-10 text-center">
                 <p class="text-sm font-medium text-zinc-700">All queues have workers</p>
                 <p class="mt-1 text-sm text-zinc-500">No backlog detected on unmonitored queues.</p>
-                <a href="{{ route('deck.workers.index') }}" class="mt-4 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="{{ route('deck.workers.index') }}" class="mt-4 inline-block text-sm font-medium text-amber-600 hover:text-amber-500">
                     Workers &amp; queues →
                 </a>
             </section>
@@ -113,7 +112,7 @@
                     <span class="rounded-full bg-rose-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-rose-700">{{ $recentFailureCount }}</span>
                 @endif
             </h2>
-            <a href="{{ route('deck.activity.index', ['status' => 'failed']) }}" class="text-sm font-medium {{ $recentFailures->isNotEmpty() ? 'text-rose-600 hover:text-rose-500' : 'text-indigo-600 hover:text-indigo-500' }}">
+            <a href="{{ route('deck.activity.index', ['status' => 'failed']) }}" class="text-sm font-medium {{ $recentFailures->isNotEmpty() ? 'text-rose-600 hover:text-rose-500' : 'text-amber-600 hover:text-amber-500' }}">
                 View all failures →
             </a>
         </div>

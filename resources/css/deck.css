@@ -24,11 +24,11 @@
     .deck-line-chart {
         --deck-chart-grid: var(--color-zinc-200);
         --deck-chart-axis: var(--color-zinc-500);
-        --deck-chart-line: var(--color-indigo-500);
-        --deck-chart-crosshair: var(--color-indigo-300);
+        --deck-chart-line: var(--color-amber-500);
+        --deck-chart-crosshair: var(--color-amber-300);
         --deck-chart-point-ring: var(--color-white);
-        --deck-chart-area-top: color-mix(in srgb, var(--color-indigo-500) 32%, transparent);
-        --deck-chart-area-bottom: color-mix(in srgb, var(--color-indigo-500) 2%, transparent);
+        --deck-chart-area-top: color-mix(in srgb, var(--color-amber-500) 32%, transparent);
+        --deck-chart-area-bottom: color-mix(in srgb, var(--color-amber-500) 2%, transparent);
     }
 
     .deck-line-chart text {

@@ -5,17 +5,17 @@
         $iconWrap = match ($tone) {
             'danger' => 'bg-red-100 text-red-600',
             'warning' => 'bg-amber-100 text-amber-700',
-            default => 'bg-indigo-100 text-indigo-600',
+            default => 'bg-amber-100 text-amber-600',
         };
         $confirmButton = match ($tone) {
             'danger' => 'bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600',
             'warning' => 'bg-amber-600 text-white hover:bg-amber-500 focus-visible:outline-amber-600',
-            default => 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600',
+            default => 'bg-amber-600 text-white hover:bg-amber-500 focus-visible:outline-amber-600',
         };
         $choiceButton = fn (string $choiceTone) => match ($choiceTone) {
             'danger' => 'bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600',
             'warning' => 'bg-amber-600 text-white hover:bg-amber-500 focus-visible:outline-amber-600',
-            default => 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600',
+            default => 'bg-amber-600 text-white hover:bg-amber-500 focus-visible:outline-amber-600',
         };
         $confirmKey = $hasChoices
             ? 'choices-'.md5(json_encode($pendingConfirmation['choices']))
@@ -80,7 +80,7 @@
                                             rows="3"
                                             wire:model="confirmationInput"
                                             placeholder="{{ $pendingConfirmation['prompt']['placeholder'] ?? '' }}"
-                                            class="mt-1.5 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                                            class="mt-1.5 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                                         ></textarea>
                                     </div>
                                 @endif

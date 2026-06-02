@@ -1,6 +1,6 @@
 <div class="space-y-8">
     <div>
-        <p class="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-indigo-600">Jobs</p>
+        <p class="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-amber-600">Jobs</p>
         <h1 class="text-[28px] font-semibold tracking-[-0.022em] text-zinc-900 leading-[1.15]">Job Classes</h1>
         <p class="mt-1.5 text-[14px] text-zinc-500">
             Per-job aggregates with last status, duration, and success rate. Horizon does not keep this history.
@@ -26,7 +26,7 @@
                 type="search"
                 wire:model.live.debounce.300ms="search"
                 placeholder="Search by job name…"
-                class="block w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[13px] text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                class="block w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[13px] text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
             >
         </div>
     </div>
@@ -46,9 +46,9 @@
                 </thead>
                 <tbody class="divide-y divide-zinc-100 bg-white">
                     @forelse ($stats as $stat)
-                        <tr class="group relative cursor-pointer transition hover:bg-indigo-50/30">
-                            <td class="relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100">
-                                <a href="{{ route('deck.classes.show', ['jobClass' => $stat->job_class]) }}" class="text-[13.5px] font-semibold text-zinc-900 hover:text-indigo-600">
+                        <tr class="group relative cursor-pointer transition hover:bg-amber-50/30">
+                            <td class="relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-amber-500 before:opacity-0 before:transition group-hover:before:opacity-100">
+                                <a href="{{ route('deck.classes.show', ['jobClass' => $stat->job_class]) }}" class="text-[13.5px] font-semibold text-zinc-900 hover:text-amber-600">
                                     {{ class_basename($stat->job_class) }}
                                 </a>
                                 <div class="mt-0.5 truncate font-mono text-[11px] text-zinc-500">{{ $stat->job_class }}</div>

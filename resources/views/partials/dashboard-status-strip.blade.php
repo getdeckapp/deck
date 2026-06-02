@@ -32,9 +32,9 @@
     };
 @endphp
 
-<section class="relative overflow-hidden rounded-2xl border border-zinc-200/70 bg-gradient-to-br from-white via-zinc-50/40 to-indigo-50/30 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset,0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-8px_rgba(15,23,42,0.08)]">
+<section class="relative overflow-hidden rounded-2xl border border-zinc-200/70 bg-gradient-to-br from-white via-zinc-50/40 to-amber-50/30 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset,0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-8px_rgba(15,23,42,0.08)]">
     {{-- Corner radial glow --}}
-    <div class="pointer-events-none absolute right-0 top-0 size-[280px] opacity-40" style="background: radial-gradient(circle at 100% 0%, rgba(99,102,241,0.12) 0%, transparent 60%);" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute right-0 top-0 size-[280px] opacity-40" style="background: radial-gradient(circle at 100% 0%, rgba(245, 158, 11,0.12) 0%, transparent 60%);" aria-hidden="true"></div>
 
     <div class="relative flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100/80 px-5 py-4">
         <div class="flex flex-wrap items-center gap-3">
@@ -60,7 +60,7 @@
         @if ($horizonUrl)
             <a
                 href="{{ $horizonUrl }}"
-                class="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-500"
+                class="inline-flex items-center gap-1.5 text-[13px] font-medium text-amber-600 hover:text-amber-500"
             >
                 Open Horizon
                 <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">

@@ -66,7 +66,7 @@
                                     <span class="tabular-nums text-zinc-500">{{ $queue['length'] }} waiting · {{ $queue['processes'] }} workers</span>
                                 </div>
                                 <div class="h-2 overflow-hidden rounded-full bg-zinc-100">
-                                    <div class="h-full rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400" style="width: {{ max(8, $loadPercent) }}%"></div>
+                                    <div class="h-full rounded-full bg-gradient-to-r from-amber-600 to-amber-400" style="width: {{ max(8, $loadPercent) }}%"></div>
                                 </div>
                                 @if ($queue['wait'] > 0)
                                     <p class="mt-1 text-xs text-zinc-500">Est. wait ~{{ \Deck\Deck\Presentation\FormatDuration::format((int) round($queue['wait'] * 1000)) }}</p>
@@ -137,7 +137,7 @@
                                     <div class="flex items-center gap-2">
                                         <div class="h-2 w-24 overflow-hidden rounded-full bg-zinc-100">
                                             @php $loadWidth = min(100, $queue['load'] > 0 ? (int) round(($queue['load'] / max(1, $queueInsights->max('load'))) * 100) : 0); @endphp
-                                            <div class="h-full rounded-full bg-indigo-500" style="width: {{ max(4, $loadWidth) }}%"></div>
+                                            <div class="h-full rounded-full bg-amber-500" style="width: {{ max(4, $loadWidth) }}%"></div>
                                         </div>
                                     </div>
                                 </td>

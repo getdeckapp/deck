@@ -92,7 +92,7 @@
             <h2 class="text-sm font-semibold text-zinc-900">Queue pressure</h2>
             <p class="mt-1 text-xs text-zinc-500">{{ $busyness['summary'] }}</p>
         </div>
-        <a href="{{ route('deck.workers.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <a href="{{ route('deck.workers.index') }}" class="text-sm font-medium text-amber-600 hover:text-amber-500">
             Workers & queues →
         </a>
     </div>

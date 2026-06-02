@@ -6,7 +6,7 @@
         'failed'    => ['bg-rose-500',    'bg-rose-50 text-rose-700 ring-rose-600/15'],
         'running'   => ['bg-blue-500',    'bg-blue-50 text-blue-700 ring-blue-700/15'],
         'cancelled' => ['bg-amber-500',   'bg-amber-50 text-amber-700 ring-amber-600/20'],
-        'blocked'   => ['bg-violet-500',  'bg-violet-50 text-violet-700 ring-violet-600/20'],
+        'blocked'   => ['bg-orange-500',  'bg-orange-50 text-orange-700 ring-orange-600/20'],
         default     => ['bg-zinc-400',    'bg-zinc-50 text-zinc-600 ring-zinc-500/10'],
     };
 @endphp

@@ -22,7 +22,7 @@
                             <td class="px-4 py-3">
                                 <a
                                     href="{{ route('deck.activity.show', $related->activityRouteParameters()) }}"
-                                    class="font-mono font-medium text-zinc-900 hover:text-indigo-600"
+                                    class="font-mono font-medium text-zinc-900 hover:text-amber-600"
                                 >
                                     {{ class_basename($related->job_class) }}
                                 </a>

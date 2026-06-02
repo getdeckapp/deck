@@ -33,7 +33,7 @@
         <div class="rounded-xl bg-white/[0.035] p-4 ring-1 ring-inset ring-white/[0.06]">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-300">Deck Cloud</p>
+                    <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300">Deck Cloud</p>
                     <div class="mt-2 flex items-center gap-2">
                         <span
                             class="size-2 shrink-0 rounded-full {{ $dotClass }}"
@@ -68,7 +68,7 @@
                     href="{{ $connection->dashboardUrl }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="mt-3 inline-flex items-center gap-1 font-mono text-[11.5px] font-semibold text-indigo-300 transition hover:text-indigo-100"
+                    class="mt-3 inline-flex items-center gap-1 font-mono text-[11.5px] font-semibold text-amber-300 transition hover:text-amber-100"
                 >
                     Open Cloud
                     <svg class="size-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">

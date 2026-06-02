@@ -30,7 +30,7 @@
                     @class([
                         'group relative cursor-pointer transition',
                         'hover:bg-rose-50/40' => $isFailed,
-                        'hover:bg-indigo-50/30' => ! $isFailed,
+                        'hover:bg-amber-50/30' => ! $isFailed,
                         'bg-amber-50/40' => $execution->isLongRunning() && ! $isFailed,
                     ])
                     role="link"
@@ -43,11 +43,11 @@
                         <td @class([
                             'relative py-3.5 pr-3 pl-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px]',
                             'before:bg-rose-500 before:opacity-100' => $isFailed,
-                            'before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100' => ! $isFailed,
+                            'before:bg-amber-500 before:opacity-0 before:transition group-hover:before:opacity-100' => ! $isFailed,
                         ])>
                             <a
                                 href="{{ route('deck.classes.show', ['jobClass' => $execution->job_class]) }}"
-                                class="relative z-10 text-[13.5px] font-semibold text-zinc-900 hover:text-indigo-600"
+                                class="relative z-10 text-[13.5px] font-semibold text-zinc-900 hover:text-amber-600"
                                 onclick="event.stopPropagation()"
                             >
                                 {{ class_basename($execution->job_class) }}
@@ -58,7 +58,7 @@
                     <td @class([
                         'relative py-3.5 pr-3 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[2px]',
                         'before:bg-rose-500 before:opacity-100' => $isFailed && ! $showJobClass,
-                        'before:bg-indigo-500 before:opacity-0 before:transition group-hover:before:opacity-100' => ! $isFailed || $showJobClass,
+                        'before:bg-amber-500 before:opacity-0 before:transition group-hover:before:opacity-100' => ! $isFailed || $showJobClass,
                         'px-3' => $showJobClass,
                         'pl-5' => ! $showJobClass,
                     ])>
@@ -72,7 +72,7 @@
                             @endif
                             @if ($execution->attempt > 1)
                                 <span class="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[11px] font-medium text-zinc-700 ring-1 ring-inset ring-zinc-200">Attempt {{ $execution->attempt }}</span>
-                                <span class="rounded-md bg-indigo-50 px-1.5 py-0.5 text-[11px] font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">Retry #{{ $execution->attempt - 1 }}</span>
+                                <span class="rounded-md bg-amber-50 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">Retry #{{ $execution->attempt - 1 }}</span>
                             @endif
                         </div>
                         @if (! empty($execution->tags))
@@ -111,7 +111,7 @@
                                     message="This queues the job again via Horizon, the failed-job store, or a fresh dispatch when possible."
                                     confirm-label="Retry"
                                     progress-label="Retrying…"
-                                    class="relative z-10 text-[13px] font-semibold text-indigo-600 hover:text-indigo-500"
+                                    class="relative z-10 text-[13px] font-semibold text-amber-600 hover:text-amber-500"
                                 >
                                     Retry
                                 </x-deck::confirm-button>
@@ -120,7 +120,7 @@
                                     'execution' => $execution,
                                 ])
                             @endif
-                            <span class="text-zinc-300 transition group-hover:text-indigo-400" aria-hidden="true">
+                            <span class="text-zinc-300 transition group-hover:text-amber-400" aria-hidden="true">
                                 <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                             </span>
                         </div>

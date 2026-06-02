@@ -17,7 +17,7 @@
                     <dd class="mt-1 space-y-1">
                         <a
                             href="{{ route('deck.activity.index', ['dispatch_group' => $execution->dispatch_group_id]) }}"
-                            class="block break-all font-mono text-sm text-indigo-600 hover:text-indigo-500"
+                            class="block break-all font-mono text-sm text-amber-600 hover:text-amber-500"
                         >
                             {{ $execution->dispatch_group_id }}
                         </a>
@@ -34,7 +34,7 @@
                     <dd class="mt-1">
                         <a
                             href="{{ route('deck.activity.index', ['batch_id' => $execution->batch_id]) }}"
-                            class="break-all font-mono text-sm text-indigo-600 hover:text-indigo-500"
+                            class="break-all font-mono text-sm text-amber-600 hover:text-amber-500"
                         >
                             {{ $execution->batch_id }}
                         </a>
@@ -48,7 +48,7 @@
                     <dd class="mt-1">
                         <a
                             href="{{ route('deck.activity.show', $parentExecution->activityRouteParameters()) }}"
-                            class="font-mono text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                            class="font-mono text-sm font-medium text-amber-600 hover:text-amber-500"
                         >
                             {{ class_basename($parentExecution->job_class) }}
                         </a>

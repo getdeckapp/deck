@@ -16,19 +16,19 @@
     @php($progress = $execution->progress())
 
     @if ($progress)
-        <section class="overflow-hidden rounded-2xl border border-indigo-200/80 bg-white shadow-sm">
-            <div class="border-b border-indigo-100 bg-indigo-50/40 px-5 py-4">
+        <section class="overflow-hidden rounded-2xl border border-amber-200/80 bg-white shadow-sm">
+            <div class="border-b border-amber-100 bg-amber-50/40 px-5 py-4">
                 <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-sm font-semibold text-indigo-900">Progress</h2>
-                    <span class="text-sm font-semibold tabular-nums text-indigo-700">{{ $progress->percent }}%</span>
+                    <h2 class="text-sm font-semibold text-amber-900">Progress</h2>
+                    <span class="text-sm font-semibold tabular-nums text-amber-700">{{ $progress->percent }}%</span>
                 </div>
                 @if ($progress->message)
-                    <p class="mt-1 text-sm text-indigo-800/90">{{ $progress->message }}</p>
+                    <p class="mt-1 text-sm text-amber-800/90">{{ $progress->message }}</p>
                 @endif
             </div>
             <div class="px-5 py-4">
-                <div class="h-2 overflow-hidden rounded-full bg-indigo-100">
-                    <div class="h-full rounded-full bg-indigo-600 transition-all duration-500" style="width: {{ max(2, $progress->percent) }}%"></div>
+                <div class="h-2 overflow-hidden rounded-full bg-amber-100">
+                    <div class="h-full rounded-full bg-amber-600 transition-all duration-500" style="width: {{ max(2, $progress->percent) }}%"></div>
                 </div>
             </div>
         </section>
@@ -57,7 +57,7 @@
                     message="This queues the job again via Horizon, the failed-job store, or a fresh dispatch when possible."
                     confirm-label="Retry job"
                     progress-label="Retrying…"
-                    class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-indigo-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-indigo-50"
+                    class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-amber-600 shadow-xs ring-1 ring-inset ring-zinc-300 hover:bg-amber-50"
                 >
                     Retry job
                 </x-deck::confirm-button>
@@ -149,7 +149,7 @@
                 @if ($horizonFailedUrl)
                     <a
                         href="{{ $horizonFailedUrl }}"
-                        class="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                        class="shrink-0 text-sm font-medium text-amber-600 hover:text-amber-500"
                     >
                         View in Horizon
                     </a>

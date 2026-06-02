@@ -65,13 +65,13 @@
                                             <a
                                                 href="{{ route('deck.classes.show', ['jobClass' => $stat->job_class]) }}"
                                                 @click="open = false"
-                                                class="group flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50/60"
+                                                class="group flex items-center gap-3 px-3 py-2.5 hover:bg-amber-50/60"
                                             >
-                                                <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-500 ring-1 ring-indigo-100">
+                                                <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-500 ring-1 ring-amber-100">
                                                     <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v9a2.25 2.25 0 0 0 2.25 2.25h10.5A2.25 2.25 0 0 0 19.5 18V9a2.25 2.25 0 0 0-2.25-2.25m-12 0V9a2.25 2.25 0 0 0 2.25 2.25h10.5A2.25 2.25 0 0 0 18 9V6.878" /></svg>
                                                 </span>
                                                 <div class="min-w-0 flex-1">
-                                                    <p class="truncate text-[13.5px] font-semibold text-zinc-900 group-hover:text-indigo-700">{{ class_basename($stat->job_class) }}</p>
+                                                    <p class="truncate text-[13.5px] font-semibold text-zinc-900 group-hover:text-amber-700">{{ class_basename($stat->job_class) }}</p>
                                                     <p class="truncate font-mono text-[11px] text-zinc-400">{{ $stat->job_class }}</p>
                                                 </div>
                                                 @if ($stat->last_status)
@@ -93,13 +93,13 @@
                                             <a
                                                 href="{{ route('deck.activity.show', $execution->activityRouteParameters()) }}"
                                                 @click="open = false"
-                                                class="group flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50/60"
+                                                class="group flex items-center gap-3 px-3 py-2.5 hover:bg-amber-50/60"
                                             >
                                                 <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-50 text-zinc-400 ring-1 ring-zinc-100">
                                                     <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 4.5h16.5M3.75 19.5h10.5" /></svg>
                                                 </span>
                                                 <div class="min-w-0 flex-1">
-                                                    <p class="truncate text-[13.5px] font-semibold text-zinc-900 group-hover:text-indigo-700">{{ class_basename($execution->job_class) }}</p>
+                                                    <p class="truncate text-[13.5px] font-semibold text-zinc-900 group-hover:text-amber-700">{{ class_basename($execution->job_class) }}</p>
                                                     <p class="font-mono text-[11px] text-zinc-400">{{ $execution->uuid }}</p>
                                                 </div>
                                                 <div class="flex shrink-0 flex-col items-end gap-1">

@@ -2,8 +2,8 @@
   <rect width="560" height="96" fill="#ffffff"/>
   <defs>
     <linearGradient id="deck-grad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#4338ca"/>
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
     </linearGradient>
     <linearGradient id="deck-hl" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
@@ -16,7 +16,7 @@
     <rect x="12" y="7" width="22" height="22" rx="4" fill="url(#deck-grad)"/>
     <rect x="12" y="7" width="22" height="22" rx="4" fill="url(#deck-hl)"/>
     <circle cx="27" cy="21" r="3.2" fill="#ffffff"/>
-    <circle cx="27" cy="21" r="1.4" fill="#4338ca"/>
+    <circle cx="27" cy="21" r="1.4" fill="#d97706"/>
     <path d="M16 13h7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity="0.92"/>
     <path d="M16 17h11" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/>
   </g>

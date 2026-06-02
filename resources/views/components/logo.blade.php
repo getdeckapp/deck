@@ -14,9 +14,9 @@
     $isDark = $variant === 'dark';
     $gradId = 'logo-grad-' . $variant;
     $highlightId = 'logo-hl-' . $variant;
-    $gradStart = $isDark ? '#7c83f7' : '#6366f1';
-    $gradEnd   = $isDark ? '#4f46e5' : '#4338ca';
-    $dotFill   = $isDark ? '#4f46e5' : '#4338ca';
+    $gradStart = $isDark ? '#fbbf24' : '#f59e0b';
+    $gradEnd   = $isDark ? '#d97706' : '#d97706';
+    $dotFill   = $isDark ? '#d97706' : '#d97706';
 @endphp
 
 <div {{ $attributes->class(['flex items-center gap-3']) }}>

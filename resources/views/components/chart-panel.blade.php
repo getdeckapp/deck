@@ -5,7 +5,6 @@
     'empty' => 'No data for this period.',
     'format' => 'number',
     'type' => 'line',
-    'colorScheme' => 'indigo',
 ])
 
 @php
@@ -28,13 +27,6 @@
     $chart = $hasData ? LineChartGeometry::build($data, $axisFormatter, $tooltipFormatter) : null;
 
     $isBar = $type === 'bar';
-    $amberVars = "
-        --deck-chart-line: var(--color-amber-500);
-        --deck-chart-crosshair: var(--color-amber-300);
-        --deck-chart-area-top: color-mix(in srgb, var(--color-amber-500) 28%, transparent);
-        --deck-chart-area-bottom: color-mix(in srgb, var(--color-amber-500) 2%, transparent);
-    ";
-    $colorStyle = $colorScheme === 'amber' ? $amberVars : '';
 
     $barWidth = ($hasData && $chart !== null && count($chart['points']) > 0)
         ? max(2, (\Deck\Deck\Presentation\LineChartGeometry::WIDTH - \Deck\Deck\Presentation\LineChartGeometry::PAD_LEFT - \Deck\Deck\Presentation\LineChartGeometry::PAD_RIGHT) / count($chart['points']) * 0.62)
@@ -60,7 +52,6 @@
             })"
             x-ref="container"
             class="deck-line-chart relative px-3 py-5 sm:px-5"
-            @if($colorStyle) style="{{ $colorStyle }}" @endif
         >
             <div class="rounded-xl ring-1 ring-inset ring-zinc-200/70 p-2">
                 <svg

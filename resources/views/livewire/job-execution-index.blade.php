@@ -1,6 +1,6 @@
 <x-deck::poll-container :enabled="$shouldPoll" :seconds="$pollSeconds">
     <div>
-        <p class="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-indigo-600">Activity</p>
+        <p class="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-amber-600">Activity</p>
         <h1 class="text-[28px] font-semibold tracking-[-0.022em] text-zinc-900 leading-[1.15]">Execution Log</h1>
         <p class="mt-1.5 text-[14px] text-zinc-500">
             Searchable execution log across all jobs. Horizon shows recent Redis jobs; Deck keeps the durable record.
@@ -19,7 +19,7 @@
                 <select
                     id="deck-queue"
                     wire:model.live="queue"
-                    class="block w-full rounded-md border border-zinc-200 bg-white py-1.5 pr-8 pl-3 text-sm text-zinc-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                    class="block w-full rounded-md border border-zinc-200 bg-white py-1.5 pr-8 pl-3 text-sm text-zinc-900 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                 >
                     <option value="">All queues</option>
                     @foreach ($queues as $queueName)
@@ -32,7 +32,7 @@
                 <select
                     id="deck-connection"
                     wire:model.live="connection"
-                    class="block w-full rounded-md border border-zinc-200 bg-white py-1.5 pr-8 pl-3 text-sm text-zinc-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                    class="block w-full rounded-md border border-zinc-200 bg-white py-1.5 pr-8 pl-3 text-sm text-zinc-900 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                 >
                     <option value="">All connections</option>
                     @foreach ($connections as $connectionName)
@@ -45,7 +45,7 @@
                 <select
                     id="deck-tag"
                     wire:model.live="tag"
-                    class="block w-full rounded-md border border-zinc-200 bg-white py-1.5 pr-8 pl-3 text-sm text-zinc-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                    class="block w-full rounded-md border border-zinc-200 bg-white py-1.5 pr-8 pl-3 text-sm text-zinc-900 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                 >
                     <option value="">All tags</option>
                     @foreach ($tags as $tagName)
@@ -60,7 +60,7 @@
                     type="search"
                     wire:model.live.debounce.300ms="search"
                     placeholder="Job, UUID, group, exception…"
-                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                 >
             </div>
             <div class="sm:w-48">
@@ -70,7 +70,7 @@
                     type="text"
                     wire:model.live.debounce.300ms="dispatch_group"
                     placeholder="Group ID"
-                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                 >
             </div>
             <div class="sm:w-48">
@@ -80,7 +80,7 @@
                     type="text"
                     wire:model.live.debounce.300ms="batch_id"
                     placeholder="Batch UUID"
-                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 font-mono text-xs text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                    class="block w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 font-mono text-xs text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                 >
             </div>
         </div>
