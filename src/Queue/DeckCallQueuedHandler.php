@@ -62,6 +62,10 @@ class DeckCallQueuedHandler extends CallQueuedHandler
     /**
      * Defined on Deck so unique-until-processing jobs work when the app's
      * CallQueuedHandler predates this helper (older Laravel 11 releases).
+     *
+     * For queued event listeners we inspect the wrapped listener class string
+     * rather than calling CallQueuedListener::shouldBeUniqueUntilProcessing(),
+     * which only exists on newer framework releases.
      */
     protected function commandShouldBeUniqueUntilProcessing(mixed $command): bool
     {
@@ -70,6 +74,6 @@ class DeckCallQueuedHandler extends CallQueuedHandler
         }
 
         return $command instanceof ShouldBeUniqueUntilProcessing
-            || ($command instanceof CallQueuedListener && $command->shouldBeUniqueUntilProcessing());
+            || ($command instanceof CallQueuedListener && is_a($command->class, ShouldBeUniqueUntilProcessing::class, true));
     }
 }
