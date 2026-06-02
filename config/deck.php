@@ -20,12 +20,46 @@ return [
     | Database connection
     |--------------------------------------------------------------------------
     |
-    | When set, Deck stores deck_* tables on this Laravel connection instead of
-    | the application default. Define the connection in config/database.php,
-    | then run migrations with: php artisan migrate --database=your_connection
+    | Deck stores its deck_* tables on a dedicated "deck" connection. When that
+    | connection is not defined in config/database.php, Deck provides it by
+    | cloning the application's default connection, so it works out of the box.
+    |
+    | Set DECK_DB_CONNECTION to store deck_* tables on a different Laravel
+    | connection that you have already defined (for example, a separate
+    | database). Deck's migrations always target this connection, so a plain
+    | `php artisan migrate` is enough.
     |
     */
     'database_connection' => env('DECK_DB_CONNECTION'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database connection overrides
+    |--------------------------------------------------------------------------
+    |
+    | When Deck auto-provisions its "deck" connection, it starts from a clone of
+    | the application's default connection and overlays any of the values below
+    | that are explicitly set. Each field falls back to the default connection's
+    | value when its DECK_DB_* variable is unset, so you can point Deck at a
+    | separate database without editing config/database.php — for example set
+    | DECK_DB_DATABASE and DECK_DB_USERNAME and leave the rest to fall back.
+    |
+    | These overrides are ignored when a "deck" connection (or the connection
+    | named by DECK_DB_CONNECTION) is already defined in config/database.php.
+    |
+    */
+    'database' => [
+        'driver' => env('DECK_DB_DRIVER'),
+        'host' => env('DECK_DB_HOST'),
+        'port' => env('DECK_DB_PORT'),
+        'database' => env('DECK_DB_DATABASE'),
+        'username' => env('DECK_DB_USERNAME'),
+        'password' => env('DECK_DB_PASSWORD'),
+        'unix_socket' => env('DECK_DB_UNIX_SOCKET'),
+        'charset' => env('DECK_DB_CHARSET'),
+        'prefix' => env('DECK_DB_PREFIX'),
+        'schema' => env('DECK_DB_SCHEMA'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

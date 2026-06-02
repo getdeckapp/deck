@@ -12,8 +12,10 @@ use Deck\Deck\Commands\InstallCommand;
 use Deck\Deck\Commands\PollCommandsCommand;
 use Deck\Deck\Commands\PruneCommand;
 use Deck\Deck\Commands\ReportWorkersCommand;
+use Deck\Deck\Commands\RunScheduledCommand;
 use Deck\Deck\Concerns\RegistersCloudAgent;
 use Deck\Deck\Contracts\JobExecutionRecorder;
+use Deck\Deck\Core\DeckDatabase;
 use Deck\Deck\Dispatch\DeckObservability;
 use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Http\Middleware\AssignDispatchGroup;
@@ -63,12 +65,15 @@ class DeckServiceProvider extends PackageServiceProvider
             ->hasCommand(CheckAlertsCommand::class)
             ->hasCommand(PollCommandsCommand::class)
             ->hasCommand(ReportWorkersCommand::class)
+            ->hasCommand(RunScheduledCommand::class)
             ->hasCommand(CloudBackfillCommand::class)
             ->hasCommand(DoctorCommand::class);
     }
 
     public function packageRegistered(): void
     {
+        DeckDatabase::register();
+
         $this->app->singleton(DatabaseJobExecutionRecorder::class);
         $this->app->singleton(CloudEventBuffer::class);
         $this->app->singleton(HttpJobExecutionRecorder::class);

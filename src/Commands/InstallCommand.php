@@ -55,6 +55,8 @@ class InstallCommand extends Command
 
         $this->components->info('Optional alerts: set DECK_ALERTS_ENABLED=true, configure deck.alerts.stale_jobs, and schedule `php artisan deck:check-alerts` hourly in routes/console.php.');
 
+        $this->components->info('Tip: `php artisan deck:run-scheduled` runs every enabled Deck maintenance command (prune, alerts, Cloud sync) in one pass.');
+
         $this->configureHorizonMiddleware();
 
         return self::SUCCESS;

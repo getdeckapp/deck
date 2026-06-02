@@ -30,7 +30,7 @@ class DoctorCommand extends Command
 
     public function handle(): int
     {
-        $connection = DeckDatabase::connection() ?? (string) config('database.default');
+        $connection = DeckDatabase::connection();
         $executionsTable = (string) config('deck.tables.job_executions', 'deck_job_executions');
         $project = DeckInstallation::project();
         $environment = DeckInstallation::environment();
@@ -46,9 +46,7 @@ class DoctorCommand extends Command
 
         if (! DeckDatabase::schema()->hasTable($executionsTable)) {
             $this->components->error("Table [{$executionsTable}] does not exist on connection [{$connection}].");
-            $this->line(filled(config('deck.database_connection'))
-                ? 'Run: php artisan migrate --database='.config('deck.database_connection')
-                : 'Run: php artisan migrate');
+            $this->line('Run: php artisan migrate');
 
             return self::FAILURE;
         }

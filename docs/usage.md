@@ -105,3 +105,4 @@ Failed executions link to **Horizon** when the job still exists in Horizon’s f
 | `deck:prune` | Delete execution rows older than `retention_days` |
 | `deck:check-alerts` | Evaluate stale-job and unprocessed-queue rules |
 | `deck:report-workers` | Push worker snapshots to Deck Cloud (no-op when disabled) |
+| `deck:run-scheduled` | Run every enabled Deck maintenance command in one pass |

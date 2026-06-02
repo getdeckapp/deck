@@ -6,39 +6,43 @@ Checklist for deploying Deck to production.
 
 Deck appends a row on every job start, completion, and failure. On busy queues, use a **separate database**, not your primary application DB.
 
-1. Add a connection in `config/database.php`:
+Deck provides its own `deck` database connection. Out of the box it clones your application's default connection, so nothing is required to get started. Deck's migrations always target this connection, so a plain `php artisan migrate` puts the `deck_*` tables in the right place.
 
-```php
-'connections' => [
-    'deck' => [
-        'driver' => 'mysql',
-        'host' => env('DECK_DB_HOST', '127.0.0.1'),
-        'database' => env('DECK_DB_DATABASE', 'deck'),
-        'username' => env('DECK_DB_USERNAME', 'deck'),
-        'password' => env('DECK_DB_PASSWORD', ''),
-        // ...
-    ],
-],
+### Point Deck at a separate database with env vars (recommended)
+
+You usually do not need to touch `config/database.php`. Set any of the `DECK_DB_*` variables and Deck overlays them onto its cloned default connection. Anything you leave unset falls back to the default connection's value:
+
+```env
+DECK_DB_DATABASE=deck
+DECK_DB_USERNAME=deck
+DECK_DB_PASSWORD=secret
+# Optional — fall back to the default connection when unset:
+# DECK_DB_DRIVER=mysql
+# DECK_DB_HOST=127.0.0.1
+# DECK_DB_PORT=3306
+# DECK_DB_UNIX_SOCKET=
+# DECK_DB_CHARSET=utf8mb4
+# DECK_DB_PREFIX=
+# DECK_DB_SCHEMA=public   # pgsql
 ```
 
-2. Point Deck at that connection:
+Then run the Deck migrations — they target Deck's connection internally:
+
+```bash
+php artisan migrate
+```
+
+Grant the app user read/write on `deck_*` tables only.
+
+### Use an existing connection instead
+
+If you already maintain a dedicated connection in `config/database.php`, point Deck at it by name. Deck never overrides a connection that is already defined:
 
 ```env
 DECK_DB_CONNECTION=deck
 ```
 
-3. Run **only** Deck migrations on that connection (filenames include `deck` after `deck:install`):
-
-```bash
-php artisan migrate --database=deck --path=database/migrations/2025_01_01_000000_create_deck_tables.php
-# …additional published deck migrations
-```
-
-Do **not** run a blanket `php artisan migrate --database=deck` unless that database is dedicated to Deck.
-
-4. Grant the app user read/write on `deck_*` tables only.
-
-If `DECK_DB_CONNECTION` is unset, Deck uses Laravel’s default connection.
+If you do not define a `deck` connection and set no `DECK_DB_*` overrides, Deck provisions one by cloning Laravel's default connection.
 
 ## Stable installation identity
 
@@ -96,6 +100,12 @@ Never use `file` or `array` in multi-server deployments.
 | `deck:prune` | Daily | Remove old execution history |
 | `deck:check-alerts` | Hourly (when alerts enabled) | Stale jobs and unprocessed queues |
 | `deck:report-workers` | Optional | Push workers to Deck Cloud |
+
+To run every enabled Deck maintenance command in one pass — handy for manual runs or a single cron entry — use `deck:run-scheduled`. It runs `deck:prune` and, when their features are enabled, `deck:check-alerts`, `deck:report-workers`, and `deck:poll-commands`, skipping the rest.
+
+```bash
+php artisan deck:run-scheduled
+```
 
 ## Payloads and sensitive data
 
