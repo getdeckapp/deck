@@ -2,7 +2,8 @@
 
 namespace Deck\Deck\Presentation;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Carbon\CarbonPeriod;
 use Deck\Deck\Models\JobExecution;
 use Illuminate\Support\Collection;
@@ -96,7 +97,7 @@ class ExecutionMetrics
      * @param  Collection<int|string, int>  $values
      * @return Collection<int, array{label: string, value: int, at: string}>
      */
-    private function fillHourlySeries(Carbon $since, Collection $values): Collection
+    private function fillHourlySeries(CarbonInterface $since, Collection $values): Collection
     {
         $period = CarbonPeriod::create($since, '1 hour', now()->startOfHour());
         $points = collect();
