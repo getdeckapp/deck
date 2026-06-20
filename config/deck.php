@@ -124,6 +124,11 @@ return [
 
     'progress_cache_store' => env('DECK_PROGRESS_CACHE_STORE'),
 
+    // How long a terminal/blocked execution-state marker is retained after a job
+    // finishes. Only needs to outlive the trailing JobAttempted safety net, so it
+    // is kept short to avoid cache key buildup on high-throughput queues.
+    'timing_terminal_ttl_seconds' => (int) env('DECK_TIMING_TERMINAL_TTL_SECONDS', 300),
+
     /*
     |--------------------------------------------------------------------------
     | Job class blocker

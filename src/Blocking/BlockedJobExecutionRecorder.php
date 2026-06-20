@@ -8,7 +8,7 @@ use Deck\Deck\Core\DeckInstallation;
 use Deck\Deck\Core\DeferDeckSideEffects;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
-use Deck\Deck\Models\JobExecution;
+use Deck\Deck\Recording\JobExecutionTiming;
 use Deck\Deck\Recording\QueuedJobMetadata;
 
 class BlockedJobExecutionRecorder
@@ -29,13 +29,7 @@ class BlockedJobExecutionRecorder
 
     private static function recordNowUnchecked(QueuedJobMetadata $metadata): void
     {
-        $alreadyRecorded = JobExecution::query()
-            ->where('uuid', $metadata->uuid)
-            ->where('attempt', $metadata->attempt)
-            ->where('status', JobExecutionStatus::Blocked)
-            ->exists();
-
-        if ($alreadyRecorded) {
+        if (JobExecutionTiming::peek($metadata->uuid, $metadata->attempt)?->isBlocked()) {
             return;
         }
 
@@ -52,5 +46,7 @@ class BlockedJobExecutionRecorder
             waitMs: 0,
             tags: $metadata->tags,
         ));
+
+        JobExecutionTiming::markBlocked($metadata->uuid, $metadata->attempt);
     }
 }

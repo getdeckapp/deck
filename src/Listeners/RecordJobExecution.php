@@ -12,7 +12,6 @@ use Deck\Deck\Core\DeckResilience;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Exceptions\JobCancelledException;
-use Deck\Deck\Models\JobExecution;
 use Deck\Deck\Recording\JobExecutionTiming;
 use Deck\Deck\Recording\JobProgress;
 use Deck\Deck\Recording\QueuedJobMetadata;
@@ -49,7 +48,8 @@ class RecordJobExecution
             JobClassIdentifierRegistry::rememberFromQueueJob($event->job);
 
             $startedAt = Carbon::now();
-            JobExecutionTiming::remember($metadata->uuid, $metadata->attempt, $startedAt);
+            $waitMs = $this->resolveWaitMs($metadata, $startedAt);
+            JobExecutionTiming::remember($metadata->uuid, $metadata->attempt, $startedAt, $waitMs);
 
             $this->recorder->record(new JobExecutionRecord(
                 metadata: $metadata,
@@ -57,7 +57,7 @@ class RecordJobExecution
                 environment: DeckInstallation::environment(),
                 status: JobExecutionStatus::Running,
                 startedAt: $startedAt,
-                waitMs: $this->resolveWaitMs($metadata, $startedAt),
+                waitMs: $waitMs,
                 tags: $metadata->tags,
             ));
         });
@@ -86,16 +86,19 @@ class RecordJobExecution
         DeckResilience::runSilentlyVoid(function () use ($event): void {
             $metadata = QueuedJobMetadata::fromQueueJob($event->job);
 
-            $status = JobExecution::query()
-                ->where('uuid', $metadata->uuid)
-                ->where('attempt', $metadata->attempt)
-                ->value('status');
+            $state = JobExecutionTiming::peek($metadata->uuid, $metadata->attempt);
 
-            if ($status !== null && $status !== JobExecutionStatus::Running) {
+            // Already finalized (terminal) or intercepted (blocked): there is
+            // nothing to backfill. Clean up the lingering marker and bail.
+            if ($state !== null && ($state->isTerminal() || $state->isBlocked())) {
+                JobExecutionTiming::forget($metadata->uuid, $metadata->attempt);
+
                 return;
             }
 
-            if ($status === null) {
+            // Never observed starting (skipped the running row): synthesize it so
+            // the terminal record has a start time to anchor to.
+            if ($state === null) {
                 $this->handleProcessing(new JobProcessing($event->connectionName, $event->job));
             }
 
@@ -117,20 +120,15 @@ class RecordJobExecution
             $metadata = QueuedJobMetadata::fromQueueJob($event->job);
             $finishedAt = Carbon::now();
 
-            $status = JobExecution::query()
-                ->where('uuid', $metadata->uuid)
-                ->where('attempt', $metadata->attempt)
-                ->value('status');
+            $state = JobExecutionTiming::peek($metadata->uuid, $metadata->attempt);
 
-            if ($status === JobExecutionStatus::Blocked) {
+            if ($state?->isBlocked()) {
                 JobExecutionTiming::forget($metadata->uuid, $metadata->attempt);
 
                 return;
             }
 
-            $startedAt = JobExecutionTiming::resolve($metadata->uuid, $metadata->attempt)
-                ?? $this->startedAtFromDatabase($metadata->uuid, $metadata->attempt)
-                ?? $finishedAt;
+            $startedAt = $state->startedAt ?? $finishedAt;
 
             $wasCancelled = JobCancellation::consumeIfCancelled($metadata->uuid);
 
@@ -142,10 +140,11 @@ class RecordJobExecution
                 startedAt: $startedAt,
                 finishedAt: $finishedAt,
                 durationMs: (int) $startedAt->diffInMilliseconds($finishedAt),
-                waitMs: $this->waitMsFromDatabase($metadata->uuid, $metadata->attempt),
+                waitMs: $state?->waitMs,
                 tags: $metadata->tags,
             ));
 
+            JobExecutionTiming::markTerminal($metadata->uuid, $metadata->attempt);
             JobProgress::clear($metadata->uuid);
         });
     }
@@ -157,9 +156,8 @@ class RecordJobExecution
             $finishedAt = Carbon::now();
             $exception = $event->exception;
 
-            $startedAt = JobExecutionTiming::resolve($metadata->uuid, $metadata->attempt)
-                ?? $this->startedAtFromDatabase($metadata->uuid, $metadata->attempt)
-                ?? $finishedAt;
+            $state = JobExecutionTiming::peek($metadata->uuid, $metadata->attempt);
+            $startedAt = $state->startedAt ?? $finishedAt;
 
             $isCancelled = $exception instanceof JobCancelledException;
 
@@ -175,25 +173,16 @@ class RecordJobExecution
                 startedAt: $startedAt,
                 finishedAt: $finishedAt,
                 durationMs: (int) $startedAt->diffInMilliseconds($finishedAt),
-                waitMs: $this->waitMsFromDatabase($metadata->uuid, $metadata->attempt),
+                waitMs: $state?->waitMs,
                 tags: $metadata->tags,
                 exceptionClass: $isCancelled ? null : $exception::class,
                 exceptionMessage: $isCancelled ? null : $this->truncateExceptionMessage($exception->getMessage()),
                 exceptionTrace: $isCancelled ? null : $this->truncateExceptionTrace($exception),
             ));
 
+            JobExecutionTiming::markTerminal($metadata->uuid, $metadata->attempt);
             JobProgress::clear($metadata->uuid);
         });
-    }
-
-    private function startedAtFromDatabase(string $uuid, int $attempt): ?Carbon
-    {
-        $startedAt = JobExecution::query()
-            ->where('uuid', $uuid)
-            ->where('attempt', $attempt)
-            ->value('started_at');
-
-        return $startedAt instanceof Carbon ? $startedAt : null;
     }
 
     private function truncateExceptionMessage(string $message): string
@@ -217,15 +206,5 @@ class RecordJobExecution
         }
 
         return max(0, (int) $dispatchedAt->diffInMilliseconds($startedAt));
-    }
-
-    private function waitMsFromDatabase(string $uuid, int $attempt): ?int
-    {
-        $waitMs = JobExecution::query()
-            ->where('uuid', $uuid)
-            ->where('attempt', $attempt)
-            ->value('wait_ms');
-
-        return is_numeric($waitMs) ? (int) $waitMs : null;
     }
 }
