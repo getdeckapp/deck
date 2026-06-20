@@ -17,6 +17,7 @@ use Deck\Deck\Concerns\RegistersCloudAgent;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Core\DeckDatabase;
 use Deck\Deck\Dispatch\DeckObservability;
+use Deck\Deck\Events\JobExecutionRecorded;
 use Deck\Deck\Horizon\HorizonSnapshot;
 use Deck\Deck\Http\Middleware\AssignDispatchGroup;
 use Deck\Deck\Listeners\FlushDeckCloudEvents;
@@ -29,8 +30,8 @@ use Deck\Deck\Livewire\JobExecutionIndex;
 use Deck\Deck\Livewire\JobExecutionShow;
 use Deck\Deck\Livewire\WorkersIndex;
 use Deck\Deck\Queue\DeckCallQueuedHandler;
-use Deck\Deck\Recorders\CompositeJobExecutionRecorder;
 use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
+use Deck\Deck\Recorders\DispatchingJobExecutionRecorder;
 use Deck\Deck\Recorders\HttpJobExecutionRecorder;
 use Illuminate\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -74,14 +75,8 @@ class DeckServiceProvider extends PackageServiceProvider
         $this->app->singleton(DatabaseJobExecutionRecorder::class);
         $this->app->singleton(CloudEventBuffer::class);
         $this->app->singleton(HttpJobExecutionRecorder::class);
-        $this->app->singleton(CompositeJobExecutionRecorder::class);
-        $this->app->singleton(JobExecutionRecorder::class, function ($app): JobExecutionRecorder {
-            if (DeckCloud::eventsEnabled()) {
-                return $app->make(CompositeJobExecutionRecorder::class);
-            }
-
-            return $app->make(DatabaseJobExecutionRecorder::class);
-        });
+        $this->app->singleton(DispatchingJobExecutionRecorder::class);
+        $this->app->singleton(JobExecutionRecorder::class, fn ($app): JobExecutionRecorder => $app->make(DispatchingJobExecutionRecorder::class));
         $this->app->singleton(Deck::class);
         $this->app->singleton(HorizonSnapshot::class, fn (): HorizonSnapshot => HorizonSnapshot::make());
 
@@ -176,8 +171,24 @@ class DeckServiceProvider extends PackageServiceProvider
 
         Event::listen(JobAttempted::class, [$recorder, 'handleJobAttempted']);
 
+        $this->registerRecorderSinks();
+
         if (DeckCloud::eventsEnabled()) {
             Event::listen(JobAttempted::class, FlushDeckCloudEvents::class);
         }
+    }
+
+    /**
+     * Subscribe the recording sinks to the JobExecutionRecorded event.
+     *
+     * The database sink is registered first so local persistence happens
+     * before the cloud buffer push, matching the previous composite order.
+     * The cloud sink self-guards on DeckCloud::eventsEnabled() at runtime,
+     * so it is always subscribed and no-ops when Cloud is disabled.
+     */
+    private function registerRecorderSinks(): void
+    {
+        Event::listen(JobExecutionRecorded::class, [DatabaseJobExecutionRecorder::class, 'handle']);
+        Event::listen(JobExecutionRecorded::class, [HttpJobExecutionRecorder::class, 'handle']);
     }
 }

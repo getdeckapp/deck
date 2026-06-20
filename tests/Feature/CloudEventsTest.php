@@ -6,7 +6,7 @@ use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
-use Deck\Deck\Recorders\CompositeJobExecutionRecorder;
+use Deck\Deck\Recorders\DispatchingJobExecutionRecorder;
 use Deck\Deck\Recorders\HttpJobExecutionRecorder;
 use Deck\Deck\Recording\QueuedJobMetadata;
 use Illuminate\Support\Carbon;
@@ -18,13 +18,13 @@ beforeEach(function () {
     config()->set('deck.cloud.events.batch_size', 1);
 
     app()->forgetInstance(JobExecutionRecorder::class);
-    app()->forgetInstance(CompositeJobExecutionRecorder::class);
+    app()->forgetInstance(DispatchingJobExecutionRecorder::class);
     app()->forgetInstance(HttpJobExecutionRecorder::class);
     app()->forgetInstance(CloudEventBuffer::class);
 });
 
-it('uses the composite recorder when cloud events are enabled', function () {
-    expect(app(JobExecutionRecorder::class))->toBeInstanceOf(CompositeJobExecutionRecorder::class);
+it('records through the dispatching recorder', function () {
+    expect(app(JobExecutionRecorder::class))->toBeInstanceOf(DispatchingJobExecutionRecorder::class);
 });
 
 it('posts job execution events to deck cloud', function () {

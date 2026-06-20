@@ -3,14 +3,15 @@
 namespace Deck\Deck\Contracts;
 
 use Deck\Deck\Data\JobExecutionRecord;
-use Deck\Deck\Recorders\DatabaseJobExecutionRecorder;
+use Deck\Deck\Recorders\DispatchingJobExecutionRecorder;
 
 /**
- * Persists job execution lifecycle events.
+ * Records job execution lifecycle transitions.
  *
- * @see DatabaseJobExecutionRecorder Self-hosted default
- * @see HttpJobExecutionRecorder Deck Cloud HTTP ingest
- * @see CompositeJobExecutionRecorder Local DB + Cloud when enabled
+ * The bound implementation dispatches a JobExecutionRecorded event; the
+ * database and Deck Cloud sinks subscribe to it.
+ *
+ * @see DispatchingJobExecutionRecorder Default producer-facing implementation
  */
 interface JobExecutionRecorder
 {

@@ -7,11 +7,20 @@ use Deck\Deck\Core\DeckResilience;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Data\ObservabilitySnapshot;
 use Deck\Deck\Enums\JobExecutionStatus;
+use Deck\Deck\Events\JobExecutionRecorded;
 use Deck\Deck\Models\JobClassStat;
 use Deck\Deck\Models\JobExecution;
 
 class DatabaseJobExecutionRecorder implements JobExecutionRecorder
 {
+    /**
+     * Sink entrypoint: persist a recorded transition to the local database.
+     */
+    public function handle(JobExecutionRecorded $event): void
+    {
+        $this->record($event->record);
+    }
+
     public function record(JobExecutionRecord $record): void
     {
         DeckResilience::runSilentlyVoid(function () use ($record): void {
