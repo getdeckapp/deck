@@ -81,7 +81,7 @@ it('stores models on a dedicated connection', function () {
     ]);
     config()->set('deck.database_connection', 'reporting');
 
-    $migration = include dirname(__DIR__, 2).'/database/migrations/create_deck_tables.php.stub';
+    $migration = include dirname(__DIR__, 2).'/database/migrations/2026_05_22_220607_create_deck_tables.php';
     $migration->up();
 
     $execution = createDeckExecution();

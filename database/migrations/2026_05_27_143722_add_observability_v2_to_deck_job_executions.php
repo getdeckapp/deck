@@ -9,8 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         $executionsTable = config('deck.tables.job_executions', 'deck_job_executions');
+        $schema = DeckDatabase::schema();
 
-        DeckDatabase::schema()->table($executionsTable, function (Blueprint $table): void {
+        if (! $schema->hasTable($executionsTable)) {
+            return;
+        }
+
+        if ($schema->hasColumn($executionsTable, 'dispatched_at')) {
+            return;
+        }
+
+        $schema->table($executionsTable, function (Blueprint $table): void {
             $table->timestamp('dispatched_at')->nullable()->after('tags');
             $table->unsignedInteger('wait_ms')->nullable()->after('dispatched_at');
             $table->string('dispatch_group_id', 128)->nullable()->after('wait_ms');

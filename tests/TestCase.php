@@ -18,11 +18,11 @@ class TestCase extends Orchestra
 
     protected function defineDatabaseMigrations(): void
     {
-        $migration = include __DIR__.'/../database/migrations/create_deck_tables.php.stub';
+        $migration = include __DIR__.'/../database/migrations/2026_05_22_220607_create_deck_tables.php';
 
         $migration->up();
 
-        $observabilityMigration = include __DIR__.'/../database/migrations/add_observability_v2_to_deck_job_executions.php.stub';
+        $observabilityMigration = include __DIR__.'/../database/migrations/2026_05_27_143722_add_observability_v2_to_deck_job_executions.php';
 
         $observabilityMigration->up();
     }

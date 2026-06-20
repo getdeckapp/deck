@@ -18,7 +18,7 @@ php artisan deck:install
 php artisan migrate
 ```
 
-`deck:install` publishes `config/deck.php`, migrations, and precompiled CSS to `public/vendor/deck`.
+`deck:install` publishes `config/deck.php` and precompiled CSS to `public/vendor/deck`. Deck's migrations run from the package itself, so `php artisan migrate` creates the `deck_*` tables — nothing to publish.
 
 Open `/deck` (prefix: `deck.route_prefix`).
 

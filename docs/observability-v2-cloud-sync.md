@@ -247,7 +247,7 @@ Cloud table names: `job_lifecycle_events` with `tenant_id`, `project_id`, `envir
 | Blocked dispatch | `src/Blocking/BlockedJobExecutionRecorder.php` |
 | Compute `wait_ms` | `src/Listeners/RecordJobExecution.php` |
 | Lifecycle events | `src/Lifecycle/LifecycleEventRecorder.php` |
-| Migration stub | `database/migrations/add_observability_v2_to_deck_job_executions.php.stub` |
+| Migration | `database/migrations/2026_05_27_143722_add_observability_v2_to_deck_job_executions.php` |
 | Config | `config/deck.php` → `dispatch_groups`, `lifecycle` |
 
 ### 2. Cloud outbound (ingest)
@@ -448,7 +448,7 @@ src/Recorders/DatabaseJobExecutionRecorder.php
 src/Cloud/Events/JobExecutionIngestPayload.php
 src/Cloud/Events/CloudExecutionBackfillPayload.php
 src/Cloud/Commands/* (cancel_dispatch_group handler)
-database/migrations/add_observability_v2_*.php.stub
+database/migrations/*_add_observability_v2_*.php
 tests/Feature/CloudEventsTest.php
 tests/Feature/DispatchGroup*.php
 tests/Feature/JobLifecycle*.php

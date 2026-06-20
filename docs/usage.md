@@ -101,7 +101,7 @@ Failed executions link to **Horizon** when the job still exists in Horizon’s f
 
 | Command | Description |
 |---------|-------------|
-| `deck:install` | Publish config, migrations, and assets |
+| `deck:install` | Publish config and assets (migrations run from the package) |
 | `deck:prune` | Delete execution rows older than `retention_days` |
 | `deck:check-alerts` | Evaluate stale-job and unprocessed-queue rules |
 | `deck:report-workers` | Push worker snapshots to Deck Cloud (no-op when disabled) |

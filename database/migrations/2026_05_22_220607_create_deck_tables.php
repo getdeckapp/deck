@@ -10,26 +10,33 @@ return new class extends Migration
     {
         $statsTable = config('deck.tables.job_class_stats', 'deck_job_class_stats');
         $executionsTable = config('deck.tables.job_executions', 'deck_job_executions');
+        $schema = DeckDatabase::schema();
 
-        DeckDatabase::schema()->create($statsTable, function (Blueprint $table) {
-            $table->id();
-            $table->string('project');
-            $table->string('environment');
-            $table->string('job_class');
-            $table->timestamp('last_started_at')->nullable();
-            $table->timestamp('last_finished_at')->nullable();
-            $table->string('last_status', 32)->nullable();
-            $table->unsignedInteger('last_duration_ms')->nullable();
-            $table->uuid('last_uuid')->nullable();
-            $table->unsignedBigInteger('success_count')->default(0);
-            $table->unsignedBigInteger('failure_count')->default(0);
-            $table->timestamps();
+        if (! $schema->hasTable($statsTable)) {
+            $schema->create($statsTable, function (Blueprint $table) {
+                $table->id();
+                $table->string('project');
+                $table->string('environment');
+                $table->string('job_class');
+                $table->timestamp('last_started_at')->nullable();
+                $table->timestamp('last_finished_at')->nullable();
+                $table->string('last_status', 32)->nullable();
+                $table->unsignedInteger('last_duration_ms')->nullable();
+                $table->uuid('last_uuid')->nullable();
+                $table->unsignedBigInteger('success_count')->default(0);
+                $table->unsignedBigInteger('failure_count')->default(0);
+                $table->timestamps();
 
-            $table->unique(['project', 'environment', 'job_class']);
-            $table->index(['project', 'environment', 'last_finished_at']);
-        });
+                $table->unique(['project', 'environment', 'job_class']);
+                $table->index(['project', 'environment', 'last_finished_at']);
+            });
+        }
 
-        DeckDatabase::schema()->create($executionsTable, function (Blueprint $table) {
+        if ($schema->hasTable($executionsTable)) {
+            return;
+        }
+
+        $schema->create($executionsTable, function (Blueprint $table) {
             $table->id();
             $table->string('project');
             $table->string('environment');

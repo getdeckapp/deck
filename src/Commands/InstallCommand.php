@@ -11,7 +11,7 @@ class InstallCommand extends Command
 {
     protected $signature = 'deck:install {--force : Overwrite existing published files}';
 
-    protected $description = 'Publish Deck configuration, migrations, and assets';
+    protected $description = 'Publish Deck configuration and assets';
 
     public function handle(): int
     {
@@ -19,11 +19,6 @@ class InstallCommand extends Command
 
         $this->call('vendor:publish', [
             '--tag' => 'deck-config',
-            '--force' => $this->option('force'),
-        ]);
-
-        $this->call('vendor:publish', [
-            '--tag' => 'deck-migrations',
             '--force' => $this->option('force'),
         ]);
 
