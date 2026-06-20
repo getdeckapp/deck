@@ -19,6 +19,7 @@ User-facing guides for the `deck/deck` package. These files are the **source** f
 | Spec | File |
 |------|------|
 | **Observability v2 + Cloud ingest** | [observability-v2-cloud-sync.md](observability-v2-cloud-sync.md) |
+| Package boundaries & future split | [PACKAGE-BOUNDARIES.md](PACKAGE-BOUNDARIES.md) |
 | Dispatch groups | [dispatch-groups.md](dispatch-groups.md) |
 | Job lifecycle | [job-lifecycle.md](job-lifecycle.md) |
 
