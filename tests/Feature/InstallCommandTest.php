@@ -22,7 +22,9 @@ it('publishes deck install artifacts', function () {
         ->and(File::exists($configPath))->toBeTrue()
         ->and(File::exists($assetPath))->toBeTrue();
 
+    // Deck migrations run from the package and are not published into the app,
+    // so the app's migrations directory should not contain deck migrations.
     $migrationFiles = File::glob($migrationDir.'/*deck*.php');
 
-    expect($migrationFiles)->not->toBeEmpty();
+    expect($migrationFiles)->toBeEmpty();
 });
