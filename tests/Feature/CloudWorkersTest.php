@@ -305,3 +305,19 @@ it('deck:report-workers reports accurate count and skips fallback warn when supe
         && ($request->data()['workers'][0]['supervisor'] ?? null) === 'forge-1:supervisor-1'
     );
 });
+
+it('deck:report-workers exits 0 (not a scheduler failure) when there is nothing to report', function () {
+    // No Horizon supervisors bound + sync queue => nothing to collect. This is a
+    // benign steady state; the every-minute scheduler must not treat it as a failure.
+    Http::preventStrayRequests();
+
+    config()->set('queue.default', 'sync');
+
+    $this->app->instance(HorizonSnapshot::class, new HorizonSnapshot(installed: false));
+
+    $exitCode = Artisan::call('deck:report-workers');
+    $output = Artisan::output();
+
+    expect($exitCode)->toBe(0)
+        ->and($output)->toContain('Nothing to report');
+});

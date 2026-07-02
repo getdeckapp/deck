@@ -28,3 +28,20 @@ it('publishes deck install artifacts', function () {
 
     expect($migrationFiles)->toBeEmpty();
 });
+
+it('warns about stale published deck migrations during install', function () {
+    $migrationDir = database_path('migrations');
+    File::ensureDirectoryExists($migrationDir);
+    $stale = $migrationDir.'/2026_06_11_120000_create_deck_tables.php';
+    File::put($stale, "<?php\n");
+
+    try {
+        Artisan::call('deck:install');
+
+        expect(Artisan::output())
+            ->toContain('Deck runs its own migrations since 1.1.15')
+            ->toContain('2026_06_11_120000_create_deck_tables.php');
+    } finally {
+        File::delete($stale);
+    }
+});

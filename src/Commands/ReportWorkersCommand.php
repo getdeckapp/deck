@@ -36,7 +36,10 @@ class ReportWorkersCommand extends Command
         $queues = $collector->collectWorkloadFromHorizon();
 
         if ($workers === [] && $queues === []) {
-            $this->components->error('Nothing to report — Horizon has no supervisors and no queue workload was found.');
+            // A benign steady state (sync queue, or Horizon not up yet), not a failure.
+            // Returning non-zero here makes the every-minute scheduler raise
+            // ScheduledTaskFailed each tick and spam error reporters (Flare, etc.).
+            $this->components->warn('Nothing to report — Horizon has no supervisors and no queue workload was found.');
 
             if (DeckHorizon::isInstalled()) {
                 $this->line('Is `php artisan horizon` running on this server and using the same Redis as this app?');
@@ -44,7 +47,7 @@ class ReportWorkersCommand extends Command
                 $this->line('Set QUEUE_CONNECTION to a non-sync driver, or install Horizon for richer worker snapshots.');
             }
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         if ($fromHorizon === [] && $workers !== []) {
@@ -56,9 +59,10 @@ class ReportWorkersCommand extends Command
         app(CloudConnectionProbe::class)->forget();
 
         if (! WorkerReporter::lastSendAttempted()) {
-            $this->components->error('Worker snapshots were not sent (throttled or empty payload).');
+            // Throttling is expected under the every-minute schedule — not a failure.
+            $this->components->warn('Worker snapshots were not sent (throttled or empty payload).');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         if (! $accepted) {

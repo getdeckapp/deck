@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Deck\Deck\Contracts\JobExecutionRecorder;
 use Deck\Deck\Core\DeckDatabase;
 use Deck\Deck\Core\DeckInstallation;
+use Deck\Deck\Core\PublishedMigrations;
 use Deck\Deck\Data\JobExecutionRecord;
 use Deck\Deck\Enums\JobExecutionStatus;
 use Deck\Deck\Models\JobExecution;
@@ -43,6 +44,8 @@ class DoctorCommand extends Command
         $this->line("Environment filter: {$environment}");
         $this->line('Queue default: '.(string) config('queue.default'));
         $this->line('CallQueuedHandler: '.$this->callQueuedHandlerLabel());
+
+        $this->checkStalePublishedMigrations();
 
         if (! DeckDatabase::schema()->hasTable($executionsTable)) {
             $this->components->error("Table [{$executionsTable}] does not exist on connection [{$connection}].");
@@ -149,6 +152,21 @@ class DoctorCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function checkStalePublishedMigrations(): void
+    {
+        $stale = PublishedMigrations::stale();
+
+        if ($stale === []) {
+            return;
+        }
+
+        $this->components->warn('Found published Deck migrations in database/migrations. Deck runs its own migrations since 1.1.15 — these duplicates will fail on upgrade with "table already exists".');
+        foreach ($stale as $name) {
+            $this->line('  - database/migrations/'.$name);
+        }
+        $this->line('Your Deck tables already exist, so delete these files; the package migrations are idempotent and will be recorded as run.');
     }
 
     private function simulateQueueRecording(string $project, string $environment): void

@@ -2,6 +2,7 @@
 
 namespace Deck\Deck\Commands;
 
+use Deck\Deck\Core\PublishedMigrations;
 use Deck\Deck\Presentation\DeckAssets;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -44,6 +45,8 @@ class InstallCommand extends Command
             $this->components->info('To offload Deck to a separate database, set DECK_DB_CONNECTION and add the connection in config/database.php.');
         }
 
+        $this->warnAboutStalePublishedMigrations();
+
         $this->components->info('Opt-in cooperative cancellation: add `Deck\\Deck\\Middleware\\Cancellable` to job middleware, and call `JobCancellation::throwIfCancelled($this->job)` between long steps. Cancel via `Deck::cancel($uuid)` or the dashboard.');
 
         $this->components->info('Job blocking is enabled automatically: blocked dispatches are recorded in Deck and never pushed to the queue. Use `Deck::blockClass()` / the job detail UI.');
@@ -55,6 +58,20 @@ class InstallCommand extends Command
         $this->configureHorizonMiddleware();
 
         return self::SUCCESS;
+    }
+
+    private function warnAboutStalePublishedMigrations(): void
+    {
+        $stale = PublishedMigrations::stale();
+
+        if ($stale === []) {
+            return;
+        }
+
+        $this->components->warn('Deck runs its own migrations since 1.1.15. These published copies in database/migrations are duplicates and will fail on upgrade with "table already exists" — delete them:');
+        foreach ($stale as $name) {
+            $this->line('  - database/migrations/'.$name);
+        }
     }
 
     private function configureHorizonMiddleware(): void
